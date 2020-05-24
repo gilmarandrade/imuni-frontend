@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var MongoClient = require('mongodb').MongoClient;
-var format = require('util').format;
+// var format = require('util').format;
 
 MongoClient.connect('mongodb://kamino.mongodb.umbler.com:49284/uniquati', function(err, db) {
     if(err)  {
