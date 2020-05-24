@@ -3,7 +3,7 @@ var app = express();
 var MongoClient = require('mongodb').MongoClient;
 // var format = require('util').format;
 
-MongoClient.connect('mongodb://kamino.mongodb.umbler.com:49284/uniquati', function(err, db) {
+MongoClient.connect('mongodb://mongo_uniquati:27017/uniquati', function(err, db) {
     if(err)  {
       throw err;
     } else {
