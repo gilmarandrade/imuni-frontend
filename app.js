@@ -1,5 +1,16 @@
 var express = require('express');
 var app = express();
+var MongoClient = require('mongodb').MongoClient;
+var format = require('util').format;
+
+MongoClient.connect('mongodb://kamino.mongodb.umbler.com:49284/uniquati', function(err, db) {
+    if(err)  {
+      throw err;
+    } else {
+      console.log('conectado ao banco uniquati');
+    }
+});
+
 
 app.use(express.static(__dirname));
 
