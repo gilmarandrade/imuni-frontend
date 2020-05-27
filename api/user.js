@@ -91,5 +91,14 @@ module.exports = app => {
         }
     };
 
-    return { save, get, getById };
+    const remove = async (req, res) => {
+        try {
+            //TODO Deleta o usuário com req.params.id, se o usuários possui artigos no banco, não pode ser excluído
+            return res.status(204).send();
+        } catch (msg) {
+            res.status(400).send(msg);
+        }
+    };
+
+    return { save, get, getById, remove };
 };

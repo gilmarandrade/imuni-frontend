@@ -1,6 +1,6 @@
-const { authSecret } = require('../.env');//TODO authSecret não pode subir para o git por segurança, isso é um problema. Procurar uma forma de encriptar o secret no repositorio
 const jwt = require('jwt-simple');
 const bcrypt = require('bcrypt-nodejs');
+const { authSecret } = require('../config/environment');
 
 module.exports = app => {
     const signin = async (req, res) => { 

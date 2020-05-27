@@ -12,9 +12,9 @@ module.exports = app => {
         const lastStat = await Stat.findOne({}, {}, { sort: { 'createdAt': -1 } });
 
         const stat = new Stat({
-            users: usersCount+1,
-            categories: categoriresCount+1,
-            articles: articlesCount+1,
+            users: usersCount,
+            categories: categoriresCount,
+            articles: articlesCount,
             createdAt: new Date(),
         });
 
