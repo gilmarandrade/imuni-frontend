@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 // acesso interno:
 // mongodb://uniquati:2wt5p5cMoq65y4n@mongo_uniquati:27017/uniquati
 
-// mongodb://mongo_uniquati:27017/uniquati'
 // mongodb://localhost/knowledge_stats
 mongoose.connect('mongodb://uniquati:2wt5p5cMoq65y4n@mongo_uniquati:27017/uniquati', { useNewUrlParser: true, useUnifiedTopology: true })
     .catch(e => {

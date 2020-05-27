@@ -3,7 +3,7 @@ module.exports = app => {
         users: Number,
         categories: Number,
         articles: Number,
-        createAt: Date,
+        createdAt: Date,
     });
 
     //pega a ultima estatística cadastrada
