@@ -37,16 +37,16 @@ module.exports = app => {
         if(user.id) {
             try {
                 // TODO realizar update no banco
-                res.status(204).send();
+                return res.status(204).send();
             } catch (err) {
                 res.status(500).send(err);
             }
         } else {
             try {
                 //TODO inserção
-                res.status(204).send();
+                return res.status(204).send();
             } catch(err) {
-                res.status(500).send(err);
+                return res.status(500).send(err);
             }
         }
     };
@@ -69,9 +69,9 @@ module.exports = app => {
                     admin: false, 
                 },
             ];
-            res.json(users);
+            return res.json(users);
         } catch(err) {
-            res.status(500).send(err);
+            return res.status(500).send(err);
         }
     };
 
@@ -85,9 +85,9 @@ module.exports = app => {
                     email: 'alison@email.com',
                     admin: true, 
                 };
-            res.json(user);
+            return res.json(user);
         } catch(err) {
-            res.status(500).send(err);
+            return res.status(500).send(err);
         }
     };
 
