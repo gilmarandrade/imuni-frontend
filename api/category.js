@@ -44,15 +44,27 @@ module.exports = app => {
             const categories = [
                 {
                     id: 1,
-                    name: 'notebook',
-                    path: 'eletronico > notebook',
+                    name: 'Web Moderno',
+                    path: 'Web Moderno',
                     parentId: null,
                 },
                 {
                     id: 2,
-                    name: 'carro',
-                    path: 'veiculos > terrestre > carro',
+                    name: 'CSS',
+                    path: 'Web Moderno > CSS',
                     parentId: 1,
+                },
+                {
+                    id: 3,
+                    name: 'Font-size',
+                    path: 'Web Moderno > CSS > Font-size',
+                    parentId: 2,
+                },
+                {
+                    id: 4,
+                    name: 'Flexbox',
+                    path: 'Web Moderno > CSS > Flexbox',
+                    parentId: 2,
                 },
             ];
             return res.json(categories);
@@ -64,12 +76,12 @@ module.exports = app => {
 
     const getById = (req, res) => {
         try {
-            const categorie = {
-                    id: 1,
-                    name: 'notebook',
-                    path: 'eletronico > notebook',
-                    parentId: null,
-                };
+            const categorie =  {
+                id: req.params.id,
+                name: 'Flexbox',
+                path: 'Web Moderno > CSS > Flexbox',
+                parentId: 2,
+            };
             return res.json(categorie);
 
         } catch(msg) {
@@ -77,5 +89,53 @@ module.exports = app => {
         }
     };
 
-    return { save, remove, get, getById };
+    const toTree = (categories, tree) => {
+        if(!tree) tree = categories.filter(c => !c.parentId);
+        tree = tree.map(parentNode => {
+            const isChild = node => node.parentId == parentNode.id;
+            parentNode.children = toTree(categories, categories.filter(isChild));
+            return parentNode;
+        });
+
+        return tree;
+    }; 
+
+    const getTree = (req, res) => {
+        // TODO buscar as categorias no banco
+        try {
+            const categories = [
+                {
+                    id: 1,
+                    name: 'Web Moderno',
+                    path: 'Web Moderno',
+                    parentId: null,
+                },
+                {
+                    id: 2,
+                    name: 'CSS',
+                    path: 'Web Moderno > CSS',
+                    parentId: 1,
+                },
+                {
+                    id: 3,
+                    name: 'Font-size',
+                    path: 'Web Moderno > CSS > Font-size',
+                    parentId: 2,
+                },
+                {
+                    id: 4,
+                    name: 'Flexbox',
+                    path: 'Web Moderno > CSS > Flexbox',
+                    parentId: 2,
+                },
+            ];
+            return res.json(toTree(categories));
+
+        } catch(msg) {
+            return res.status(500).send(msg);
+        }
+
+    };
+
+    return { save, remove, get, getById, getTree };
 };

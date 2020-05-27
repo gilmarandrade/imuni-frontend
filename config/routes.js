@@ -1,4 +1,5 @@
 module.exports = app => {
+    //  A ordem das urls tem que ser da mais especifica para a mais genérica
     app.route('/users')
         .post(app.api.user.save)
         .get(app.api.user.get);
@@ -10,6 +11,9 @@ module.exports = app => {
     app.route('/categories')
         .post(app.api.category.save)
         .get(app.api.category.get);
+
+    app.route('/categories/tree')
+        .get(app.api.category.getTree);
 
     app.route('/categories/:id')
         .put(app.api.category.save)
