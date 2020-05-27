@@ -14,7 +14,10 @@
     "consign": "^0.1.6",
     "cors": "^2.8.5",
     "express": "4.x.x",
-    "mongodb": "^3.5.7"
+    "jwt-simple": "^0.5.6",
+    "mongodb": "^3.5.7",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
