@@ -14,6 +14,10 @@ module.exports = app => {
         const user = { ...req.body };
         if(req.params.id) user.id = req.params.id;
 
+        //um usuário logado que não é administrador não pode cadastrar administradores
+        if(!req.originalUrl.startsWith('/users')) user.admin = false;
+        if(!req.user || !req.user.admin) user.admin = false;
+        
         // validações
         try {
             existsOrError(user.name, 'Nome não informado');
