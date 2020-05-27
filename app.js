@@ -1,6 +1,14 @@
-const bodyParser = require('body-parser');
-var express = require('express');
-var app = express();
+const app = require('express')();
+const consign = require('consign');
+
+consign()
+  .then('./config/middlewares.js')
+  .then('./api/validation.js')
+  .then('./api')
+  .then('./config/routes.js')
+  .into(app);
+
+// const bodyParser = require('body-parser');
 // var MongoClient = require('mongodb').MongoClient;
 
 // MongoClient.connect('mongodb://mongo_uniquati:27017/uniquati', function(err, db) {
@@ -18,56 +26,56 @@ var app = express();
 //   res.redirect('/');
 // });
 
-app.use(bodyParser.text());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.text());
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  console.log('será que serei chamado antes?');
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('será que serei chamado antes?');
+//   next();
+// });
 
-app.get('/produtos/relatorio', (req, res, next) => {
-  res.json({ completo: req.query.completo, ano: req.query.ano });
-});
+// app.get('/produtos/relatorio', (req, res, next) => {
+//   res.json({ completo: req.query.completo, ano: req.query.ano });
+// });
 
-app.get('/produtos/:id', (req, res, next) => {
-  res.json({ id: req.params.id });
-});
-
-
-app.post('/produtos/', (req, res, next) => {
-  res.send(req.body);
-});
+// app.get('/produtos/:id', (req, res, next) => {
+//   res.json({ id: req.params.id });
+// });
 
 
-app.get('/opa',(req, res, next) => {
-  console.log('durante');
-  res.json({
-    data: [
-      { 
-        name: "Ana Lúcia",
-        price: 122.5,
-        dicount: false,
-      },
-      { 
-        name: "Ana Lúcia 2",
-        price: 452.5,
-        dicount: null,
-      }
-    ],
-    count: 30,
-    skip: 0,
-    limit: 3,
-    status: 200,
-  });
-  // res.send('estou bem');
-  next();
-});
+// app.post('/produtos/', (req, res, next) => {
+//   res.send(req.body);
+// });
 
-app.use('/opa', (req, res) => {
-  console.log('será que serei chamado depois?');
-});
+
+// app.get('/opa',(req, res, next) => {
+//   console.log('durante');
+//   res.json({
+//     data: [
+//       { 
+//         name: "Ana Lúcia",
+//         price: 122.5,
+//         dicount: false,
+//       },
+//       { 
+//         name: "Ana Lúcia 2",
+//         price: 452.5,
+//         dicount: null,
+//       }
+//     ],
+//     count: 30,
+//     skip: 0,
+//     limit: 3,
+//     status: 200,
+//   });
+//   // res.send('estou bem');
+//   next();
+// });
+
+// app.use('/opa', (req, res) => {
+//   console.log('será que serei chamado depois?');
+// });
 
 var port = 3000;
 app.listen(port, ()=>{
