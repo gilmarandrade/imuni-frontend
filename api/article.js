@@ -95,5 +95,32 @@ module.exports = app => {
 
     };
 
-    return { save, remove, get, getById };
+    const getByCategory = async (req, res) => {
+        const page = req.query.page || 1;
+        // TODO encontrar todos os artigos que pentencem a todos os nós filhos de uma categoria e fazer uma junção para buscar o nome do autor dos artigos
+        const articles = [
+            {
+                id: 1,
+                name: 'Como instalar MongoDB',
+                description: 'Do básico ao avançado',
+                imageUrl: null,
+                author: 'Marcos',
+            },
+            {
+                id: 2,
+                name: 'Melhores frameworks',
+                description: 'comparação',
+                imageUrl: null,
+                author: 'Rogerio',
+            },
+        ];
+
+        try {
+            return res.json(articles);
+        } catch(msg) {
+            return res.status(500).send(msg);
+        }
+    };
+
+    return { save, remove, get, getById, getByCategory };
 };
