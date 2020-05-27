@@ -1,3 +1,5 @@
+const admin = require('./admin');
+
 module.exports = app => {
     //  A ordem das urls tem que ser da mais especifica para a mais genérica
 
@@ -7,8 +9,8 @@ module.exports = app => {
 
     app.route('/users')
         .all(app.config.passport.authenticate())
-        .post(app.api.user.save)
-        .get(app.api.user.get);
+        .post(admin(app.api.user.save))
+        .get(admin(app.api.user.get));
 
     app.route('/users/:id')
         .all(app.config.passport.authenticate())
@@ -17,7 +19,7 @@ module.exports = app => {
 
     app.route('/categories')
         .all(app.config.passport.authenticate())
-        .post(app.api.category.save)
+        .post(admin(app.api.category.save))
         .get(app.api.category.get);
 
     app.route('/categories/tree')
@@ -26,20 +28,20 @@ module.exports = app => {
 
     app.route('/categories/:id')
         .all(app.config.passport.authenticate())
-        .put(app.api.category.save)
+        .put(admin(app.api.category.save))
         .get(app.api.category.getById)
-        .delete(app.api.category.remove);
+        .delete(admin(app.api.category.remove));
 
     app.route('/articles')
         .all(app.config.passport.authenticate())
         .get(app.api.article.get)
-        .post(app.api.article.save);
+        .post(admin(app.api.article.save));
 
     app.route('/articles/:id')
         .all(app.config.passport.authenticate())
         .get(app.api.article.getById)
-        .put(app.api.article.save)
-        .delete(app.api.article.remove);
+        .put(admin(app.api.article.save))
+        .delete(admin(app.api.article.remove));
 
     app.route('/categories/:id/articles')
         .all(app.config.passport.authenticate())
