@@ -1,13 +1,18 @@
 {
-  "name": "monitoramento-covid19",
+  "name": "backend-test",
   "version": "1.0.0",
-  "description": "Sistema de monitoramento de idosos pra prevenção de covid-19 em Natal/RN",
+  "description": "Ambiente de testes para o Sistema de monitoramento de idosos pra prevenção de covid-19 em Natal/RN",
   "author": "Gilmar Andrade <gilmar-andrade@outlook.com>",
   "main": "app.js",
   "scripts": {
     "start": "node app",
     "dev": "nodemon"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gilmarandrade/backend-test.git"
+  },
+  "license": "MIT",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.19.0",

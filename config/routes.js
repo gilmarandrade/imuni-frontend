@@ -2,8 +2,8 @@ const express = require('express');
 const admin = require('./admin');
 
 module.exports = app => {
-    // servindo arquivos estáticos (aplicação frontend)
-    app.use(express.static('../knowledge/dist'));
+    // servindo arquivos estáticos
+    app.use(express.static('public'));
     
     //  A ordem das urls tem que ser da mais especifica para a mais genérica
     app.post('/signup', app.api.user.save);
