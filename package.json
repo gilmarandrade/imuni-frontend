@@ -1,0 +1,20 @@
+{
+  "name": "api-frenteprevencaocovidrn-org-br",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app",
+    "dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@geonosis.deploy.umbler.com:9922/klql1p6j/api-frenteprevencaocovidrn-org-br.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4"
+  }
+}
