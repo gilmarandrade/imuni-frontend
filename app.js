@@ -1,13 +1,22 @@
-var express = require('express');
-var path = require('path');
-var app = express();
+const app = require('express')();
+const consign = require('consign');
+const mongoose = require('mongoose');
 
-var port = process.env.PORT || 3000;
+require('./config/mongodb');
 
-app.get('/', function (req, res) {
-    res.send('Hello World from uniquati-com!');
-});
-                                
-app.listen(port, function () {
-    console.log('uniquati-com listening on port %s', port);
+app.mongoose = mongoose;
+
+consign()
+  .include('./config/passport.js')
+  .then('./config/middlewares.js')
+  .then('./api/validation.js')
+  .then('./api')
+  .then('./schedule')
+  .then('./config/routes.js')
+  .into(app);
+
+
+const port = process.env.PORT || 3000;
+app.listen(port, ()=>{
+  console.log('Backend executando na porta %s', port);
 });
