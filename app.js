@@ -5,9 +5,9 @@ var app = express();
 var port = process.env.PORT || 3000;
 
 app.get('/', function (req, res) {
-    res.send('Hello World!');
+    res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
 });
                                 
 app.listen(port, function () {
-    console.log('api-frenteprevencaocovidrn-orb-br listening on port %s', port);
+    console.log('api-frenteprevencaocovidrn-org-br listening on port %s', port);
 });
