@@ -1,0 +1,22 @@
+{
+  "name": "uniquati-com",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app",
+    "dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@kamino.deploy.umbler.com:9922/klql1p6j/uniquati-com.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
