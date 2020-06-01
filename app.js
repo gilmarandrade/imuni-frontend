@@ -9,5 +9,5 @@ app.get('/', function (req, res) {
 });
                                 
 app.listen(port, function () {
-    console.log('api-frenteprevencaocovidrn-org-br listening on port %s', port);
+    console.log('[api-frenteprevencaocovidrn-org-br] listening on port %s', port);
 });
