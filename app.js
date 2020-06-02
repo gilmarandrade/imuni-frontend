@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const { google } = require('googleapis'); 
 const sheets = google.sheets('v4');
@@ -10,6 +11,7 @@ var app = express();
 
 var port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
