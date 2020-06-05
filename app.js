@@ -113,12 +113,34 @@ app.get('/docs/:id/respostas/range/:range', async function(req, res) {
                     observacoes: item[33] ? item[33] : '',
                 },
                 duracaoChamada: item[34] ? item[34] : '',
+                escalas: {},
             });
         });
 
+        array.map(atendimento => {
+            const vul = calcularVulnerabilidade(atendimento);
+            atendimento.escalas.vulnerabilidade = vul;
+        });
+        // console.log(vulnerabilidades);
         return res.json(array);
     });
 });
+
+function calcularVulnerabilidade(atendimento) {
+    if(atendimento.dadosIniciais.atendeu) {
+        if(atendimento.vulnerabilidades.violencia) {
+            return 'C - situação de violência';
+        } else if(atendimento.vulnerabilidades.alimentar){
+            return 'B - vulnerabilidade alimentar';
+        } else if(atendimento.vulnerabilidades.financeira) {
+            return 'A  vulnerabilidade financeira';
+        } else {
+            return '0 - Sem vulnerabilidades';
+        }
+    } else {
+        return null;
+    }
+}
                                 
 app.listen(port, function () {
     console.log('[api-frenteprevencaocovidrn-org-br] listening on port %s', port);
