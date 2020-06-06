@@ -39,7 +39,7 @@ app.get('/docs/:id/sheets/:sheetName/range/:range', async function(req, res) {
 
 /**
  * Lê a aba Respostas e retorna dados formatados como um objeto
- * TODO calcular as escalas de cada resposta
+ * além de calcular as escalas de cada resposta
  */
 app.get('/docs/:id/respostas/range/:range', async function(req, res) {
     const googleClient = await getGoogleClient();
@@ -113,32 +113,119 @@ app.get('/docs/:id/respostas/range/:range', async function(req, res) {
                     observacoes: item[33] ? item[33] : '',
                 },
                 duracaoChamada: item[34] ? item[34] : '',
-                escalas: {},
             });
         });
 
-        array.map(atendimento => {
-            const vul = calcularVulnerabilidade(atendimento);
-            atendimento.escalas.vulnerabilidade = vul;
+        const result = array.map(atendimento => {
+            return {
+                atendimento,
+                escalas : {
+                    vulnerabilidade: calcularEscalaVulnerabilidade(atendimento),
+                    epidemiologica: calculaEscalaEpidemiologica(atendimento),
+                    riscoContagio: calcularEscalaRiscoContagio(atendimento),
+                }
+            }
         });
         // console.log(vulnerabilidades);
-        return res.json(array);
+        return res.json(result);
     });
 });
 
-function calcularVulnerabilidade(atendimento) {
+function calcularEscalaVulnerabilidade(atendimento) {
     if(atendimento.dadosIniciais.atendeu) {
         if(atendimento.vulnerabilidades.violencia) {
             return 'C - situação de violência';
         } else if(atendimento.vulnerabilidades.alimentar){
             return 'B - vulnerabilidade alimentar';
         } else if(atendimento.vulnerabilidades.financeira) {
-            return 'A  vulnerabilidade financeira';
+            return 'A - vulnerabilidade financeira';
         } else {
             return '0 - Sem vulnerabilidades';
         }
     } else {
         return null;
+    }
+}
+
+function calculaEscalaEpidemiologica(atendimento) {
+    if(atendimento.dadosIniciais.atendeu) {
+        if(atendimento.apresentaSinomasGripeCOVID) {
+            return 'IVb - Idoso sintomático';
+        }
+        if(atendimento.comorbidades.medicacaoDiaria.medicacoes && !atendimento.comorbidades.medicacaoDiaria.acessoMedicacao) {
+            return 'IVa - Assintomático, mas sem medicações';
+        }
+        if(atendimento.sintomasDomicilio || atendimento.sintomasIdoso.contatoComCasoConfirmado) {
+            return 'IIIb - Assintomático, mas tem contato com sintomáticos ou confimados';
+        } 
+        if(atendimento.comorbidades.condicoesSaude) {
+            return 'IIIa - Assintomático, mas com comorbildades';
+        } 
+        if(atendimento.habitosDomiciliaresAcompanhantes.saiDeCasa || atendimento.epidemiologia.visitas.recebeVisitas){
+            return 'IIb - Assitomático, mas recebe visita ou domiciliares saem';
+        }
+        if(atendimento.epidemiologia.isolamento.saiDeCasa){
+            return 'IIa - Assintomático, mas sai de casa';
+        } 
+        if(atendimento.qtdAcompanhantesDomicilio === 0) {
+            return 'Ib - Assintomático, mas vive sozinho';
+        }
+        if(!atendimento.sintomasDomicilio) {
+            return 'Ia - Assintomático, mora com assintomáticos';
+        } else {
+            return '?';
+        }
+    }
+    return '0 - Não atendeu à ligação';
+}
+
+function calcularEscalaRiscoContagio(atendimento) {
+    let score = 0;
+    if(!atendimento.dadosIniciais.atendeu) {
+        score = null;
+    } else {
+        if(atendimento.sintomasIdoso.contatoComCasoConfirmado) {
+            score += 10;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Falta de ar / Dificuldade para respirar')) {
+            score += 10;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Febre')) {
+            score += 5;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Tosse seca')) {
+            score += 3;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Perda do olfato ou paladar')) {
+            score += 3;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Dor de cabeça')) {
+            score += 1;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Secreção nasal / Espirros')) {
+            score += 1;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Dor na Garganta')) {
+            score += 1;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Dor no corpo ou fadiga')) {
+            score += 1;
+        }
+        if(atendimento.sintomasIdoso.sintomas.includes('Diarreia')) {
+            score += 1;
+        }
+    }
+
+    if(score === null) {
+        return null;
+    } else {
+        if(score <= 9) {
+            return 'baixo';
+        } else if(score <= 19) {
+            return 'médio';
+        } else {
+            return 'alto';
+        } 
     }
 }
                                 
