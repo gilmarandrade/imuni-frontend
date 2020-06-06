@@ -119,17 +119,79 @@ app.get('/docs/:id/respostas/range/:range', async function(req, res) {
         const result = array.map(atendimento => {
             return {
                 atendimento,
-                escalas : {
-                    vulnerabilidade: calcularEscalaVulnerabilidade(atendimento),
-                    epidemiologica: calculaEscalaEpidemiologica(atendimento),
-                    riscoContagio: calcularEscalaRiscoContagio(atendimento),
-                }
+                escalas : calcularEscalas(atendimento),
             }
         });
         // console.log(vulnerabilidades);
         return res.json(result);
     });
 });
+
+function calcularEscalas(atendimento) {
+    const vulnerabilidade = calcularEscalaVulnerabilidade(atendimento);
+    const epidemiologica = calculaEscalaEpidemiologica(atendimento);
+    const riscoContagio = calcularEscalaRiscoContagio(atendimento);
+
+    let scoreOrdenacao = 0;
+
+    switch (riscoContagio) {
+        case 'baixo':
+            scoreOrdenacao += 1;
+            break;
+        case 'médio':
+            scoreOrdenacao += 2;
+            break;
+        case 'alto':
+            scoreOrdenacao += 3;
+            break;
+    }
+
+    switch (epidemiologica) {
+        case 'Ia - Assintomático, mora com assintomáticos':
+            scoreOrdenacao += 10;
+            break;
+        case 'Ib - Assintomático, mas vive sozinho':
+            scoreOrdenacao += 20;
+            break;
+        case 'IIa - Assintomático, mas sai de casa':
+            scoreOrdenacao += 30;
+            break;
+        case 'IIb - Assitomático, mas recebe visita ou domiciliares saem':
+            scoreOrdenacao += 40;
+            break;
+        case 'IIIa - Assintomático, mas com comorbidades':
+            scoreOrdenacao += 50;
+            break;
+        case 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados':
+            scoreOrdenacao += 60;
+            break;
+        case 'IVa - Assintomático, mas sem medicações':
+            scoreOrdenacao += 70;
+            break;
+        case 'IVb - Idoso sintomático':
+            scoreOrdenacao += 80;
+            break;
+    }
+
+    switch (vulnerabilidade) {
+        case 'A - vulnerabilidade financeira':
+            scoreOrdenacao += 100;
+            break;
+        case 'B - vulnerabilidade alimentar':
+            scoreOrdenacao += 200;
+            break;
+        case 'C - situação de violência':
+            scoreOrdenacao += 300;
+            break;
+    }
+
+    return {
+        vulnerabilidade,
+        epidemiologica,
+        riscoContagio,
+        scoreOrdenacao,
+    };
+}
 
 function calcularEscalaVulnerabilidade(atendimento) {
     if(atendimento.dadosIniciais.atendeu) {
@@ -156,10 +218,10 @@ function calculaEscalaEpidemiologica(atendimento) {
             return 'IVa - Assintomático, mas sem medicações';
         }
         if(atendimento.sintomasDomicilio || atendimento.sintomasIdoso.contatoComCasoConfirmado) {
-            return 'IIIb - Assintomático, mas tem contato com sintomáticos ou confimados';
+            return 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados';
         } 
         if(atendimento.comorbidades.condicoesSaude) {
-            return 'IIIa - Assintomático, mas com comorbildades';
+            return 'IIIa - Assintomático, mas com comorbidades';
         } 
         if(atendimento.habitosDomiciliaresAcompanhantes.saiDeCasa || atendimento.epidemiologia.visitas.recebeVisitas){
             return 'IIb - Assitomático, mas recebe visita ou domiciliares saem';
