@@ -27,14 +27,13 @@ module.exports = app => {
         });
     };
 
-    //TODO refatorar retorno da promisse, para retornar mensagens de erro
-    const updateIdosos = async (idososSpreadsheet, googleClient) => {
+    const arrayIdososPorVigilante = async (sheetName, gerenciamentoSpreadsheet, googleClient) => {
         const promise = new Promise( (resolve, reject) => {
 
             sheets.spreadsheets.values.get({
                 auth: googleClient,
-                spreadsheetId: idososSpreadsheet,
-                range: `'Idosos'!A2:E`,
+                spreadsheetId: gerenciamentoSpreadsheet,
+                range: `'${sheetName}'!A2:E`,
             }, (err, apiRes) => {
                 if (err) {
                     console.error('The Google API returned an error.');
@@ -45,32 +44,55 @@ module.exports = app => {
     
                 const idososArray = [];
                 rows.forEach((item, index) => {
-                    idososArray.push({
-                        row: 'A' + (index + 2),
-                        dataNascimento: item[0],
-                        nome: item[1],
-                        telefone1: item[2],
-                        telefone2: item[3],
-                        agenteSaude: item[4],
-                    });
+                    // console.log('A' + (index + 2), item[1])
+                    if(item[1]) {
+                        idososArray.push({
+                            row: `'${sheetName}'!A${index + 2}:E`,
+                            dataNascimento: '',
+                            nome: item[1],
+                            telefone1: item[2],
+                            telefone2: item[3],
+                            agenteSaude: item[4],
+                            vigilante: item[0],
+                        });
+                    }
                 });
+
+                resolve(idososArray);
     
-                var MongoClient = require( 'mongodb' ).MongoClient;
-                MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
-                    const db = client.db('planilhas');
-                    const idososcollection = db.collection('idosos');
-                    idososcollection.drop();
+            });
+        });
+
+        return promise;
+    }
+
+    //TODO refatorar retorno da promisse, para retornar mensagens de erro
+    const updateIdosos = async (gerenciamentoSpreadsheet, googleClient) => {
+        const sheetsVigilantes = [ 'Vigilante 1', 'Vigilante 2', 'Vigilante 3', 'Vigilante 4' ];
+
+        const arrays = [];
+        for(let i= 0; i < sheetsVigilantes.length; i++) {
+            arrays[i] = await arrayIdososPorVigilante(sheetsVigilantes[i], gerenciamentoSpreadsheet, googleClient);
+        }
+        const idososArray = [].concat(...arrays);
     
-                    idososcollection.insertMany(idososArray, function(err, result) {
-                        client.close();
-                        if(result.result.ok) {
-                            resolve(result.result.n);
-                        } else {
-                            reject(-2);
-                        }
-                    });
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+                const db = client.db('planilhas');
+                const idososcollection = db.collection('idosos');
+                idososcollection.drop();
+
+                idososcollection.insertMany(idososArray, function(err, result) {
+                    client.close();
+                    if(result.result.ok) {
+                        resolve(result.result.n);
+                    } else {
+                        reject(-2);
+                    }
                 });
             });
+
         });
 
         return promise;
@@ -240,16 +262,16 @@ module.exports = app => {
 
         const idososSpreadsheet = '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc';
         const gerenciamentoSpreadsheet = '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4';
-
-        const resultIdosos = await updateIdosos(idososSpreadsheet, googleClient );
+        
+        const resultIdosos = await updateIdosos(gerenciamentoSpreadsheet, googleClient );
         console.log(`${resultIdosos} rows inserted in collection idosos`);
+
+        const resultVigilantes = await updateVigilantes(gerenciamentoSpreadsheet, googleClient );
+        console.log(`${resultVigilantes} rows inserted in collection vigilantes`);
 
         const resultRespostas = await updateRespostas(gerenciamentoSpreadsheet, googleClient );
         console.log(`${resultRespostas} rows inserted in collection atendimentos`);
         
-        //TALVEZ FOSSE POSSIVEL OTIMIZAR TRAZENDO OS VIGILANTES DAS RESPOSTAS
-        const resultVigilantes = await updateVigilantes(gerenciamentoSpreadsheet, googleClient );
-        console.log(`${resultVigilantes} rows inserted in collection vigilantes`);
 
         return res.json({
             ok: true,
@@ -426,5 +448,31 @@ module.exports = app => {
         }
     }
 
-    return { get, sync };
+    const idososPorVigilante = async (req, res) => {
+        //TODO futuramente deverá ser pelo id
+        const nomeVigilante = req.params.id;
+        console.log(nomeVigilante);
+
+        // const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+                const db = client.db('planilhas');
+                const idososCollection = db.collection('idosos');
+
+                idososCollection.find({}).toArray(function(err, result) {
+                    client.close();
+                    if (err) 
+                        return res.status(500).send(err);
+                        
+                    return res.json(result);
+                });
+            });
+        // });
+
+        // return promise;
+
+
+    }
+
+    return { get, sync, idososPorVigilante };
 };
