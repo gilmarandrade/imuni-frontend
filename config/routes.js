@@ -62,4 +62,7 @@ module.exports = app => {
     app.route('/docs/:id/sheets/:sheetName/range/:range')
         .get(app.api.googlesheets.get);
 
+    app.route('/sync')
+        .get(app.api.googlesheets.sync);
+
 };
