@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const sheets = google.sheets('v4');
 const getGoogleClient = require('../config/google-client');
 
+//TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
 
 module.exports = app => {
@@ -91,8 +92,11 @@ module.exports = app => {
                 }
                 const rows = apiRes.data.values || [];
 
+                const vigilantes = {};
                 const respostasArray = [];
                 rows.forEach((item, index) => {
+                    // vigilantes[item[1]] = { nome: item[1] }; 
+
                     respostasArray.push({
                         row: 'A' + (index + 2),
                         data: item[0],
@@ -160,6 +164,8 @@ module.exports = app => {
                         escalas : calcularEscalas(resposta),
                     }
                 });
+
+                // const arrayVigilantes = Object.values(vigilantes);
     
                 var MongoClient = require( 'mongodb' ).MongoClient;
                 MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
@@ -176,12 +182,54 @@ module.exports = app => {
                     //   client.close();
                     });
                 });
-               
             });
         });
 
         return promise;
     } 
+
+    const updateVigilantes = async (gerenciamentoSpreadsheet, googleClient) => {
+        const promise = new Promise( (resolve, reject) => {
+
+            sheets.spreadsheets.values.get({
+                auth: googleClient,
+                spreadsheetId: gerenciamentoSpreadsheet,
+                range: `'Status Atendimentos'!A2:A`,
+            }, (err, apiRes) => {
+                if (err) {
+                    console.error('The Google API returned an error.');
+                    // return res.status(400).json(err);
+                    reject(-1);
+                }
+                const rows = apiRes.data.values || [];
+    
+                const vigilantes = {};
+                rows.forEach((item, index) => {
+                    vigilantes[item[0]] = { nome: item[0]};
+                });
+
+                const arrayVigilantes = Object.values(vigilantes);
+    
+                var MongoClient = require( 'mongodb' ).MongoClient;
+                MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+                    const db = client.db('planilhas');
+                    const vigilantesCollection = db.collection('vigilantes');
+                    vigilantesCollection.drop();
+    
+                    vigilantesCollection.insertMany(arrayVigilantes, function(err, result) {
+                        client.close();
+                        if(result.result.ok) {
+                            resolve(result.result.n);
+                        } else {
+                            reject(-2);
+                        }
+                    });
+                });
+            });
+        });
+
+        return promise;
+    }
 
     /**
      * Sincroniza o banco com uma planilha
@@ -198,11 +246,16 @@ module.exports = app => {
 
         const resultRespostas = await updateRespostas(gerenciamentoSpreadsheet, googleClient );
         console.log(`${resultRespostas} rows inserted in collection atendimentos`);
+        
+        //TALVEZ FOSSE POSSIVEL OTIMIZAR TRAZENDO OS VIGILANTES DAS RESPOSTAS
+        const resultVigilantes = await updateVigilantes(gerenciamentoSpreadsheet, googleClient );
+        console.log(`${resultVigilantes} rows inserted in collection vigilantes`);
 
         return res.json({
             ok: true,
             idosos: `${resultIdosos} rows in collection idosos`,
             atendimentos: `${resultRespostas} rows in collection atendimentos`,
+            vigilantes: `${resultVigilantes} rows in collection vigilantes`,
             runtime: ((new Date()) - start)/1000,
         });
     };
