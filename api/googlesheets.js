@@ -101,20 +101,21 @@ module.exports = app => {
                             nome: item[2],
                             atendeu: item[3] === 'Sim',
                         },
-                        idade: +item[4],
+                        idade: item[4] === undefined ? null : +item[4],
                         fonte: item[5] ? item[5] : '',
                         sintomasIdoso: {
                             apresentaSinomasGripeCOVID: item[6] !== undefined && item[6] !== 'Não',
                             sintomas: item[6] === undefined || item[6] === 'Não' ? [] : item[6].split(',').map(s => s.trim()),
                             outrosSintomas: item[7] === undefined || item[7] === 'Não' ? [] : item[7].split(',').map(s => s.trim()),
                             detalhesAdicionais: item[8],
-                            haQuantosDiasIniciaram: +item[9],
+                            haQuantosDiasIniciaram:  item[9] === undefined ? null : +item[9],
                             contatoComCasoConfirmado: item[10] === 'Sim',
                         },
                         comorbidades: {
                             condicoesSaude: item[11] === undefined || item[11] === 'Não' ? [] : item[11].split(',').map(s => s.trim()),
                             medicacaoDiaria: {
-                                medicacoes: item[12] === undefined || item[12] === 'Não' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
+                                deveTomar: item[12] !== undefined && item[12].startsWith('Sim'),
+                                medicacoes: item[12] === undefined || item[12] === 'Não' || item[12] === 'Sim' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
                                 acessoMedicacao: item[13] === 'Sim, consigo adquirí-las',
                             }
                         },
@@ -131,11 +132,11 @@ module.exports = app => {
                                 recebeVisitas: item[20] !== undefined && item[20] !== 'O idoso não recebe visitas',
                                 tomamCuidadosPrevencao: item[20] === 'Sim, e as visitas estão tomando os cuidados de prevenção',
                             },
-                            qtdComodosCasa: +item[21],
+                            qtdComodosCasa:  item[21] === undefined ? null : +item[21],
                             realizaAtividadePrazerosa: item[22] === 'Sim',
                         },
-                        qtdAcompanhantesDomicilio: item[23] === 'Somente o idoso' ? 0 : +item[23],
-                        sintomasDomicilio: item[24] === undefined || item[24] === 'Não' ? [] : item[24].split(',').map(s => s.trim()),
+                        qtdAcompanhantesDomicilio: item[23] === 'Somente o idoso' ? 0 : ( item[23] === undefined ? null : +item[23]),
+                        sintomasDomicilio: item[24] === undefined || item[24] === 'Não' || item[24].trim() === '' ? [] : item[24].split(',').map(s => s.trim()),
                         habitosDomiciliaresAcompanhantes: {
                             saiDeCasa: item[25] === 'Sim',
                             higienizacaoMaos: item[26] === 'Sim',
@@ -152,14 +153,21 @@ module.exports = app => {
                         duracaoChamada: item[34] ? item[34] : '',
                     });
                 });
+
+                const atendimentosArray = respostasArray.map(resposta => {
+                    return {
+                        fichaVigilancia: resposta,
+                        escalas : calcularEscalas(resposta),
+                    }
+                });
     
                 var MongoClient = require( 'mongodb' ).MongoClient;
                 MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
                     const db = client.db('planilhas');
     
-                    const respostasCollection = db.collection('respostas');
-                    respostasCollection.drop();
-                    respostasCollection.insertMany(respostasArray, function(err, result) {
+                    const atendimentosCollection = db.collection('atendimentos');
+                    atendimentosCollection.drop();
+                    atendimentosCollection.insertMany(atendimentosArray, function(err, result) {
                         if(result.result.ok) {
                             resolve(result.result.n)
                         } else {
@@ -189,15 +197,181 @@ module.exports = app => {
         console.log(`${resultIdosos} rows inserted in collection idosos`);
 
         const resultRespostas = await updateRespostas(gerenciamentoSpreadsheet, googleClient );
-        console.log(`${resultRespostas} rows inserted in collection respostas`);
+        console.log(`${resultRespostas} rows inserted in collection atendimentos`);
 
         return res.json({
             ok: true,
-            idosos: `${resultIdosos} rows inserted in collection idosos`,
-            respostas: `${resultRespostas} rows inserted in collection respostas`,
+            idosos: `${resultIdosos} rows in collection idosos`,
+            atendimentos: `${resultRespostas} rows in collection atendimentos`,
             runtime: ((new Date()) - start)/1000,
         });
     };
+
+
+        
+    function calcularEscalas(atendimento) {
+        const vulnerabilidade = calcularEscalaVulnerabilidade(atendimento);
+        const epidemiologica = calculaEscalaEpidemiologica(atendimento);
+        const riscoContagio = calcularEscalaRiscoContagio(atendimento);
+
+        let scoreOrdenacao = 0;
+
+        switch (riscoContagio) {
+            case 'baixo':
+                scoreOrdenacao += 1;
+                break;
+            case 'médio':
+                scoreOrdenacao += 2;
+                break;
+            case 'alto':
+                scoreOrdenacao += 3;
+                break;
+        }
+
+        switch (epidemiologica) {
+            case 'Ia - Assintomático, mora com assintomáticos':
+                scoreOrdenacao += 10;
+                break;
+            case 'Ib - Assintomático, mas vive sozinho':
+                scoreOrdenacao += 20;
+                break;
+            case 'IIa - Assintomático, mas sai de casa':
+                scoreOrdenacao += 30;
+                break;
+            case 'IIb - Assitomático, mas recebe visita ou domiciliares saem':
+                scoreOrdenacao += 40;
+                break;
+            case 'IIIa - Assintomático, mas com comorbidades':
+                scoreOrdenacao += 50;
+                break;
+            case 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados':
+                scoreOrdenacao += 60;
+                break;
+            case 'IVa - Assintomático, mas sem medicações':
+                scoreOrdenacao += 70;
+                break;
+            case 'IVb - Idoso sintomático':
+                scoreOrdenacao += 80;
+                break;
+        }
+
+        switch (vulnerabilidade) {
+            case 'A - vulnerabilidade financeira':
+                scoreOrdenacao += 100;
+                break;
+            case 'B - vulnerabilidade alimentar':
+                scoreOrdenacao += 200;
+                break;
+            case 'C - situação de violência':
+                scoreOrdenacao += 300;
+                break;
+        }
+
+        return {
+            vulnerabilidade,
+            epidemiologica,
+            riscoContagio,
+            scoreOrdenacao,
+        };
+    }
+
+    function calcularEscalaVulnerabilidade(atendimento) {
+        if(atendimento.dadosIniciais.atendeu) {
+            if(atendimento.vulnerabilidades.violencia) {
+                return 'C - situação de violência';
+            } else if(atendimento.vulnerabilidades.alimentar){
+                return 'B - vulnerabilidade alimentar';
+            } else if(atendimento.vulnerabilidades.financeira) {
+                return 'A - vulnerabilidade financeira';
+            } else {
+                return '0 - Sem vulnerabilidades';
+            }
+        } else {
+            return null;
+        }
+    }
+
+    function calculaEscalaEpidemiologica(atendimento) {
+        if(atendimento.dadosIniciais.atendeu) {
+            if(atendimento.apresentaSinomasGripeCOVID) {
+                return 'IVb - Idoso sintomático';
+            }
+            if(atendimento.comorbidades.medicacaoDiaria.deveTomar && !atendimento.comorbidades.medicacaoDiaria.acessoMedicacao) {
+                return 'IVa - Assintomático, mas sem medicações';
+            }
+            if(atendimento.sintomasDomicilio || atendimento.sintomasIdoso.contatoComCasoConfirmado) {
+                return 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados';
+            } 
+            if(atendimento.comorbidades.condicoesSaude) {
+                return 'IIIa - Assintomático, mas com comorbidades';
+            } 
+            if(atendimento.habitosDomiciliaresAcompanhantes.saiDeCasa || atendimento.epidemiologia.visitas.recebeVisitas){
+                return 'IIb - Assitomático, mas recebe visita ou domiciliares saem';
+            }
+            if(atendimento.epidemiologia.isolamento.saiDeCasa){
+                return 'IIa - Assintomático, mas sai de casa';
+            } 
+            if(atendimento.qtdAcompanhantesDomicilio === 0) {
+                return 'Ib - Assintomático, mas vive sozinho';
+            }
+            if(!atendimento.sintomasDomicilio) {
+                return 'Ia - Assintomático, mora com assintomáticos';
+            } else {
+                return '?';
+            }
+        }
+        return '0 - Não atendeu à ligação';
+    }
+
+    function calcularEscalaRiscoContagio(atendimento) {
+        let score = 0;
+        if(!atendimento.dadosIniciais.atendeu) {
+            score = null;
+        } else {
+            if(atendimento.sintomasIdoso.contatoComCasoConfirmado) {
+                score += 10;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Falta de ar / Dificuldade para respirar')) {
+                score += 10;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Febre')) {
+                score += 5;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Tosse seca')) {
+                score += 3;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Perda do olfato ou paladar')) {
+                score += 3;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Dor de cabeça')) {
+                score += 1;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Secreção nasal / Espirros')) {
+                score += 1;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Dor na Garganta')) {
+                score += 1;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Dor no corpo ou fadiga')) {
+                score += 1;
+            }
+            if(atendimento.sintomasIdoso.sintomas.includes('Diarreia')) {
+                score += 1;
+            }
+        }
+
+        if(score === null) {
+            return null;
+        } else {
+            if(score <= 9) {
+                return 'baixo';
+            } else if(score <= 19) {
+                return 'médio';
+            } else {
+                return 'alto';
+            } 
+        }
+    }
 
     return { get, sync };
 };

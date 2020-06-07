@@ -116,10 +116,10 @@ app.get('/docs/:id/respostas/range/:range', async function(req, res) {
             });
         });
 
-        const result = array.map(atendimento => {
+        const result = array.map(resposta => {
             return {
-                atendimento,
-                escalas : calcularEscalas(atendimento),
+                resposta,
+                escalas : calcularEscalas(resposta),
             }
         });
         // console.log(vulnerabilidades);
@@ -166,6 +166,7 @@ app.get('/docs/:id/atendimentosporidoso/range/:range', async function(req, res) 
                 comorbidades: {
                     condicoesSaude: item[11] === undefined || item[11] === 'Não' ? [] : item[11].split(',').map(s => s.trim()),
                     medicacaoDiaria: {
+                        deveTomar: item[12].includes('Sim'),
                         medicacoes: item[12] === undefined || item[12] === 'Não' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
                         acessoMedicacao: item[13] === 'Sim, consigo adquirí-las',
                     }
@@ -305,7 +306,7 @@ function calculaEscalaEpidemiologica(atendimento) {
         if(atendimento.apresentaSinomasGripeCOVID) {
             return 'IVb - Idoso sintomático';
         }
-        if(atendimento.comorbidades.medicacaoDiaria.medicacoes && !atendimento.comorbidades.medicacaoDiaria.acessoMedicacao) {
+        if(atendimento.comorbidades.medicacaoDiaria.deveTomar && !atendimento.comorbidades.medicacaoDiaria.acessoMedicacao) {
             return 'IVa - Assintomático, mas sem medicações';
         }
         if(atendimento.sintomasDomicilio || atendimento.sintomasIdoso.contatoComCasoConfirmado) {
