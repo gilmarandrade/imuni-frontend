@@ -451,7 +451,6 @@ module.exports = app => {
     const idososPorVigilante = async (req, res) => {
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.id;
-        console.log(nomeVigilante);
 
         // const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
@@ -459,11 +458,11 @@ module.exports = app => {
                 const db = client.db('planilhas');
                 const idososCollection = db.collection('idosos');
 
-                idososCollection.find({}).toArray(function(err, result) {
+                idososCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
                     client.close();
                     if (err) 
                         return res.status(500).send(err);
-                        
+                    console.log(result.length)
                     return res.json(result);
                 });
             });
