@@ -452,26 +452,38 @@ module.exports = app => {
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.id;
 
-        // const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
-                const db = client.db('planilhas');
-                const idososCollection = db.collection('idosos');
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+            const db = client.db('planilhas');
+            const idososCollection = db.collection('idosos');
 
-                idososCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
-                    client.close();
-                    if (err) 
-                        return res.status(500).send(err);
-                    console.log(result.length)
-                    return res.json(result);
-                });
+            idososCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
+                client.close();
+                if (err) 
+                    return res.status(500).send(err);
+                return res.json(result);
             });
-        // });
-
-        // return promise;
-
-
+        });
     }
 
-    return { get, sync, idososPorVigilante };
+    const idoso = async (req, res) => {
+        //TODO futuramente deverá ser pelo id
+        const nomeIdoso = req.params.id;
+
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+            const db = client.db('planilhas');
+            const idososCollection = db.collection('idosos');
+
+            idososCollection.findOne({ nome: nomeIdoso }, function(err, result) {
+                client.close();
+                if (err) 
+                    return res.status(500).send(err);
+                console.log(result)
+                return res.json(result);
+            });
+        });
+    }
+
+    return { get, sync, idososPorVigilante, idoso };
 };
