@@ -5,6 +5,7 @@ const getGoogleClient = require('../config/google-client');
 
 //TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
+const ObjectId = require('mongodb').ObjectID;
 
 module.exports = app => {
 
@@ -677,5 +678,62 @@ module.exports = app => {
         });
     }
 
-    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso };
+    const atendimento = async (req, res) => {
+        //TODO futuramente deverá ser pelo id
+        const id = req.params.id;
+        console.log(id)
+
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+            const db = client.db('planilhas');
+            const atendimentosCollection = db.collection('atendimentos');
+
+            // atendimentosCollection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            //     client.close();
+            //     if (err) 
+            //         return res.status(500).send(err);
+            //     // console.log(result)
+            //     return res.json(result);
+            // });
+
+            atendimentosCollection.aggregate([
+                { $match: { _id: ObjectId(id) } },
+                { $lookup: {
+                    from: 'idososStats',
+                    let: { nome_idoso: "$fichaVigilancia.dadosIniciais.nome" },
+                    pipeline: [
+                        { $match: 
+                            { $expr:
+                                { $and:
+                                    [
+                                        { $eq: [ '$nome', '$$nome_idoso' ] },
+                                    ]
+                                }
+                            }, 
+                        },
+                        { $limit : 1 },
+                        {
+                            $project: {
+                                stats: 0,
+                            }
+                        }
+                    ],
+                    as: 'idoso',
+                  }
+                },
+                { $unwind: '$idoso' },
+            ]).toArray(function(err, result) {
+                // client.close();
+                if(err) {
+                    return res.status(500).send(err);
+                } else {
+                    // console.log(result)
+                    return res.json(result);
+                }
+            });
+
+        });
+    }
+
+    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso, atendimento };
 };

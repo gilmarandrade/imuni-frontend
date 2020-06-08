@@ -74,4 +74,7 @@ module.exports = app => {
     app.route('/idosos/:id/atendimentos')
         .get(app.api.googlesheets.atendimentosByIdoso);
 
+    app.route('/atendimentos/:id')
+        .get(app.api.googlesheets.atendimento);
+
 };
