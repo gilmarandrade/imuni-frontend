@@ -114,14 +114,19 @@ module.exports = app => {
                 }
                 const rows = apiRes.data.values || [];
 
-                const vigilantes = {};
                 const respostasArray = [];
                 rows.forEach((item, index) => {
-                    // vigilantes[item[1]] = { nome: item[1] }; 
+                    //TODO criar uma função para conversao de datas string da planilha para Date
+                    // 13/05/2020 13:10:19
+                    var parts = item[0].split(' ');
+                    var data = parts[0].split('/');
+                    var hora = parts[1].split(':');
+
+                    // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
 
                     respostasArray.push({
-                        row: `'Respostas'!A${(index + 2)}:AI`,
-                        data: item[0],
+                        row: `'Respostas'!A${index + 2}:AI`,
+                        data: new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`),
                         vigilante: item[1],
                         dadosIniciais: {
                             nome: item[2],
