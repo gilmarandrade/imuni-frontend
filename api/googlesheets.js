@@ -648,115 +648,27 @@ module.exports = app => {
                 // console.log(result)
                 return res.json(result);
             });
-
-            // idososCollection.aggregate([
-               
-            //     { $match: { nome: nomeIdoso } },
-            //     { $lookup:
-            //         {
-            //           from: 'atendimentos',
-            //           let: { nome_idoso: "$nome" },
-            //           pipeline: [
-            //             { $match: 
-            //                 { $expr:
-            //                     { $and:
-            //                         [
-            //                             { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-            //                             { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', true ] },
-            //                         ]
-            //                     }
-            //                 }, 
-            //             },
-            //           ],
-            //           as: 'atendimentosEfetuados'
-            //         }
-            //     },
-            //     { $lookup:
-            //         {
-            //           from: 'atendimentos',
-            //           let: { nome_idoso: "$nome" },
-            //           pipeline: [
-            //             { $match: 
-            //                 { $expr:
-            //                     { $and:
-            //                         [
-            //                             { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-            //                             { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', false ] },
-            //                         ]
-            //                     }
-            //                 }, 
-            //             },
-            //           ],
-            //           as: 'atendimentosNaoEfetuados'
-            //         }
-            //     },
-            //     {
-            //         $addFields: {
-            //             qtdAtendimentosEfetuados: { $cond: { if: { $isArray: "$atendimentosEfetuados" }, then: { $size: "$atendimentosEfetuados" }, else: 0} },
-            //             qtdAtendimentosNaoEfetuados: { $cond: { if: { $isArray: "$atendimentosNaoEfetuados" }, then: { $size: "$atendimentosNaoEfetuados" }, else: 0} },
-            //         }
-            //     },
-            //     { $unwind: "$atendimentosEfetuados" },
-            //     { $sort: { "atendimentosEfetuados.fichaVigilancia.data": -1 } },
-            //     { $limit : 1 },
-            //     { $lookup:
-            //         {
-            //           from: 'atendimentos',
-            //           let: { nome_idoso: "$nome" },
-            //           pipeline: [
-            //             { $match: 
-            //                 { $expr:
-            //                     { $and:
-            //                         [
-            //                             { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-            //                         ]
-            //                     }
-            //                 }, 
-            //             },
-            //             { $sort: { "fichaVigilancia.data": -1 } },
-            //             { $limit : 1 },
-            //           ],
-            //           as: 'ultimoAtendimento'
-            //         }
-            //     },
-            //     { $unwind: "$ultimoAtendimento" },
-            //     {
-            //         $project: {
-            //             _id: 1,
-            //             row: 1,
-            //             dataNascimento: 1,
-            //             nome: 1,
-            //             telefone1: 1,
-            //             telefone2: 1,
-            //             agenteSaude: 1,
-            //             vigilante: 1,
-            //             ultimaEscala: '$atendimentosEfetuados.escalas',
-            //             qtdAtendimentosEfetuados: 1,
-            //             qtdAtendimentosNaoEfetuados: 1,
-            //             dataUltimoAtendimento: '$ultimoAtendimento.fichaVigilancia.data',
-            //             ultimoAtendimentoEfetuado: '$ultimoAtendimento.fichaVigilancia.dadosIniciais.atendeu',
-            //             proximoAtendimento: null,
-            //         }
-            //     },
-            // ]).toArray(function(err, result) {
-            //     client.close();
-            //     if (err) 
-            //         return res.status(500).send(err);
-            //     return res.json(result);
-            // });
         });
     }
 
     const atendimentosByIdoso = async (req, res) => {
         //TODO futuramente deverá ser pelo id
         const nomeIdoso = req.params.id;
-        console.log(nomeIdoso)
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
-            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
+            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }, {
+                projection: {
+                    _id: 1,
+                    "fichaVigilancia.data": 1,
+                    "fichaVigilancia.dadosIniciais.atendeu": 1,
+                    "escalas": 1,
+                    "fichaVigilancia.vigilante": 1,
+                    "fichaVigilancia.duracaoChamada": 1,
+                }
+            }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
                 client.close();
                 if (err) 
                     return res.status(500).send(err);
