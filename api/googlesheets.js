@@ -500,7 +500,7 @@ module.exports = app => {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
-            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }).toArray(function(err, result) {
+            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
                 client.close();
                 if (err) 
                     return res.status(500).send(err);
