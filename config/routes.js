@@ -66,9 +66,12 @@ module.exports = app => {
         .get(app.api.googlesheets.sync);
 
     app.route('/vigilantes/:id/idosos')
-        .get(app.api.googlesheets.idososPorVigilante);
+        .get(app.api.googlesheets.idososByVigilante);
 
     app.route('/idosos/:id')
         .get(app.api.googlesheets.idoso);
+
+    app.route('/idosos/:id/atendimentos')
+        .get(app.api.googlesheets.atendimentosByIdoso);
 
 };

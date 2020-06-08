@@ -27,7 +27,7 @@ module.exports = app => {
         });
     };
 
-    const arrayIdososPorVigilante = async (sheetName, gerenciamentoSpreadsheet, googleClient) => {
+    const arrayIdososByVigilante = async (sheetName, gerenciamentoSpreadsheet, googleClient) => {
         const promise = new Promise( (resolve, reject) => {
 
             sheets.spreadsheets.values.get({
@@ -72,7 +72,7 @@ module.exports = app => {
 
         const arrays = [];
         for(let i= 0; i < sheetsVigilantes.length; i++) {
-            arrays[i] = await arrayIdososPorVigilante(sheetsVigilantes[i], gerenciamentoSpreadsheet, googleClient);
+            arrays[i] = await arrayIdososByVigilante(sheetsVigilantes[i], gerenciamentoSpreadsheet, googleClient);
         }
         const idososArray = [].concat(...arrays);
     
@@ -120,7 +120,7 @@ module.exports = app => {
                     // vigilantes[item[1]] = { nome: item[1] }; 
 
                     respostasArray.push({
-                        row: 'A' + (index + 2),
+                        row: `'Respostas'!A${(index + 2)}:AI`,
                         data: item[0],
                         vigilante: item[1],
                         dadosIniciais: {
@@ -210,6 +210,7 @@ module.exports = app => {
         return promise;
     } 
 
+    //TODO não é necessário buscar na planilha, basta filtrar na collection de idosos
     const updateVigilantes = async (gerenciamentoSpreadsheet, googleClient) => {
         const promise = new Promise( (resolve, reject) => {
 
@@ -448,7 +449,7 @@ module.exports = app => {
         }
     }
 
-    const idososPorVigilante = async (req, res) => {
+    const idososByVigilante = async (req, res) => {
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.id;
 
@@ -485,5 +486,23 @@ module.exports = app => {
         });
     }
 
-    return { get, sync, idososPorVigilante, idoso };
+    const atendimentosByIdoso = async (req, res) => {
+        //TODO futuramente deverá ser pelo id
+        const nomeIdoso = req.params.id;
+        console.log(nomeIdoso)
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
+            const db = client.db('planilhas');
+            const atendimentosCollection = db.collection('atendimentos');
+
+            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }).toArray(function(err, result) {
+                client.close();
+                if (err) 
+                    return res.status(500).send(err);
+                return res.json(result);
+            });
+        });
+    }
+
+    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso };
 };
