@@ -491,19 +491,123 @@ module.exports = app => {
 
             // TODO usar $group para agrupar informações sobre os atendimentos
             idososCollection.aggregate([
+                // { $match: { nome: nomeIdoso } },
+                // { $lookup:
+                //     {
+                //       from: 'atendimentos',
+                //       localField: 'nome',
+                //       foreignField: 'fichaVigilancia.dadosIniciais.nome',
+                //       as: 'atendimentos'
+                //     }
+                // },
+                // { $unwind: "$atendimentos" },
+                // { $sort: { "atendimentos.fichaVigilancia.data": -1 } },
+                // { $match: { "atendimentos.fichaVigilancia.dadosIniciais.atendeu": true } },
+                // { $limit : 1 },
+
                 { $match: { nome: nomeIdoso } },
                 { $lookup:
                     {
                       from: 'atendimentos',
-                      localField: 'nome',
-                      foreignField: 'fichaVigilancia.dadosIniciais.nome',
-                      as: 'atendimentos'
+                      let: { nome_idoso: "$nome" },
+                      pipeline: [
+                        { $match: 
+                            { $expr:
+                                { $and:
+                                    [
+                                        { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
+                                        { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', true ] },
+                                    ]
+                                }
+                            }, 
+                        },
+                      ],
+                      as: 'atendimentosEfetuados'
                     }
                 },
-                { $unwind: "$atendimentos" },
-                { $sort: { "atendimentos.fichaVigilancia.data": -1 } },
-                { $match: { "atendimentos.fichaVigilancia.dadosIniciais.atendeu": true } },
+                { $lookup:
+                    {
+                      from: 'atendimentos',
+                      let: { nome_idoso: "$nome" },
+                      pipeline: [
+                        { $match: 
+                            { $expr:
+                                { $and:
+                                    [
+                                        { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
+                                        { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', false ] },
+                                    ]
+                                }
+                            }, 
+                        },
+                      ],
+                      as: 'atendimentosNaoEfetuados'
+                    }
+                },
+                {
+                    $addFields: {
+                        qtdAtendimentosEfetuados: { $cond: { if: { $isArray: "$atendimentosEfetuados" }, then: { $size: "$atendimentosEfetuados" }, else: 0} },
+                        qtdAtendimentosNaoEfetuados: { $cond: { if: { $isArray: "$atendimentosNaoEfetuados" }, then: { $size: "$atendimentosNaoEfetuados" }, else: 0} },
+                    }
+                },
+                { $unwind: "$atendimentosEfetuados" },
+                { $sort: { "atendimentosEfetuados.fichaVigilancia.data": -1 } },
                 { $limit : 1 },
+                { $lookup:
+                    {
+                      from: 'atendimentos',
+                      let: { nome_idoso: "$nome" },
+                      pipeline: [
+                        { $match: 
+                            { $expr:
+                                { $and:
+                                    [
+                                        { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
+                                    ]
+                                }
+                            }, 
+                        },
+                        { $sort: { "fichaVigilancia.data": -1 } },
+                        { $limit : 1 },
+                      ],
+                      as: 'ultimoAtendimento'
+                    }
+                },
+                { $unwind: "$ultimoAtendimento" },
+                {
+                    $project: {
+                        _id: 1,
+                        row: 1,
+                        dataNascimento: 1,
+                        nome: 1,
+                        telefone1: 1,
+                        telefone2: 1,
+                        agenteSaude: 1,
+                        vigilante: 1,
+                        ultimaEscala: '$atendimentosEfetuados.escalas',
+                        qtdAtendimentosEfetuados: 1,
+                        qtdAtendimentosNaoEfetuados: 1,
+                        dataUltimoAtendimento: '$ultimoAtendimento.fichaVigilancia.data',
+                        ultimoAtendimentoEfetuado: '$ultimoAtendimento.fichaVigilancia.dadosIniciais.atendeu',
+                        proximoAtendimento: null,
+                    }
+                },
+
+                // { $match: { nome: nomeIdoso } },
+                // { $lookup:
+                //     {
+                //       from: 'atendimentos',
+                //       localField: 'nome',
+                //       foreignField: 'fichaVigilancia.dadosIniciais.nome',
+                //       as: 'atendimentos'
+                //     }
+                // },
+                // { $unwind: "$atendimentos" },
+                // { $group: {
+                //     _id: "$atendimentos.fichaVigilancia.dadosIniciais.atendeu",
+                //      count: { $sum: 1 }
+                //   } 
+                // },
             ]).toArray(function(err, result) {
                 client.close();
                 if (err) 
