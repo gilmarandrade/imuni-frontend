@@ -481,11 +481,33 @@ module.exports = app => {
             const db = client.db('planilhas');
             const idososCollection = db.collection('idosos');
 
-            idososCollection.findOne({ nome: nomeIdoso }, function(err, result) {
+            // idososCollection.findOne({ nome: nomeIdoso }, function(err, result) {
+            //     client.close();
+            //     if (err) 
+            //         return res.status(500).send(err);
+            //     console.log(result)
+            //     return res.json(result);
+            // });
+
+            // TODO usar $group para agrupar informações sobre os atendimentos
+            idososCollection.aggregate([
+                { $match: { nome: nomeIdoso } },
+                { $lookup:
+                    {
+                      from: 'atendimentos',
+                      localField: 'nome',
+                      foreignField: 'fichaVigilancia.dadosIniciais.nome',
+                      as: 'atendimentos'
+                    }
+                },
+                { $unwind: "$atendimentos" },
+                { $sort: { "atendimentos.fichaVigilancia.data": -1 } },
+                { $match: { "atendimentos.fichaVigilancia.dadosIniciais.atendeu": true } },
+                { $limit : 1 },
+            ]).toArray(function(err, result) {
                 client.close();
                 if (err) 
                     return res.status(500).send(err);
-                console.log(result)
                 return res.json(result);
             });
         });
