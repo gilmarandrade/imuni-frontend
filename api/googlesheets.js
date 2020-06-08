@@ -313,8 +313,8 @@ module.exports = app => {
                     },
                     {
                         $addFields: {
-                            qtdAtendimentosEfetuados: { $cond: { if: { $isArray: "$atendimentosEfetuados" }, then: { $size: "$atendimentosEfetuados" }, else: 0} },
-                            qtdAtendimentosNaoEfetuados: { $cond: { if: { $isArray: "$atendimentosNaoEfetuados" }, then: { $size: "$atendimentosNaoEfetuados" }, else: 0} },
+                            "stats.qtdAtendimentosEfetuados": { $cond: { if: { $isArray: "$atendimentosEfetuados" }, then: { $size: "$atendimentosEfetuados" }, else: 0} },
+                            "stats.qtdAtendimentosNaoEfetuados": { $cond: { if: { $isArray: "$atendimentosNaoEfetuados" }, then: { $size: "$atendimentosNaoEfetuados" }, else: 0} },
                         }
                     },
                     { $lookup:
@@ -386,6 +386,8 @@ module.exports = app => {
                             telefone2: 1,
                             agenteSaude: 1,
                             vigilante: 1,
+                            // qtdAtendimentosEfetuados: 1,
+                            // qtdAtendimentosNaoEfetuados: 1,
                             // ultimoAtendimentoEfetuado: 1,
                             "stats.qtdAtendimentosEfetuados": 1,
                             "stats.qtdAtendimentosNaoEfetuados": 1,
@@ -619,9 +621,9 @@ module.exports = app => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( 'mongodb://localhost:27017', { useUnifiedTopology: true }, function( err, client ) {
             const db = client.db('planilhas');
-            const idososCollection = db.collection('idosos');
+            const idososStatsCollection = db.collection('idososStats');
 
-            idososCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
+            idososStatsCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
                 client.close();
                 if (err) 
                     return res.status(500).send(err);
