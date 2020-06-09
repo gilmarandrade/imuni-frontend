@@ -79,6 +79,7 @@ module.exports = app => {
     
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
+            console.log('mongoUris: ' + mongoUris);
             MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
                 const db = client.db('planilhas');
                 const idososcollection = db.collection('idosos');
