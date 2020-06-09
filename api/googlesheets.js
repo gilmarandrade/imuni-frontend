@@ -81,6 +81,7 @@ module.exports = app => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             console.log('mongoUris: ' + mongoUris);
             MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+                if(err) console.log(err);
                 const db = client.db('planilhas');
                 const idososcollection = db.collection('idosos');
                 idososcollection.drop();

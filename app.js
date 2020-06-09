@@ -1,5 +1,6 @@
 const app = require('express')();
 const consign = require('consign');
+const { mongoUris } = require('./config/environment');
 
 // const mongodbutil = require( './config/mongodb' );
 
@@ -20,6 +21,6 @@ const consign = require('consign');
   
   const port = process.env.PORT || 3000;
   app.listen(port, ()=>{
-    console.log('[api-frenteprevencaocovidrn-org-br] BACKEND executando na porta %s', port);
+    console.log('[api-frenteprevencaocovidrn-org-br] BACKEND executando na porta '+ port + '. Mongodb: ' + mongoUris);
   });
 
