@@ -1,6 +1,6 @@
 module.exports = {
     authSecret: process.env.authSecret || 'asdsfghjkklçlkjhgf23456@#$%¨&*',
-    mongoUris: process.env.mongoUris || 'mongodb://localhost/planilhas',
+    mongoUris: process.env.mongoUris || 'mongodb://localhost:27017',
 
     // acesso externo
     // mongodb://usuario:senha@kamino.mongodb.umbler.com:porta/banco
