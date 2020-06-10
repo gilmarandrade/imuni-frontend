@@ -73,19 +73,26 @@ module.exports = app => {
             rows.forEach((item, index) => {
                 if(item[1] !== undefined && item[1] !== "") {
                     idosos.push({
-                        vigilante: item[0],
-                        nome: item[1],
-                        telefone1: item[2],
+                        row: `'Vigilante ${indexVigilante}'!A${index + 2}:M${index + 2}`,
+                        stats : {
+                            qtdAtendimentosEfetuados: item[6] ? +item[6] : 0,
+                            qtdAtendimentosNaoEfetuados: item[5] ? +item[5] : 0,
+                            ultimoAtendimento: {
+                                efetuado: null,
+                                data: item[10] ? `${item[10]} ${item[11]}` : null,
+                            },
+                            ultimaEscala: {
+                                vulnerabilidade: item[7] || "",
+                                epidemiologica: item[8] || "",
+                                riscoContagio: item[9] || "",
+                            },
+                            dataProximoAtendimento: item[12] || null,
+                        },
+                        vigilante: item[0] || "",
+                        nome: item[1] || "",
+                        telefone1: item[2] || "",
                         telefone2: item[3],
                         agenteSaude: item[4],
-                        tentativas: item[5],
-                        atendimentosEfetuados: item[6],
-                        escalaVulnerabilidade: item[7],
-                        escalaEpidemiologica: item[8],
-                        escalaRiscoContagio: item[9],
-                        dataUltimoAtendimento: item[10],
-                        horaUltimoAtendimento: item[11],
-                        sugestaoProximoAtendimento: item[12],
                     });
                 }
             });
