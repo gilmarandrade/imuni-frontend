@@ -74,6 +74,7 @@ module.exports = app => {
                 if(item[1] !== undefined && item[1] !== "") {
                     idosos.push({
                         row: `'Vigilante ${indexVigilante}'!A${index + 2}:M${index + 2}`,
+                        score: calcularScore(item[7], item[8], item[9]),
                         stats : {
                             qtdAtendimentosEfetuados: item[6] ? +item[6] : 0,
                             qtdAtendimentosNaoEfetuados: item[5] ? +item[5] : 0,
@@ -85,6 +86,7 @@ module.exports = app => {
                                 vulnerabilidade: item[7] || "",
                                 epidemiologica: item[8] || "",
                                 riscoContagio: item[9] || "",
+                                score: calcularScore(item[7], item[8], item[9]),
                             },
                             dataProximoAtendimento: item[12] || null,
                         },
@@ -97,10 +99,74 @@ module.exports = app => {
                 }
             });
 
+            idosos.sort((a, b) => {
+                if (a.score > b.score) return -1;
+                if (b.score > a.score) return 1;
+              
+                return 0;
+            });
             console.log(idosos.length)
             return res.json(idosos);
         });
 
+    }
+
+    function calcularScore(vulnerabilidade, epidemiologica, riscoContagio) {
+
+        let scoreOrdenacao = 0;
+
+        switch (riscoContagio) {
+            case 'Baixo':
+                scoreOrdenacao += 1;
+                break;
+            case 'Médio':
+                scoreOrdenacao += 2;
+                break;
+            case 'Alto':
+                scoreOrdenacao += 3;
+                break;
+        }
+
+        switch (epidemiologica) {
+            case 'Ia - Assintomático, mora com assintomáticos':
+                scoreOrdenacao += 10;
+                break;
+            case 'Ib - Assintomático, mas vive sozinho':
+                scoreOrdenacao += 20;
+                break;
+            case 'IIa - Assintomático, mas sai de casa':
+                scoreOrdenacao += 30;
+                break;
+            case 'IIb - Assitomático, mas recebe visitas ou domiciliares saem':
+                scoreOrdenacao += 40;
+                break;
+            case 'IIIa - Assintomático, mas com comorbidades':
+                scoreOrdenacao += 50;
+                break;
+            case 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados':
+                scoreOrdenacao += 60;
+                break;
+            case 'IVa - Assintomático, mas sem medicações':
+                scoreOrdenacao += 70;
+                break;
+            case 'IVb - Idoso sintomático':
+                scoreOrdenacao += 80;
+                break;
+        }
+
+        switch (vulnerabilidade) {
+            case 'A - Vulnerabilidade Financeira':
+                scoreOrdenacao += 100;
+                break;
+            case 'B - Vulnerabilidade Alimentar':
+                scoreOrdenacao += 200;
+                break;
+            case 'C - Situação de Violência':
+                scoreOrdenacao += 300;
+                break;
+        }
+
+        return scoreOrdenacao;
     }
 
     return { vigilantes, idososByVigilante };
