@@ -46,9 +46,38 @@ module.exports = app => {
             });
 
             const arrayVigilantes = Object.values(vigilantes);
+            arrayVigilantes.forEach((item, index) => {
+                item.index = index;
+            });
             return res.json(arrayVigilantes);
         });
     }
 
-    return { vigilantes };
+    const idososByVigilante = async (req, res) => {
+        const spreadsheetId = req.params.idPlanilha;
+        const nomeVigilante = req.params.nomeVigilante;
+
+        const googleClient = await getGoogleClient();
+        sheets.spreadsheets.values.get({
+            auth: googleClient,
+            spreadsheetId: spreadsheetId,
+            range: `'Status Atendimentos'!A2:A`,
+        }, (err, apiRes) => {
+            if (err) {
+            console.error('The Google API returned an error.');
+            return res.status(400).json(err);
+            }
+            const rows = apiRes.data.values || [];
+            const vigilantes = {};
+            rows.forEach((item, index) => {
+                vigilantes[item[0]] = { nome: item[0]};
+            });
+
+            const arrayVigilantes = Object.values(vigilantes);
+            return res.json(arrayVigilantes);
+        });
+
+    }
+
+    return { vigilantes, idososByVigilante };
 };
