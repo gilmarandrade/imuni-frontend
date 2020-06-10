@@ -78,7 +78,7 @@ module.exports = app => {
                             qtdAtendimentosEfetuados: item[6] ? +item[6] : 0,
                             qtdAtendimentosNaoEfetuados: item[5] ? +item[5] : 0,
                             ultimoAtendimento: {
-                                efetuado: null,
+                                efetuado: !item[8] || item[8] === '0 - Não atendeu à ligação' ? false : true,
                                 data: item[10] ? `${item[10]} ${item[11]}` : null,
                             },
                             ultimaEscala: {
