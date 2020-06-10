@@ -80,4 +80,9 @@ module.exports = app => {
     app.route('/vigilantes')
         .get(app.api.googlesheets.vigilantes);
 
+
+    
+    app.route('/planilhas/:idPlanilha/vigilantes')
+        .get(app.api.planilhas.vigilantes);
+
 };
