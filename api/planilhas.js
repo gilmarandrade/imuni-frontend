@@ -47,7 +47,7 @@ module.exports = app => {
 
             const arrayVigilantes = Object.values(vigilantes);
             arrayVigilantes.forEach((item, index) => {
-                item.index = index;
+                item.index = index + 1;
             });
             return res.json(arrayVigilantes);
         });
@@ -55,26 +55,43 @@ module.exports = app => {
 
     const idososByVigilante = async (req, res) => {
         const spreadsheetId = req.params.idPlanilha;
-        const nomeVigilante = req.params.nomeVigilante;
+        const indexVigilante = req.params.indexVigilante;
+        console.log(indexVigilante)
 
         const googleClient = await getGoogleClient();
         sheets.spreadsheets.values.get({
             auth: googleClient,
             spreadsheetId: spreadsheetId,
-            range: `'Status Atendimentos'!A2:A`,
+            range: `'Vigilante ${indexVigilante}'!A2:M`,
         }, (err, apiRes) => {
             if (err) {
             console.error('The Google API returned an error.');
             return res.status(400).json(err);
             }
             const rows = apiRes.data.values || [];
-            const vigilantes = {};
+            const idosos = [];
             rows.forEach((item, index) => {
-                vigilantes[item[0]] = { nome: item[0]};
+                if(item[1] !== undefined && item[1] !== "") {
+                    idosos.push({
+                        vigilante: item[0],
+                        nome: item[1],
+                        telefone1: item[2],
+                        telefone2: item[3],
+                        agenteSaude: item[4],
+                        tentativas: item[5],
+                        atendimentosEfetuados: item[6],
+                        escalaVulnerabilidade: item[7],
+                        escalaEpidemiologica: item[8],
+                        escalaRiscoContagio: item[9],
+                        dataUltimoAtendimento: item[10],
+                        horaUltimoAtendimento: item[11],
+                        sugestaoProximoAtendimento: item[12],
+                    });
+                }
             });
 
-            const arrayVigilantes = Object.values(vigilantes);
-            return res.json(arrayVigilantes);
+            console.log(idosos.length)
+            return res.json(idosos);
         });
 
     }
