@@ -752,5 +752,20 @@ module.exports = app => {
         });
     }
 
-    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes };
+    const teste = async (req, res) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            const db = client.db('planilhas');
+            const vigilantesCollection = db.collection('vigilantes');
+
+            vigilantesCollection.find({ }).sort({nome:1}).toArray(function(err, result) {
+                // client.close();
+                if (err) 
+                    return res.status(500).send(err);
+                return res.json(result);
+            });
+        });
+    }
+
+    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, teste };
 };
