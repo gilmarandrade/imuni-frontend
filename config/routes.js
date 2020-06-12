@@ -87,7 +87,7 @@ module.exports = app => {
     app.route('/planilhas/:idPlanilha/vigilantes')
         .get(app.api.planilhas.vigilantes);
 
-    app.route('/teste')
-        .get(app.api.googlesheets.teste);
+    app.route('/stats')
+        .get(app.api.googlesheets.stats);
 
 };
