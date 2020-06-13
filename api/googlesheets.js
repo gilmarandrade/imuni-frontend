@@ -371,7 +371,7 @@ module.exports = app => {
                             // "ultimoAtendimento.efetuado" : "$ultimoAtendimento.fichaVigilancia.dadosIniciais.atendeu",
                         }
                     },
-                    { $merge: { into: "idososStats" } },
+                    { $out: "idososStats" },
                 ]).toArray(function(err, result) {
                     // client.close();
                     if(err) {
@@ -392,6 +392,7 @@ module.exports = app => {
      * Sincroniza o banco com uma planilha
      */
     const sync = async (req, res) => {
+        //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
 
         const idososSpreadsheet = '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc';
