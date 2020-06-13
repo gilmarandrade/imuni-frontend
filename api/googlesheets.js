@@ -4,6 +4,7 @@ const { read } = require('../config/sheetsApi');
 //TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
+const atendimentoService = require('../service/atendimentoService');
 
 module.exports = app => {
 
@@ -229,156 +230,97 @@ module.exports = app => {
         return promise;
     }
 
-    const updateIdososStats = async () => {
-        console.log(`[Sync] Processing data and statistics...`);
+    const updateIdososAtendimentos = async () => {
+/**
+    {
+        "row": "'Vigilante 1'!A19:M19",
+        "score": 81,
+        "stats": {
+            "qtdAtendimentosEfetuados": 2,
+            "qtdAtendimentosNaoEfetuados": 2,
+            "ultimoAtendimento": {
+                "efetuado": true,
+                "data": "25/05/2020 10:45:50"
+            },
+            "ultimaEscala": {
+                "vulnerabilidade": "O - Sem Vulnerabilidade",
+                "epidemiologica": "IVb - Idoso sintomático",
+                "riscoContagio": "Baixo",
+                "data": "",
+                "scoreOrdenacao?": 81
+            },
+            "dataProximoAtendimento": "26/05/2020"
+        },
+        "vigilante": "Jaiane Carmélia Monteiro Viana",
+        "nome": "João Inácio Filho",
+        "telefone1": "988015537",
+        "telefone2": "",
+        "agenteSaude": "Roberto"
+    }
+ */
+        const idosos = await atendimentoService.findIdosos();
+        for(let i = 0; i < idosos.length; i++) {
+            const atendimentos = await atendimentoService.findAtendimentosByIdoso(idosos[i]);
+
+            const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
+                if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
+                    return prevVal + 1;
+                } else {
+                    return prevVal;
+                }
+            }, 0);
+
+            const ultimoAtendimento = atendimentos.filter((atendimento, index, array) => {
+                return index == 0;
+            }).map((atendimento) => {
+                return {
+                    data: atendimento.fichaVigilancia.data,
+                    efetuado: atendimento.fichaVigilancia.dadosIniciais.atendeu,
+                }
+            });
+
+            const ultimoAtendimentoEfetuado = atendimentos.filter((atendimento, index, array) => {
+                return atendimento.fichaVigilancia.dadosIniciais.atendeu;
+            })[0] || null;
+
+            idosos[i].stats = {};
+
+            idosos[i].stats.qtdAtendimentosEfetuados = qtdAtendimentosEfetuados;
+            idosos[i].stats.qtdAtendimentosNaoEfetuados = atendimentos.length - qtdAtendimentosEfetuados;
+            if(ultimoAtendimentoEfetuado) {
+                idosos[i].stats.ultimaEscala = ultimoAtendimentoEfetuado.escalas;
+                idosos[i].stats.ultimaEscala.data = ultimoAtendimentoEfetuado.fichaVigilancia.data;
+                idosos[i].score =  ultimoAtendimentoEfetuado.escalas.scoreOrdenacao;
+                idosos[i].epidemiologia = ultimoAtendimentoEfetuado.fichaVigilancia.epidemiologia;
+            } else {
+                idosos[i].stats.ultimaEscala = {};
+                idosos[i].score = 0;
+                idosos[i].epidemiologia = {};
+            }
+        }
+
+
         const promise = new Promise( (resolve, reject) => {
+            if(typeof arrays === 'string') reject(arrays);
+
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+                if(err) reject(err);
                 const db = client.db('planilhas');
-                
-                const idososStatsCollection = db.collection('idososStats');
+                const idososStatscollection = db.collection('idososStats');
                 try {
-                    idososStatsCollection.deleteMany();
+                    idososStatscollection.deleteMany();
                 } catch (error) {
-                    console.warn('idososStatsCollection.deleteMany() collection may not exists!');
+                    console.warn('idososStatscollection.deleteMany() collection may not exists!');
                 }
 
-                const idososCollection = db.collection('idosos');
-
-                idososCollection.aggregate([
-                    { $lookup:
-                        {
-                        from: 'atendimentos',
-                        let: { nome_idoso: "$nome" },
-                        pipeline: [
-                            { $match: 
-                                { $expr:
-                                    { $and:
-                                        [
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', true ] },
-                                        ]
-                                    }
-                                }, 
-                            },
-                        ],
-                        as: 'atendimentosEfetuados'
-                        }
-                    },
-                    { $lookup:
-                        {
-                        from: 'atendimentos',
-                        let: { nome_idoso: "$nome" },
-                        pipeline: [
-                            { $match: 
-                                { $expr:
-                                    { $and:
-                                        [
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', false ] },
-                                        ]
-                                    }
-                                }, 
-                            },
-                        ],
-                        as: 'atendimentosNaoEfetuados'
-                        }
-                    },
-                    {
-                        $addFields: {
-                            "stats.qtdAtendimentosEfetuados": { $cond: { if: { $isArray: "$atendimentosEfetuados" }, then: { $size: "$atendimentosEfetuados" }, else: 0} },
-                            "stats.qtdAtendimentosNaoEfetuados": { $cond: { if: { $isArray: "$atendimentosNaoEfetuados" }, then: { $size: "$atendimentosNaoEfetuados" }, else: 0} },
-                        }
-                    },
-                    { $lookup:
-                        {
-                        from: 'atendimentos',
-                        let: { nome_idoso: "$nome" },
-                        pipeline: [
-                            { $match: 
-                                { $expr:
-                                    { $and:
-                                        [
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-                                        ]
-                                    }
-                                }, 
-                            },
-                            { $sort: { "fichaVigilancia.data": -1 } },
-                            { $limit : 1 },
-                            { $project: {
-                                _id: 0,
-                                data: "$fichaVigilancia.data",
-                                efetuado: "$fichaVigilancia.dadosIniciais.atendeu",
-                              }
-                            },
-                        ],
-                        as: 'ultimoAtendimento'
-                        }
-                    },
-                    // { $unwind: "$ultimoAtendimento" },
-                    { $lookup:
-                        {
-                        from: 'atendimentos',
-                        let: { nome_idoso: "$nome" },
-                        pipeline: [
-                            { $match: 
-                                { $expr:
-                                    { $and:
-                                        [
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.nome', '$$nome_idoso' ] },
-                                            { $eq: [ '$fichaVigilancia.dadosIniciais.atendeu', true ] },
-                                        ]
-                                    }
-                                }, 
-                            },
-                            { $sort: { "fichaVigilancia.data": -1 } },
-                            { $limit : 1 },
-                            {
-                                $project: {
-                                    _id: 0,
-                                    data: "$fichaVigilancia.data",
-                                    vulnerabilidade : "$escalas.vulnerabilidade",
-                                    epidemiologica: "$escalas.epidemiologica",
-                                    riscoContagio: "$escalas.riscoContagio",
-                                    scoreOrdenacao: "$escalas.scoreOrdenacao",
-                                }
-                            }
-                        ],
-                        as: 'ultimoAtendimentoEfetuado'
-                        }
-                    },
-                    // { $unwind: "$ultimoAtendimentoEfetuado" },
-                    {
-                        $project: {
-                            _id: 1,
-                            row: 1,
-                            dataNascimento: 1,
-                            nome: 1,
-                            telefone1: 1,
-                            telefone2: 1,
-                            agenteSaude: 1,
-                            vigilante: 1,
-                            // qtdAtendimentosEfetuados: 1,
-                            // qtdAtendimentosNaoEfetuados: 1,
-                            // ultimoAtendimentoEfetuado: 1,
-                            "stats.qtdAtendimentosEfetuados": 1,
-                            "stats.qtdAtendimentosNaoEfetuados": 1,
-                            "stats.ultimaEscala": { $arrayElemAt: [ "$ultimoAtendimentoEfetuado", 0 ] },
-                            // ultimoAtendimento: 1,
-                            "stats.ultimoAtendimento": { $arrayElemAt: [ "$ultimoAtendimento", 0 ] },
-                            // "ultimoAtendimento.data" : "$ultimoAtendimento.fichaVigilancia.data",
-                            // "ultimoAtendimento.efetuado" : "$ultimoAtendimento.fichaVigilancia.dadosIniciais.atendeu",
-                        }
-                    },
-                    { $out: "idososStats" },
-                ]).toArray(function(err, result) {
-                    // client.close();
-                    if(err) {
-                        reject(err);
+                idososStatscollection.insertMany(idosos, function(err, result) {
+                    client.close();
+                    if(result.result.ok) {
+                        console.log(`[Sync] idososStats collection: ${result.result.n} documents added`);
+                        resolve(result.result.n);
                     } else {
-                        console.log(`[Sync] data and statistics successfully processed!`);
-                        resolve(true);
+                        reject(err);
                     }
                 });
             });
@@ -408,7 +350,8 @@ module.exports = app => {
         // console.log(`${resultRespostas} rows inserted in collection atendimentos`);
         
         //idosos with stats
-        const resultIdososStats = await updateIdososStats();
+        // const resultIdososStats = await updateIdososStats();
+        const resultIdososStats = await updateIdososAtendimentos();
         // console.log(`${resultIdososStats} rows inserted in collection idososStats`);
 
         return res.json({
