@@ -256,6 +256,44 @@ module.exports = app => {
 
     }
 
+    const runSync = async () => {
+        //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
+        const start = new Date();
+
+        // await insertUnidades();
+
+        const unidades = await unidadeService.findAll();
+
+        if(unidades.length > 0) {// TODO sincroniza apenas a primeira unidade da lista, SINCRONIZAR TODAS AS UNIDADES
+            console.log(`[Sync] ${unidades[0].nome} STARTING SYNC `);
+
+            const resultIdosos = await syncIdosos(unidades[0]);
+            
+            const resultVigilantes = await syncVigilantes(unidades[0]);
+    
+            const resultRespostas = await syncAtendimentos(unidades[0]);
+            
+            const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
+    
+            console.log(`[Sync] ${unidades[0].nome} SYNCED`);
+
+            return {
+                ok: true,
+                idosos: resultIdosos,
+                atendimentos: resultRespostas,
+                vigilantes: resultVigilantes,
+                idososAtendimentos: resultIdososAtendimentos,
+                runtime: ((new Date()) - start)/1000,    
+            }
+        } else {
+            return {
+                ok: false,
+                error: 'não há unidades para sincronizar',
+            };
+        }
+
+    }
+
     /**
      * Sincroniza o banco com uma planilha
      */
@@ -264,37 +302,8 @@ module.exports = app => {
         const start = new Date();
         
         try {
-            // await insertUnidades();
-
-            const unidades = await unidadeService.findAll();
-
-            if(unidades.length > 0) {// TODO sincroniza apenas a primeira unidade da lista, SINCRONIZAR TODAS AS UNIDADES
-                console.log(`[Sync] ${unidades[0].nome} STARTING SYNC `);
-
-                const resultIdosos = await syncIdosos(unidades[0]);
-                
-                const resultVigilantes = await syncVigilantes(unidades[0]);
-        
-                const resultRespostas = await syncAtendimentos(unidades[0]);
-                
-                const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
-        
-                console.log(`[Sync] ${unidades[0].nome} SYNCED`);
-
-                return res.json({
-                    ok: true,
-                    idosos: resultIdosos,
-                    atendimentos: resultRespostas,
-                    vigilantes: resultVigilantes,
-                    idososAtendimentos: resultIdososAtendimentos,
-                    runtime: ((new Date()) - start)/1000,
-                });
-            } else {
-                return res.json({
-                    ok: false,
-                    error: 'não há unidades para sincronizar',
-                });
-            }
+            const result = await runSync();
+            return res.json(result);
         } catch (error) {
             console.warn(error)
             return res.json({
@@ -306,5 +315,5 @@ module.exports = app => {
         
     };
 
-    return { sync };
+    return { sync, runSync };
 };
