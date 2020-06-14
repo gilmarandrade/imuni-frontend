@@ -8,19 +8,20 @@ const idosoService = require('../service/idosoService');
 const vigilanteService = require('../service/vigilanteService');
 const atendimentoService = require('../service/atendimentoService');
 const idosoAtendimentoService = require('../service/idosoAtendimentoService');
+const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
 
-    const arrayIdososByVigilante = async (sheetsVigilantes, gerenciamentoSpreadsheet) => {
+    const arrayIdososByVigilante = async (unidade) => {
         const idososPorVigilantes = [];
-        for(let i = 0; i < sheetsVigilantes.length; i++) {
+        for(let i = 1; i <= unidade.qtdVigilantes; i++) {
             // try {
-                console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} '${sheetsVigilantes[i]}'!A2:E`);
-                const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'${sheetsVigilantes[i]}'!A2:E`);
+                console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${i}'!A2:E`);
+                const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${i}'!A2:E`);
                 rows.forEach((item, index) => {
                     if(item[1]) {//se o idoso tem nome
                         idososPorVigilantes.push({
-                            row: `'${sheetsVigilantes[i]}'!A${index + 2}:E`,
+                            row: `'Vigilante ${i}'!A${index + 2}:E`,
                             dataNascimento: '',
                             nome: item[1],
                             telefone1: item[2],
@@ -30,7 +31,7 @@ module.exports = app => {
                         });
                     }
                 });
-                console.log('[Sync] Readed spreadsheet ', gerenciamentoSpreadsheet , ` '${sheetsVigilantes[i]}'!A2:E`);
+                console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${i}'!A2:E`);
             // } catch (error) {
             //     console.warn(error);
             // }
@@ -39,10 +40,8 @@ module.exports = app => {
         return idososPorVigilantes;
     }
 
-    const syncIdosos = async (gerenciamentoSpreadsheet) => {
-        const sheetsVigilantes = [ 'Vigilante 1', 'Vigilante 2', 'Vigilante 3', 'Vigilante 4' ];
-
-        const idososPorVigilantes = await arrayIdososByVigilante(sheetsVigilantes, gerenciamentoSpreadsheet);
+    const syncIdosos = async (unidade) => {
+        const idososPorVigilantes = await arrayIdososByVigilante(unidade);
 
         const resultDelete = await idosoService.deleteAll();
         console.log(`[Sync] idososCollection: ${resultDelete} rows deleted`)
@@ -52,9 +51,9 @@ module.exports = app => {
         return resultInsertMany;
     } 
 
-    const syncVigilantes = async (gerenciamentoSpreadsheet) => {
-        console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} 'Status Atendimentos'!A2:A`);
-        const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'Status Atendimentos'!A2:A`);
+    const syncVigilantes = async (unidade) => {
+        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Status Atendimentos'!A2:A`);
+        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Status Atendimentos'!A2:A`);
         const vigilantes = {};
         rows.forEach((item, index) => {
             vigilantes[item[0]] = { nome: item[0] };
@@ -70,9 +69,9 @@ module.exports = app => {
         return resultInsertMany;
     }
 
-    const syncAtendimentos = async (gerenciamentoSpreadsheet) => {
-        console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} 'Respostas'!A2:AI`);
-        const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'Respostas'!A2:AI`);
+    const syncAtendimentos = async (unidade) => {
+        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A2:AI`);
+        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A2:AI`);
         const respostasArray = [];
         rows.forEach((item, index) => {
             //TODO criar uma função para conversao de datas string da planilha para Date
@@ -240,33 +239,61 @@ module.exports = app => {
         return resultInsertMany;
     }
 
+    // TODO ler unidades da planilha
+    const insertUnidades = async () => {
+
+        const unidades = [];
+
+        unidades.push({
+            nome: 'USF Rocas',
+            distrito: 'Leste',
+            idPlanilhaIdosos: '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc',
+            idPlanilhaGerenciamento: '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4',
+            qtdVigilantes: 4,
+        });
+        unidadeService.insertAll(unidades);
+
+    }
+
     /**
      * Sincroniza o banco com uma planilha
      */
     const sync = async (req, res) => {
         //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
-
-        const idososSpreadsheet = '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc';
-        const gerenciamentoSpreadsheet = '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4';
         
         try {
-            const resultIdosos = await syncIdosos(gerenciamentoSpreadsheet);
-            
-            const resultVigilantes = await syncVigilantes(gerenciamentoSpreadsheet);
-    
-            const resultRespostas = await syncAtendimentos(gerenciamentoSpreadsheet);
-            
-            const resultIdososAtendimentos = await syncIdososAtendimentos();
-    
-            return res.json({
-                ok: true,
-                idosos: resultIdosos,
-                atendimentos: resultRespostas,
-                vigilantes: resultVigilantes,
-                idososAtendimentos: resultIdososAtendimentos,
-                runtime: ((new Date()) - start)/1000,
-            });
+            // await insertUnidades();
+
+            const unidades = await unidadeService.findAll();
+
+            if(unidades.length > 0) {// TODO sincroniza apenas a primeira unidade da lista, SINCRONIZAR TODAS AS UNIDADES
+                console.log(`[Sync] ${unidades[0].nome} STARTING SYNC `);
+                
+                const resultIdosos = await syncIdosos(unidades[0]);
+                
+                const resultVigilantes = await syncVigilantes(unidades[0]);
+        
+                const resultRespostas = await syncAtendimentos(unidades[0]);
+                
+                const resultIdososAtendimentos = await syncIdososAtendimentos();
+        
+                console.log(`[Sync] ${unidades[0].nome} SYNCED`);
+
+                return res.json({
+                    ok: true,
+                    idosos: resultIdosos,
+                    atendimentos: resultRespostas,
+                    vigilantes: resultVigilantes,
+                    idososAtendimentos: resultIdososAtendimentos,
+                    runtime: ((new Date()) - start)/1000,
+                });
+            } else {
+                return res.json({
+                    ok: false,
+                    error: 'não há unidades para sincronizar',
+                });
+            }
         } catch (error) {
             console.warn(error)
             return res.json({

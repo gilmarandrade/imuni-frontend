@@ -4,7 +4,7 @@
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
 const dbName = 'planilhas';
-const collectionName = 'vigilantes';
+const collectionName = 'unidades';
 
 const findAll = async () => {
     const promise = new Promise( (resolve, reject) => {

@@ -53,7 +53,7 @@ const deleteAll = async () => {
     return promise;
 }
 
-const insertAll = async (idososArray) => {
+const insertAll = async (array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
@@ -61,7 +61,7 @@ const insertAll = async (idososArray) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.insertMany(idososArray, function(err, result) {
+            collection.insertMany(array, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
