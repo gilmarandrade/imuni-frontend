@@ -1,93 +1,78 @@
 const { calcularEscalas } = require('../config/helpers');
-const { read } = require('../config/sheetsApi');
+const sheetsApi = require('../config/sheetsApi');
 
 //TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
+const idosoService = require('../service/idosoService');
+const vigilanteService = require('../service/vigilanteService');
 const atendimentoService = require('../service/atendimentoService');
+const idosoAtendimentoService = require('../service/idosoAtendimentoService');
 
 module.exports = app => {
 
-    /**
-     * Método genérico para ler qualquer aba de uma planilha
-     */
-    const get = async (req, res) => {
-        const rows = await read(req.params.id, `'${req.params.sheetName}'!${req.params.range}`);
-        return res.json(rows);
-    };
-
-    const arrayIdososByVigilante = async (sheetName, gerenciamentoSpreadsheet) => {
-        console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} '${sheetName}'!A2:E`);
-        const rows = await read(gerenciamentoSpreadsheet, `'${sheetName}'!A2:E`);
-        const idososArray = [];
-        rows.forEach((item, index) => {
-            // console.log('A' + (index + 2), item[1])
-            if(item[1]) {
-                idososArray.push({
-                    row: `'${sheetName}'!A${index + 2}:E`,
-                    dataNascimento: '',
-                    nome: item[1],
-                    telefone1: item[2],
-                    telefone2: item[3],
-                    agenteSaude: item[4],
-                    vigilante: item[0],
-                });
-            }
-        });
-        
-        return idososArray;
-    }
-
-    //TODO refatorar retorno da promisse, para retornar mensagens de erro
-    const updateIdosos = async (gerenciamentoSpreadsheet) => {
-        
-        const sheetsVigilantes = [ 'Vigilante 1', 'Vigilante 2', 'Vigilante 3', 'Vigilante 4' ];
-
-        const arrays = [];
-        for(let i= 0; i < sheetsVigilantes.length; i++) {
-            try {
-                arrays[i] = await arrayIdososByVigilante(sheetsVigilantes[i], gerenciamentoSpreadsheet);
-                console.log('[Sync] Readed spreadsheet ', gerenciamentoSpreadsheet , ` '${sheetsVigilantes[i]}'!A2:E`);
-            } catch (error) {
-                console.warn(error);
-            }
-        }
-        const idososArray = [].concat(...arrays);
-
-        const promise = new Promise( (resolve, reject) => {
-            if(typeof arrays === 'string') reject(arrays);
-
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                if(err) reject(err);
-                const db = client.db('planilhas');
-                const idososcollection = db.collection('idosos');
-                try {
-                    idososcollection.deleteMany();
-                } catch (error) {
-                    console.warn('idososcollection.deleteMany() collection may not exists!');
-                }
-
-                idososcollection.insertMany(idososArray, function(err, result) {
-                    client.close();
-                    if(result.result.ok) {
-                        console.log(`[Sync] idosos collection: ${result.result.n} documents added`);
-                        resolve(result.result.n);
-                    } else {
-                        reject(err);
+    const arrayIdososByVigilante = async (sheetsVigilantes, gerenciamentoSpreadsheet) => {
+        const idososPorVigilantes = [];
+        for(let i = 0; i < sheetsVigilantes.length; i++) {
+            // try {
+                console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} '${sheetsVigilantes[i]}'!A2:E`);
+                const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'${sheetsVigilantes[i]}'!A2:E`);
+                rows.forEach((item, index) => {
+                    if(item[1]) {//se o idoso tem nome
+                        idososPorVigilantes.push({
+                            row: `'${sheetsVigilantes[i]}'!A${index + 2}:E`,
+                            dataNascimento: '',
+                            nome: item[1],
+                            telefone1: item[2],
+                            telefone2: item[3],
+                            agenteSaude: item[4],
+                            vigilante: item[0],
+                        });
                     }
                 });
-            });
+                console.log('[Sync] Readed spreadsheet ', gerenciamentoSpreadsheet , ` '${sheetsVigilantes[i]}'!A2:E`);
+            // } catch (error) {
+            //     console.warn(error);
+            // }
+        }
+        
+        return idososPorVigilantes;
+    }
 
-        });
+    const syncIdosos = async (gerenciamentoSpreadsheet) => {
+        const sheetsVigilantes = [ 'Vigilante 1', 'Vigilante 2', 'Vigilante 3', 'Vigilante 4' ];
 
-        return promise;
+        const idososPorVigilantes = await arrayIdososByVigilante(sheetsVigilantes, gerenciamentoSpreadsheet);
+
+        const resultDelete = await idosoService.deleteAll();
+        console.log(`[Sync] idososCollection: ${resultDelete} rows deleted`)
+
+        const resultInsertMany = await idosoService.insertAll(idososPorVigilantes);
+        console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
+        return resultInsertMany;
     } 
 
-    //TODO refatorar retorno da promisse, para retornar mensagens de erro
-    const updateRespostas = async (gerenciamentoSpreadsheet) => {
+    const syncVigilantes = async (gerenciamentoSpreadsheet) => {
+        console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} 'Status Atendimentos'!A2:A`);
+        const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'Status Atendimentos'!A2:A`);
+        const vigilantes = {};
+        rows.forEach((item, index) => {
+            vigilantes[item[0]] = { nome: item[0] };
+        });
+
+        const arrayVigilantes = Object.values(vigilantes);
+
+        const resultDelete = await vigilanteService.deleteAll();
+        console.log(`[Sync] vigilantesCollection: ${resultDelete} rows deleted`)
+
+        const resultInsertMany = await vigilanteService.insertAll(arrayVigilantes);
+        console.log(`[Sync] vigilantesCollection: ${resultInsertMany} rows inserted`)
+        return resultInsertMany;
+    }
+
+    const syncAtendimentos = async (gerenciamentoSpreadsheet) => {
         console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} 'Respostas'!A2:AI`);
-        const rows = await read(gerenciamentoSpreadsheet, `'Respostas'!A2:AI`);
+        const rows = await sheetsApi.read(gerenciamentoSpreadsheet, `'Respostas'!A2:AI`);
         const respostasArray = [];
         rows.forEach((item, index) => {
             //TODO criar uma função para conversao de datas string da planilha para Date
@@ -167,100 +152,47 @@ module.exports = app => {
             }
         });
 
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                const db = client.db('planilhas');
+        const resultDelete = await atendimentoService.deleteAll();
+        console.log(`[Sync] atendimentosCollection: ${resultDelete} rows deleted`)
 
-                const atendimentosCollection = db.collection('atendimentos');
-                try {
-                    atendimentosCollection.deleteMany();
-                } catch (error) {
-                    console.warn('atendimentosCollection.deleteMany() collection may not exists!');
-                }
-                atendimentosCollection.insertMany(atendimentosArray, function(err, result) {
-                    if(result.result.ok) {
-                        console.log(`[Sync] atendimentos collection: ${result.result.n} documents added`);
-                        resolve(result.result.n)
-                    } else {
-                        reject(err);
-                    }
-                //   client.close();
-                });
-            });
-        });
-
-        return promise;
-    } 
-
-    //TODO não é necessário buscar na planilha, basta filtrar na collection de idosos
-    const updateVigilantes = async (gerenciamentoSpreadsheet) => {
-        console.log(`[Sync] Reading spreadsheet ${gerenciamentoSpreadsheet} 'Status Atendimentos'!A2:A`);
-        const rows = await read(gerenciamentoSpreadsheet, `'Status Atendimentos'!A2:A`);
-        const vigilantes = {};
-        rows.forEach((item, index) => {
-            vigilantes[item[0]] = { nome: item[0] };
-        });
-
-        const arrayVigilantes = Object.values(vigilantes);
-                    
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                const db = client.db('planilhas');
-                const vigilantesCollection = db.collection('vigilantes');
-                try {
-                    vigilantesCollection.deleteMany();
-                } catch (error) {
-                    console.warn('vigilantesCollection.deleteMany() collection may not exists!');
-                }
-
-                vigilantesCollection.insertMany(arrayVigilantes, function(err, result) {
-                    client.close();
-                    if(result.result.ok) {
-                        console.log(`[Sync] vigilantes collection: ${result.result.n} documents added`);
-                        resolve(result.result.n);
-                    } else {
-                        reject(err);
-                    }
-                });
-            }); 
-        });
-
-        return promise;
+        const resultInsertMany = await atendimentoService.insertAll(atendimentosArray);
+        console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`)
+        return resultInsertMany;
     }
 
-    const updateIdososAtendimentos = async () => {
-/**
-    {
-        "row": "'Vigilante 1'!A19:M19",
-        "score": 81,
-        "stats": {
-            "qtdAtendimentosEfetuados": 2,
-            "qtdAtendimentosNaoEfetuados": 2,
-            "ultimoAtendimento": {
-                "efetuado": true,
-                "data": "25/05/2020 10:45:50"
-            },
-            "ultimaEscala": {
-                "vulnerabilidade": "O - Sem Vulnerabilidade",
-                "epidemiologica": "IVb - Idoso sintomático",
-                "riscoContagio": "Baixo",
-                "data": "",
-                "scoreOrdenacao?": 81
-            },
-            "dataProximoAtendimento": "26/05/2020"
-        },
-        "vigilante": "Jaiane Carmélia Monteiro Viana",
-        "nome": "João Inácio Filho",
-        "telefone1": "988015537",
-        "telefone2": "",
-        "agenteSaude": "Roberto"
-    }
- */
-        const idosos = await atendimentoService.findIdosos();
+    const syncIdososAtendimentos = async () => {
+        /** IdosoAtendimento Object:
+            {
+                "row": "'Vigilante 1'!A19:M19",
+                "score": 81,
+                "stats": {
+                    "qtdAtendimentosEfetuados": 2,
+                    "qtdAtendimentosNaoEfetuados": 2,
+                    "ultimoAtendimento": {
+                        "efetuado": true,
+                        "data": "25/05/2020 10:45:50"
+                    },
+                    "ultimaEscala": {
+                        "vulnerabilidade": "O - Sem Vulnerabilidade",
+                        "epidemiologica": "IVb - Idoso sintomático",
+                        "riscoContagio": "Baixo",
+                        "data": "",
+                        "scoreOrdenacao?": 81
+                    },
+                    "dataProximoAtendimento": "26/05/2020"
+                },
+                "vigilante": "Jaiane Carmélia Monteiro Viana",
+                "nome": "João Inácio Filho",
+                "telefone1": "988015537",
+                "telefone2": "",
+                "agenteSaude": "Roberto"
+            }
+        */
+        const idosos = await idosoService.findAll();
+        // console.log('idosos: ', idosos.length);
         for(let i = 0; i < idosos.length; i++) {
             const atendimentos = await atendimentoService.findAtendimentosByIdoso(idosos[i]);
+            // console.log('atendimentos by idoso: ', atendimentos.length);
 
             const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
                 if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
@@ -277,7 +209,7 @@ module.exports = app => {
                     data: atendimento.fichaVigilancia.data,
                     efetuado: atendimento.fichaVigilancia.dadosIniciais.atendeu,
                 }
-            });
+            })[0] || null;
 
             const ultimoAtendimentoEfetuado = atendimentos.filter((atendimento, index, array) => {
                 return atendimento.fichaVigilancia.dadosIniciais.atendeu;
@@ -287,6 +219,7 @@ module.exports = app => {
 
             idosos[i].stats.qtdAtendimentosEfetuados = qtdAtendimentosEfetuados;
             idosos[i].stats.qtdAtendimentosNaoEfetuados = atendimentos.length - qtdAtendimentosEfetuados;
+            idosos[i].stats.ultimoAtendimento = ultimoAtendimento;
             if(ultimoAtendimentoEfetuado) {
                 idosos[i].stats.ultimaEscala = ultimoAtendimentoEfetuado.escalas;
                 idosos[i].stats.ultimaEscala.data = ultimoAtendimentoEfetuado.fichaVigilancia.data;
@@ -299,35 +232,12 @@ module.exports = app => {
             }
         }
 
+        const resultDelete = await idosoAtendimentoService.deleteAll();
+        console.log(`[Sync] idososAtendimentosCollection: ${resultDelete} rows deleted`)
 
-        const promise = new Promise( (resolve, reject) => {
-            if(typeof arrays === 'string') reject(arrays);
-
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                if(err) reject(err);
-                const db = client.db('planilhas');
-                const idososStatscollection = db.collection('idososStats');
-                try {
-                    idososStatscollection.deleteMany();
-                } catch (error) {
-                    console.warn('idososStatscollection.deleteMany() collection may not exists!');
-                }
-
-                idososStatscollection.insertMany(idosos, function(err, result) {
-                    client.close();
-                    if(result.result.ok) {
-                        console.log(`[Sync] idososStats collection: ${result.result.n} documents added`);
-                        resolve(result.result.n);
-                    } else {
-                        reject(err);
-                    }
-                });
-            });
-
-        });
-
-        return promise;
+        const resultInsertMany = await idosoAtendimentoService.insertAll(idosos);
+        console.log(`[Sync] idososAtendimentosCollection: ${resultInsertMany} rows inserted`)
+        return resultInsertMany;
     }
 
     /**
@@ -340,187 +250,33 @@ module.exports = app => {
         const idososSpreadsheet = '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc';
         const gerenciamentoSpreadsheet = '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4';
         
-        const resultIdosos = await updateIdosos(gerenciamentoSpreadsheet );
-        // console.log(`${resultIdosos} rows inserted in collection idosos`);
-
-        const resultVigilantes = await updateVigilantes(gerenciamentoSpreadsheet );
-        // console.log(`${resultVigilantes} rows inserted in collection vigilantes`);
-
-        const resultRespostas = await updateRespostas(gerenciamentoSpreadsheet );
-        // console.log(`${resultRespostas} rows inserted in collection atendimentos`);
+        try {
+            const resultIdosos = await syncIdosos(gerenciamentoSpreadsheet);
+            
+            const resultVigilantes = await syncVigilantes(gerenciamentoSpreadsheet);
+    
+            const resultRespostas = await syncAtendimentos(gerenciamentoSpreadsheet);
+            
+            const resultIdososAtendimentos = await syncIdososAtendimentos();
+    
+            return res.json({
+                ok: true,
+                idosos: resultIdosos,
+                atendimentos: resultRespostas,
+                vigilantes: resultVigilantes,
+                idososAtendimentos: resultIdososAtendimentos,
+                runtime: ((new Date()) - start)/1000,
+            });
+        } catch (error) {
+            console.warn(error)
+            return res.json({
+                ok: false,
+                error: error.toString(),
+                runtime: ((new Date()) - start)/1000,
+            });
+        }
         
-        //idosos with stats
-        // const resultIdososStats = await updateIdososStats();
-        const resultIdososStats = await updateIdososAtendimentos();
-        // console.log(`${resultIdososStats} rows inserted in collection idososStats`);
-
-        return res.json({
-            ok: true,
-            idosos: resultIdosos,
-            atendimentos: resultRespostas,
-            vigilantes: resultVigilantes,
-            idososStats: resultIdososStats,
-            runtime: ((new Date()) - start)/1000,
-        });
     };
 
-    const idososByVigilante = async (req, res) => {
-        //TODO futuramente deverá ser pelo id
-        const nomeVigilante = req.params.id;
-
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const idososStatsCollection = db.collection('idososStats');
-
-            idososStatsCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
-                client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
-    }
-
-    const idoso = async (req, res) => {
-        //TODO futuramente deverá ser pelo id
-        const nomeIdoso = req.params.id;
-
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const idososStatsCollection = db.collection('idososStats');
-
-            idososStatsCollection.findOne({ nome: nomeIdoso }, function(err, result) {
-                client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                // console.log(result)
-                return res.json(result);
-            });
-        });
-    }
-
-    const atendimentosByIdoso = async (req, res) => {
-        //TODO futuramente deverá ser pelo id
-        const nomeIdoso = req.params.id;
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const atendimentosCollection = db.collection('atendimentos');
-
-            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }, {
-                projection: {
-                    _id: 1,
-                    "fichaVigilancia.data": 1,
-                    "fichaVigilancia.dadosIniciais.atendeu": 1,
-                    "escalas": 1,
-                    "fichaVigilancia.vigilante": 1,
-                    "fichaVigilancia.duracaoChamada": 1,
-                }
-            }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
-                client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
-    }
-
-    const atendimento = async (req, res) => {
-        //TODO futuramente deverá ser pelo id
-        const id = req.params.id;
-        console.log(id)
-
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const atendimentosCollection = db.collection('atendimentos');
-
-            // atendimentosCollection.findOne({ _id: ObjectId(id) }, function(err, result) {
-            //     client.close();
-            //     if (err) 
-            //         return res.status(500).send(err);
-            //     // console.log(result)
-            //     return res.json(result);
-            // });
-
-            atendimentosCollection.aggregate([
-                { $match: { _id: ObjectId(id) } },
-                { $lookup: {
-                    from: 'idososStats',
-                    let: { nome_idoso: "$fichaVigilancia.dadosIniciais.nome" },
-                    pipeline: [
-                        { $match: 
-                            { $expr:
-                                { $and:
-                                    [
-                                        { $eq: [ '$nome', '$$nome_idoso' ] },
-                                    ]
-                                }
-                            }, 
-                        },
-                        { $limit : 1 },
-                        {
-                            $project: {
-                                stats: 0,
-                            }
-                        }
-                    ],
-                    as: 'idoso',
-                  }
-                },
-                { $unwind: '$idoso' },
-            ]).toArray(function(err, result) {
-                // client.close();
-                if(err) {
-                    return res.status(500).send(err);
-                } else {
-                    // console.log(result)
-                    return res.json(result);
-                }
-            });
-
-        });
-    }
-
-    const vigilantes = async (req, res) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const vigilantesCollection = db.collection('vigilantes');
-
-            vigilantesCollection.find({ }).sort({nome:1}).toArray(function(err, result) {
-                client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
-    }
-
-    const stats = async (req, res) => {
-        const idosos = await countDocuments('idosos');
-        const vigilantes = await countDocuments('vigilantes');
-        const atendimentos = await countDocuments('atendimentos');
-        const idososStats = await countDocuments('idososStats');
-        return res.json({ idosos, vigilantes, atendimentos, idososStats });
-    }
-
-    const countDocuments = async (collectionName) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                if(err) reject(err);
-                const db = client.db('planilhas');
-                const collection = db.collection(collectionName);
-                collection.countDocuments(function(err, result) {
-                    resolve(result);
-                });
-            });
-        });
-        return promise;
-    } 
-
-    return { get, sync, idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats };
+    return { sync };
 };

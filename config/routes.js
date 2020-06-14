@@ -60,10 +60,10 @@ module.exports = app => {
     });
 
     app.route('/docs/:id/sheets/:sheetName/range/:range')
-        .get(app.api.googlesheets.get);
+        .get(app.api.planilhas.get);
 
     app.route('/sync')
-        .get(app.api.googlesheets.sync);
+        .get(app.api.sync.sync);
 
     app.route('/vigilantes/:id/idosos')
         .get(app.api.googlesheets.idososByVigilante);
@@ -79,13 +79,6 @@ module.exports = app => {
 
     app.route('/vigilantes')
         .get(app.api.googlesheets.vigilantes);
-
-    //planilha
-    app.route('/planilhas/:idPlanilha/vigilantes/:indexVigilante/idosos')
-        .get(app.api.planilhas.idososByVigilante);
-
-    app.route('/planilhas/:idPlanilha/vigilantes')
-        .get(app.api.planilhas.vigilantes);
 
     app.route('/stats')
         .get(app.api.googlesheets.stats);

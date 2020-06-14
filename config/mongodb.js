@@ -12,7 +12,7 @@ module.exports = function(callback) {
           {a : 'simmm'}, {a : 'merda'}, {a : 'funcionou?'}
         ], function(err, result) {
           console.log("Inserted 3 documents into the collection");
-          client.close();
+          // client.close();
         });
       } );
 };
