@@ -1,7 +1,7 @@
 const { calcularEscalas } = require('../config/helpers');
 const { read } = require('../config/sheetsApi');
 
-//TODO usar configuração do banco
+//TODO usar os services para acessar o banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');

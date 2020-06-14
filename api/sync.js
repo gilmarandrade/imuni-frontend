@@ -43,10 +43,10 @@ module.exports = app => {
     const syncIdosos = async (unidade) => {
         const idososPorVigilantes = await arrayIdososByVigilante(unidade);
 
-        const resultDelete = await idosoService.deleteAll();
+        const resultDelete = await idosoService.deleteAll(unidade.collectionPrefix);
         console.log(`[Sync] idososCollection: ${resultDelete} rows deleted`)
 
-        const resultInsertMany = await idosoService.insertAll(idososPorVigilantes);
+        const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes);
         console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
         return resultInsertMany;
     } 
@@ -61,10 +61,10 @@ module.exports = app => {
 
         const arrayVigilantes = Object.values(vigilantes);
 
-        const resultDelete = await vigilanteService.deleteAll();
+        const resultDelete = await vigilanteService.deleteAll(unidade.collectionPrefix);
         console.log(`[Sync] vigilantesCollection: ${resultDelete} rows deleted`)
 
-        const resultInsertMany = await vigilanteService.insertAll(arrayVigilantes);
+        const resultInsertMany = await vigilanteService.insertAll(unidade.collectionPrefix, arrayVigilantes);
         console.log(`[Sync] vigilantesCollection: ${resultInsertMany} rows inserted`)
         return resultInsertMany;
     }
@@ -151,15 +151,15 @@ module.exports = app => {
             }
         });
 
-        const resultDelete = await atendimentoService.deleteAll();
+        const resultDelete = await atendimentoService.deleteAll(unidade.collectionPrefix);
         console.log(`[Sync] atendimentosCollection: ${resultDelete} rows deleted`)
 
-        const resultInsertMany = await atendimentoService.insertAll(atendimentosArray);
+        const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
         console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`)
         return resultInsertMany;
     }
 
-    const syncIdososAtendimentos = async () => {
+    const syncIdososAtendimentos = async (unidade) => {
         /** IdosoAtendimento Object:
             {
                 "row": "'Vigilante 1'!A19:M19",
@@ -187,10 +187,10 @@ module.exports = app => {
                 "agenteSaude": "Roberto"
             }
         */
-        const idosos = await idosoService.findAll();
+        const idosos = await idosoService.findAll(unidade.collectionPrefix);
         // console.log('idosos: ', idosos.length);
         for(let i = 0; i < idosos.length; i++) {
-            const atendimentos = await atendimentoService.findAtendimentosByIdoso(idosos[i]);
+            const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idosos[i]);
             // console.log('atendimentos by idoso: ', atendimentos.length);
 
             const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
@@ -231,10 +231,10 @@ module.exports = app => {
             }
         }
 
-        const resultDelete = await idosoAtendimentoService.deleteAll();
+        const resultDelete = await idosoAtendimentoService.deleteAll(unidade.collectionPrefix);
         console.log(`[Sync] idososAtendimentosCollection: ${resultDelete} rows deleted`)
 
-        const resultInsertMany = await idosoAtendimentoService.insertAll(idosos);
+        const resultInsertMany = await idosoAtendimentoService.insertAll(unidade.collectionPrefix, idosos);
         console.log(`[Sync] idososAtendimentosCollection: ${resultInsertMany} rows inserted`)
         return resultInsertMany;
     }
@@ -246,6 +246,7 @@ module.exports = app => {
 
         unidades.push({
             nome: 'USF Rocas',
+            collectionPrefix: 'USF Rocas'.replace(/[^a-zA-Z0-9]/g, '_'),
             distrito: 'Leste',
             idPlanilhaIdosos: '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc',
             idPlanilhaGerenciamento: '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4',
@@ -269,14 +270,14 @@ module.exports = app => {
 
             if(unidades.length > 0) {// TODO sincroniza apenas a primeira unidade da lista, SINCRONIZAR TODAS AS UNIDADES
                 console.log(`[Sync] ${unidades[0].nome} STARTING SYNC `);
-                
+
                 const resultIdosos = await syncIdosos(unidades[0]);
                 
                 const resultVigilantes = await syncVigilantes(unidades[0]);
         
                 const resultRespostas = await syncAtendimentos(unidades[0]);
                 
-                const resultIdososAtendimentos = await syncIdososAtendimentos();
+                const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
         
                 console.log(`[Sync] ${unidades[0].nome} SYNCED`);
 

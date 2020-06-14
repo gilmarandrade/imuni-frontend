@@ -7,14 +7,14 @@ const dbName = 'planilhas';
 const collectionName = 'atendimentos';
 
 
-const findAtendimentosByIdoso = async (idoso) => {
+const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
             if (err) { reject(err); }
 
             const db = client.db(dbName);
-            const collection = db.collection(collectionName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
             collection.find({ "fichaVigilancia.dadosIniciais.nome" : idoso.nome }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
                 if (err) 
@@ -29,14 +29,14 @@ const findAtendimentosByIdoso = async (idoso) => {
     return promise;
 }
 
-const findAll = async () => {
+const findAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
             if(err) reject(err);
             const db = client.db(dbName);
             
-            const collection = db.collection(collectionName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
             collection.find().toArray(function(err, result) {
                 if(err) {
@@ -52,14 +52,14 @@ const findAll = async () => {
     return promise;
 }
 
-const deleteAll = async () => {
+const deleteAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
             if(err) reject(err);
             const db = client.db(dbName);
             
-            const collection = db.collection(collectionName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
             collection.deleteMany({}, function(err, result) {
                 if(err) {
@@ -75,13 +75,13 @@ const deleteAll = async () => {
     return promise;
 }
 
-const insertAll = async (array) => {
+const insertAll = async (collectionPrefix, array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
             if(err) reject(err);
             const db = client.db(dbName);
-            const collection = db.collection(collectionName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
             collection.insertMany(array, function(err, result) {
                 if(err) {
