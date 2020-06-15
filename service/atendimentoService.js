@@ -10,7 +10,7 @@ const collectionName = 'atendimentos';
 const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if (err) { return reject(err); }
 
             const db = client.db(dbName);
@@ -32,7 +32,7 @@ const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
 const findAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -55,7 +55,7 @@ const findAll = async (collectionPrefix) => {
 const deleteAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -78,7 +78,7 @@ const deleteAll = async (collectionPrefix) => {
 const insertAll = async (collectionPrefix, array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);

@@ -6,25 +6,20 @@ const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');
+const idosoService = require('../service/idosoService');
 
 module.exports = app => {
 
     const idososByVigilante = async (req, res) => {
         //TODO futuramente deverá ser pelo id
-        const nomeVigilante = req.params.id;
+        const nomeVigilante = req.params.vigilanteId;
 
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const idososStatsCollection = db.collection('idososStats');
-
-            idososStatsCollection.find({ vigilante: nomeVigilante }).toArray(function(err, result) {
-                // client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
+        try {
+            const result = await idosoService.findAllByVigilante('USF_Rocas', nomeVigilante); // TODO receber unidade por parametro
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
     }
 
     const idoso = async (req, res) => {
@@ -32,7 +27,7 @@ module.exports = app => {
         const nomeIdoso = req.params.id;
 
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const idososStatsCollection = db.collection('idososStats');
 
@@ -50,7 +45,7 @@ module.exports = app => {
         //TODO futuramente deverá ser pelo id
         const nomeIdoso = req.params.id;
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
@@ -78,7 +73,7 @@ module.exports = app => {
         console.log(id)
 
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
@@ -150,7 +145,7 @@ module.exports = app => {
     const countDocuments = async (collectionName) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
                 if(err) return reject(err);
                 const db = client.db('planilhas');
                 const collection = db.collection(collectionName);
