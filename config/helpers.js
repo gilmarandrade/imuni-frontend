@@ -58,10 +58,13 @@ function calcularEscalas(atendimento) {
             break;
     }
 
+    const dataProximoAtendimento = calcularDataProximoAtendimento(epidemiologica, atendimento.data);
+
     return {
         vulnerabilidade,
         epidemiologica,
         riscoContagio,
+        dataProximoAtendimento,
         scoreOrdenacao,
     };
 }
@@ -164,4 +167,34 @@ function calcularEscalaRiscoContagio(atendimento) {
     }
 }
 
-module.exports = { calcularEscalas, calcularEscalaVulnerabilidade, calculaEscalaEpidemiologica, calcularEscalaRiscoContagio };
+function calcularDataProximoAtendimento(epidemiologica, date) {
+    let increment = 0;
+    switch(epidemiologica) {
+        case 'Ia - Assintomático, mora com assintomáticos':
+        case 'Ib - Assintomático, mas vive sozinho':
+            increment = 10;
+            break; 
+        case 'IIa - Assintomático, mas sai de casa':
+        case 'IIb - Assitomático, mas recebe visita ou domiciliares saem':
+        case 'IIIa - Assintomático, mas com comorbidades':
+            increment = 7;
+            break; 
+        case 'IVa - Assintomático, mas sem medicações':
+            increment = 3;
+            break; 
+        case 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados':
+            increment = 2;
+            break; 
+        case 'IVb - Idoso sintomático':
+            increment = 1;
+            break;
+        default:
+            return null;
+    }
+
+    const nextDate = new Date(date.getTime());
+    nextDate.setDate(nextDate.getDate() + increment);
+    return nextDate;
+}
+
+module.exports = { calcularEscalas, calcularEscalaVulnerabilidade, calculaEscalaEpidemiologica, calcularEscalaRiscoContagio, calcularDataProximoAtendimento };

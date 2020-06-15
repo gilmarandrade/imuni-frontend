@@ -1,4 +1,4 @@
-const { calcularEscalas } = require('../config/helpers');
+const { calcularEscalas, calcularDataProximoAtendimento } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 
 //TODO usar configuração do banco
