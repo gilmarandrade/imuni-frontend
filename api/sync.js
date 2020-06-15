@@ -280,6 +280,7 @@ module.exports = app => {
             
             const log = {
                 ok: true,
+                time: new Date(),
                 idosos: resultIdosos,
                 atendimentos: resultRespostas,
                 vigilantes: resultVigilantes,
@@ -292,6 +293,7 @@ module.exports = app => {
         } else {
             const log = {
                 ok: false,
+                time: new Date(),
                 error: 'não há unidades para sincronizar',
             };
             const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
@@ -313,6 +315,7 @@ module.exports = app => {
             console.warn(error)
             const log = {
                 ok: false,
+                time: new Date(),
                 error: error.toString(),
                 runtime: ((new Date()) - start)/1000,
             };
