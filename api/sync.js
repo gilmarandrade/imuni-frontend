@@ -191,7 +191,7 @@ module.exports = app => {
         // console.log('idosos: ', idosos.length);
         for(let i = 0; i < idosos.length; i++) {
             const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idosos[i]);
-            console.log('atendimentos by idoso: ', atendimentos.length);
+            // console.log('atendimentos by idoso: ', atendimentos.length);
 
             const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
                 if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
