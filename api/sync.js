@@ -274,10 +274,11 @@ module.exports = app => {
             const resultRespostas = await syncAtendimentos(unidades[0]);
             
             const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
-    
-            console.log(`[Sync] ${unidades[0].nome} SYNCED`);
 
-            return {
+            
+            console.log(`[Sync] ${unidades[0].nome} SYNCED`);
+            
+            const log = {
                 ok: true,
                 idosos: resultIdosos,
                 atendimentos: resultRespostas,
@@ -285,11 +286,15 @@ module.exports = app => {
                 idososAtendimentos: resultIdososAtendimentos,
                 runtime: ((new Date()) - start)/1000,    
             }
+            const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
+
+            return log;
         } else {
-            return {
+            const log = {
                 ok: false,
                 error: 'não há unidades para sincronizar',
             };
+            const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
         }
 
     }
@@ -306,11 +311,14 @@ module.exports = app => {
             return res.json(result);
         } catch (error) {
             console.warn(error)
-            return res.json({
+            const log = {
                 ok: false,
                 error: error.toString(),
                 runtime: ((new Date()) - start)/1000,
-            });
+            };
+            const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
+
+            return res.json(log);
         }
         
     };
