@@ -5,6 +5,7 @@ const { read } = require('../config/sheetsApi');
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
+const vigilanteService = require('../service/vigilanteService');
 
 module.exports = app => {
 
@@ -129,18 +130,13 @@ module.exports = app => {
     }
 
     const vigilantes = async (req, res) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            const db = client.db('planilhas');
-            const vigilantesCollection = db.collection('vigilantes');
-
-            vigilantesCollection.find({ }).sort({nome:1}).toArray(function(err, result) {
-                // client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
+        // console.log('unidadeId: ', req.params.unidadeId)
+        try {
+            const result = await vigilanteService.findAll('USF_Rocas'); // TODO receber unidade por parametro
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
     }
 
     const stats = async (req, res) => {
@@ -155,7 +151,7 @@ module.exports = app => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-                if(err) reject(err);
+                if(err) return reject(err);
                 const db = client.db('planilhas');
                 const collection = db.collection(collectionName);
                 collection.countDocuments(function(err, result) {

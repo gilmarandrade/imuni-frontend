@@ -10,7 +10,7 @@ const findAll = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            if(err) reject(err);
+            if(err) return reject(err);
             const db = client.db(dbName);
             
             const collection = db.collection(collectionName);
@@ -33,7 +33,7 @@ const deleteAll = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            if(err) reject(err);
+            if(err) return reject(err);
             const db = client.db(dbName);
             
             const collection = db.collection(collectionName);
@@ -56,7 +56,7 @@ const insertAll = async (array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            if(err) reject(err);
+            if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
@@ -78,7 +78,7 @@ const updateSyncDate = async (unidade, log) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
-            if(err) reject(err);
+            if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
