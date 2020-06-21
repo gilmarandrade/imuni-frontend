@@ -16,6 +16,7 @@ module.exports = app => {
         const limit = 50;
         const idososPorVigilantes = [];
         const syncVigilantes = unidade.syncVigilantes.slice();
+        let rowsInserted = 0;
         console.log(syncVigilantes)
         for(let i = 1; i <= unidade.qtdVigilantes; i++) {
             idososPorVigilantes[i - 1] = [];
@@ -44,17 +45,24 @@ module.exports = app => {
                 } else {
                     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
                 }
+
+                if(idososPorVigilantes[i - 1].length) {
+                    const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes[i - 1]);
+                    rowsInserted += resultInsertMany;
+                    console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
+                }
             // } catch (error) {
             //     console.warn(error);
             // }
         }
 
+
+
         unidade.syncVigilantes = syncVigilantes;
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
-        
-        return [...idososPorVigilantes];
+        return rowsInserted;
     }
 
     const syncIdosos = async (unidade) => {
