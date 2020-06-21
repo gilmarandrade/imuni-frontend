@@ -77,7 +77,7 @@ const insertAll = async (array) => {
 const replaceOne = async (unidade) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
@@ -118,5 +118,26 @@ const updateSyncDate = async (unidade, log) => {
     return promise;
 }
 
+const updateSyncRespostas = async (unidade, syncRespostas) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.updateOne({ _id : ObjectId(unidade._id) } , { $push: { log : log } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
 
 module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate };

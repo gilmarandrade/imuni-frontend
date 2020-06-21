@@ -42,15 +42,14 @@ module.exports = app => {
                 syncVigilantes[i - 1] = lastIndexSynced + idososPorVigilantes[i - 1].length;
                 if(idososPorVigilantes[i - 1].length) {
                     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${i}'!A${firstIndex}:E${syncVigilantes[i - 1]}`);
+
+                    const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes[i - 1]);
+                    rowsInserted += resultInsertMany;
+                    console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
                 } else {
                     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
                 }
 
-                if(idososPorVigilantes[i - 1].length) {
-                    const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes[i - 1]);
-                    rowsInserted += resultInsertMany;
-                    console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
-                }
             // } catch (error) {
             //     console.warn(error);
             // }
@@ -96,8 +95,14 @@ module.exports = app => {
     }
 
     const syncAtendimentos = async (unidade) => {
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A2:AI`);
-        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A2:AI`);
+        let syncRespostas = unidade.syncRespostas;
+        const limit = 50;
+        const lastIndexSynced = syncRespostas;
+        const firstIndex = lastIndexSynced + 1;
+        const lastIndex = lastIndexSynced + limit;
+
+        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
+        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const respostasArray = [];
         rows.forEach((item, index) => {
             //TODO criar uma função para conversao de datas string da planilha para Date
@@ -109,7 +114,7 @@ module.exports = app => {
             // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
 
             respostasArray.push({
-                row: `'Respostas'!A${index + 2}:AI`,
+                row: `'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
                 data: new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`),
                 vigilante: item[1],
                 dadosIniciais: {
@@ -177,12 +182,21 @@ module.exports = app => {
             }
         });
 
-        const resultDelete = await atendimentoService.deleteAll(unidade.collectionPrefix);
-        console.log(`[Sync] atendimentosCollection: ${resultDelete} rows deleted`)
+        syncRespostas = lastIndexSynced + atendimentosArray.length;
+        if(atendimentosArray.length) {
+            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${syncRespostas}`);
+            
+            const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
+            console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`);
 
-        const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
-        console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`)
-        return resultInsertMany;
+            unidade.syncRespostas = syncRespostas;
+            console.log(unidade);
+            await unidadeService.replaceOne(unidade);
+            return resultInsertMany;
+        } else {
+            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
+            return 0;
+        }
     }
 
     const syncIdososAtendimentos = async (unidade) => {
@@ -296,7 +310,7 @@ module.exports = app => {
             const resultIdosos = await syncIdosos(unidades[0]);
             // const resultVigilantes = await syncVigilantes(unidades[0]);
     
-            // const resultRespostas = await syncAtendimentos(unidades[0]);
+            const resultRespostas = await syncAtendimentos(unidades[0]);
             
             // const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
 
@@ -307,7 +321,7 @@ module.exports = app => {
                 ok: true,
                 time: new Date(),
                 idosos: resultIdosos,
-                // atendimentos: resultRespostas,
+                atendimentos: resultRespostas,
                 // vigilantes: resultVigilantes,
                 // idososAtendimentos: resultIdososAtendimentos,
                 runtime: ((new Date()) - start)/1000,    
