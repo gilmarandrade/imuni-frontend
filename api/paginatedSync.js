@@ -189,8 +189,10 @@ module.exports = app => {
             const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
             console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`);
 
+            const nomeIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nome);
+            const resultIdososAtendimentos = syncIdososAtendimentos(unidade, nomeIdosos);
+
             unidade.syncRespostas = syncRespostas;
-            console.log(unidade);
             await unidadeService.replaceOne(unidade);
             return resultInsertMany;
         } else {
@@ -199,7 +201,7 @@ module.exports = app => {
         }
     }
 
-    const syncIdososAtendimentos = async (unidade) => {
+    const syncIdososAtendimentos = async (unidade, nomeIdosos) => {
         /** IdosoAtendimento Object:
             {
                 "row": "'Vigilante 1'!A19:M19",
@@ -227,12 +229,22 @@ module.exports = app => {
                 "agenteSaude": "Roberto"
             }
         */
-        const idosos = await idosoService.findAll(unidade.collectionPrefix);
-        // console.log('idosos: ', idosos.length);
-        for(let i = 0; i < idosos.length; i++) {
-            const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idosos[i]);
-            // console.log('atendimentos by idoso: ', atendimentos.length);
 
+       let rowsUpdated = 0;
+       for(let i = 0; i < nomeIdosos.length; i++) {
+            let idoso = await idosoService.findByNome(unidade.collectionPrefix, nomeIdosos[i]);
+            if(idoso === null) {
+                idoso = {
+                    row: '',
+                    dataNascimento: '',
+                    nome: nomeIdoso[i],
+                    telefone1: '',
+                    telefone2: '',
+                    agenteSaude: '',
+                    vigilante: '',
+                }
+            }
+            const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idoso);
             const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
                 if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
                     return prevVal + 1;
@@ -254,29 +266,27 @@ module.exports = app => {
                 return atendimento.fichaVigilancia.dadosIniciais.atendeu;
             })[0] || null;
 
-            idosos[i].stats = {};
+            idoso.stats = {};
 
-            idosos[i].stats.qtdAtendimentosEfetuados = qtdAtendimentosEfetuados;
-            idosos[i].stats.qtdAtendimentosNaoEfetuados = atendimentos.length - qtdAtendimentosEfetuados;
-            idosos[i].stats.ultimoAtendimento = ultimoAtendimento;
+            idoso.stats.qtdAtendimentosEfetuados = qtdAtendimentosEfetuados;
+            idoso.stats.qtdAtendimentosNaoEfetuados = atendimentos.length - qtdAtendimentosEfetuados;
+            idoso.stats.ultimoAtendimento = ultimoAtendimento;
             if(ultimoAtendimentoEfetuado) {
-                idosos[i].stats.ultimaEscala = ultimoAtendimentoEfetuado.escalas;
-                idosos[i].stats.ultimaEscala.data = ultimoAtendimentoEfetuado.fichaVigilancia.data;
-                idosos[i].score =  ultimoAtendimentoEfetuado.escalas.scoreOrdenacao;
-                idosos[i].epidemiologia = ultimoAtendimentoEfetuado.fichaVigilancia.epidemiologia;
+                idoso.stats.ultimaEscala = ultimoAtendimentoEfetuado.escalas;
+                idoso.stats.ultimaEscala.data = ultimoAtendimentoEfetuado.fichaVigilancia.data;
+                idoso.score =  ultimoAtendimentoEfetuado.escalas.scoreOrdenacao;
+                idoso.epidemiologia = ultimoAtendimentoEfetuado.fichaVigilancia.epidemiologia;
             } else {
-                idosos[i].stats.ultimaEscala = {};
-                idosos[i].score = 0;
-                idosos[i].epidemiologia = {};
+                idoso.stats.ultimaEscala = {};
+                idoso.score = 0;
+                idoso.epidemiologia = {};
             }
+
+            rowsUpdated += await idosoAtendimentoService.replaceOne(unidade.collectionPrefix, idoso);
         }
-
-        const resultDelete = await idosoAtendimentoService.deleteAll(unidade.collectionPrefix);
-        console.log(`[Sync] idososAtendimentosCollection: ${resultDelete} rows deleted`)
-
-        const resultInsertMany = await idosoAtendimentoService.insertAll(unidade.collectionPrefix, idosos);
-        console.log(`[Sync] idososAtendimentosCollection: ${resultInsertMany} rows inserted`)
-        return resultInsertMany;
+        
+        console.log(`[Sync] idososAtendimentosCollection: ${rowsUpdated} rows updated`)
+        return rowsUpdated;
     }
 
     // TODO ler unidades da planilha

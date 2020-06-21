@@ -74,4 +74,27 @@ const insertAll = async (collectionPrefix, array) => {
     return promise;
 }
 
-module.exports = { findAll, deleteAll, insertAll };
+const findByNome = async (collectionPrefix, nome) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            collection.findOne({ nome: nome }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findAll, deleteAll, insertAll, findByNome };

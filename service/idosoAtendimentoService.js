@@ -75,6 +75,29 @@ const insertAll = async (collectionPrefix, array) => {
     return promise;
 }
 
+const replaceOne = async (collectionPrefix, idosoAtendimento) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            collection.replaceOne({ nome: idosoAtendimento.nome }, idosoAtendimento, { upsert: true }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result.result.n);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+
 const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -98,4 +121,4 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
     return promise;
 }
 
-module.exports = { findAll, deleteAll, insertAll, findAllByVigilante };
+module.exports = { findAll, deleteAll, insertAll, findAllByVigilante, replaceOne };
