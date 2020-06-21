@@ -65,6 +65,9 @@ module.exports = app => {
     app.route('/sync')
         .get(app.api.sync.sync);
 
+    app.route('/paginatedSync')
+        .get(app.api.paginatedSync.sync);
+
     app.route('/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
         .get(app.api.googlesheets.idososByVigilante);
 

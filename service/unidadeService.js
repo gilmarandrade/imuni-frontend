@@ -74,6 +74,28 @@ const insertAll = async (array) => {
     return promise;
 }
 
+const replaceOne = async (unidade) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.replaceOne({ _id : ObjectId(unidade._id) } , unidade, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
 const updateSyncDate = async (unidade, log) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -97,4 +119,4 @@ const updateSyncDate = async (unidade, log) => {
 }
 
 
-module.exports = {  findAll, deleteAll, insertAll, updateSyncDate };
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate };
