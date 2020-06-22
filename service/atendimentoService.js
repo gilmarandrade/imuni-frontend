@@ -16,7 +16,7 @@ const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-            collection.find({ "fichaVigilancia.dadosIniciais.nome" : idoso.nome }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
+            collection.find({ "fichaVigilancia.dadosIniciais.nomeLower" : idoso.nomeLower }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
                 if (err) 
                     reject(err);
                 else

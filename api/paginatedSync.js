@@ -4,7 +4,6 @@ const sheetsApi = require('../config/sheetsApi');
 //TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
-const idosoService = require('../service/idosoService');
 const vigilanteService = require('../service/vigilanteService');
 const atendimentoService = require('../service/atendimentoService');
 const idosoAtendimentoService = require('../service/idosoAtendimentoService');
@@ -32,10 +31,19 @@ module.exports = app => {
                             row: `'Vigilante ${i}'!A${firstIndex + index}:E${firstIndex + index}`,
                             dataNascimento: '',
                             nome: item[1],
+                            nomeLower: item[1].toLowerCase(),
                             telefone1: item[2],
                             telefone2: item[3],
                             agenteSaude: item[4],
                             vigilante: item[0],
+                            stats: {
+                                qtdAtendimentosEfetuados: 0,
+                                qtdAtendimentosNaoEfetuados: 0,
+                                ultimoAtendimento: null,
+                                ultimaEscala: null,
+                            },
+                            score: 0,
+                            epidemiologia: null,
                         });
                     }
                 });
@@ -43,24 +51,27 @@ module.exports = app => {
                 if(idososPorVigilantes[i - 1].length) {
                     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${i}'!A${firstIndex}:E${syncVigilantes[i - 1]}`);
 
-                    const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes[i - 1]);
-                    rowsInserted += resultInsertMany;
-                    console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
+                    let j = 0;
+                    for(; j < idososPorVigilantes[i - 1].length; j++) {
+                        const resultInsertMany = await idosoAtendimentoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[i - 1][j]);
+                    }
+                    rowsInserted += j;
                 } else {
                     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
                 }
-
-            // } catch (error) {
-            //     console.warn(error);
-            // }
+                
+                // } catch (error) {
+                    //     console.warn(error);
+                    // }
         }
-
-
-
+                
+        
+        
         unidade.syncVigilantes = syncVigilantes;
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
+        console.log(`[Sync] idososCollection: ${rowsInserted} rows inserted`)
         return rowsInserted;
     }
 
@@ -68,12 +79,6 @@ module.exports = app => {
         // console.log(unidade)
         const idososPorVigilantes = await arrayIdososByVigilante(unidade);
         return idososPorVigilantes;
-        // const resultDelete = await idosoService.deleteAll(unidade.collectionPrefix);
-        // console.log(`[Sync] idososCollection: ${resultDelete} rows deleted`)
-
-        // const resultInsertMany = await idosoService.insertAll(unidade.collectionPrefix, idososPorVigilantes);
-        // console.log(`[Sync] idososCollection: ${resultInsertMany} rows inserted`)
-        // return resultInsertMany;
     } 
 
     const syncVigilantes = async (unidade) => {
@@ -119,6 +124,7 @@ module.exports = app => {
                 vigilante: item[1],
                 dadosIniciais: {
                     nome: item[2],
+                    nomeLower: item[2].toLowerCase(),
                     atendeu: item[3] === 'Sim',
                 },
                 idade: item[4] === undefined ? null : +item[4],
@@ -189,8 +195,8 @@ module.exports = app => {
             const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
             console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`);
 
-            const nomeIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nome);
-            const resultIdososAtendimentos = syncIdososAtendimentos(unidade, nomeIdosos);
+            const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
+            const resultIdososAtendimentos = await syncIdososAtendimentos(unidade, nomeLowerIdosos);
 
             unidade.syncRespostas = syncRespostas;
             await unidadeService.replaceOne(unidade);
@@ -201,7 +207,7 @@ module.exports = app => {
         }
     }
 
-    const syncIdososAtendimentos = async (unidade, nomeIdosos) => {
+    const syncIdososAtendimentos = async (unidade, nomeLowerIdosos) => {
         /** IdosoAtendimento Object:
             {
                 "row": "'Vigilante 1'!A19:M19",
@@ -231,13 +237,14 @@ module.exports = app => {
         */
 
        let rowsUpdated = 0;
-       for(let i = 0; i < nomeIdosos.length; i++) {
-            let idoso = await idosoService.findByNome(unidade.collectionPrefix, nomeIdosos[i]);
+       for(let i = 0; i < nomeLowerIdosos.length; i++) {
+            let idoso = await idosoAtendimentoService.findByNome(unidade.collectionPrefix, nomeLowerIdosos[i]);
             if(idoso === null) {
                 idoso = {
                     row: '',
                     dataNascimento: '',
-                    nome: nomeIdoso[i],
+                    nome: nomeLowerIdosos[i],
+                    nomeLower: nomeLowerIdosos[i],
                     telefone1: '',
                     telefone2: '',
                     agenteSaude: '',
@@ -245,6 +252,7 @@ module.exports = app => {
                 }
             }
             const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idoso);
+            idoso.vigilante = atendimentos[0].fichaVigilancia.vigilante;
             const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
                 if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
                     return prevVal + 1;

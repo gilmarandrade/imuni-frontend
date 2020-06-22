@@ -83,7 +83,7 @@ const replaceOne = async (collectionPrefix, idosoAtendimento) => {
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-            collection.replaceOne({ nome: idosoAtendimento.nome }, idosoAtendimento, { upsert: true }, function(err, result) {
+            collection.replaceOne({ nomeLower: idosoAtendimento.nomeLower }, idosoAtendimento, { upsert: true }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -97,6 +97,40 @@ const replaceOne = async (collectionPrefix, idosoAtendimento) => {
     return promise;
 }
 
+
+const updateOne = async (collectionPrefix, idosoAtendimento) => {
+    // console.log(idosoAtendimento);
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            //o upsert deveria passar somente os campos que deveriam ser atualizados?
+            collection.updateOne({ nomeLower: idosoAtendimento.nomeLower }, {
+                $set: { 
+                    row: idosoAtendimento.row,
+                    nome: idosoAtendimento.nome,
+                    dataNascimento: idosoAtendimento.dataNascimento,
+                    telefone1: idosoAtendimento.telefone1,
+                    telefone2: idosoAtendimento.telefone2,
+                    agenteSaude: idosoAtendimento.agenteSaude,
+                    vigilante: idosoAtendimento.vigilante,
+                }
+            }, { upsert: true }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result.result.n);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
 
 const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
     const promise = new Promise( (resolve, reject) => {
@@ -121,4 +155,27 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
     return promise;
 }
 
-module.exports = { findAll, deleteAll, insertAll, findAllByVigilante, replaceOne };
+const findByNome = async (collectionPrefix, nomeLower) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            collection.findOne({ nomeLower: nomeLower }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findAll, deleteAll, insertAll, findAllByVigilante, replaceOne, updateOne, findByNome };
