@@ -192,15 +192,18 @@ module.exports = app => {
         if(atendimentosArray.length) {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${syncRespostas}`);
             
-            const resultInsertMany = await atendimentoService.insertAll(unidade.collectionPrefix, atendimentosArray);
-            console.log(`[Sync] atendimentosCollection: ${resultInsertMany} rows inserted`);
+            let i = 0;
+            for(; i < atendimentosArray.length; i++) {
+                const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
+            }
+            console.log(`[Sync] atendimentosCollection: ${i} rows inserted`);
 
             const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
             const resultIdososAtendimentos = await syncIdososAtendimentos(unidade, nomeLowerIdosos);
 
             unidade.syncRespostas = syncRespostas;
             await unidadeService.replaceOne(unidade);
-            return resultInsertMany;
+            return i;
         } else {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
             return 0;
