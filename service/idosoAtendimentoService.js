@@ -117,6 +117,9 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
                     telefone2: idosoAtendimento.telefone2,
                     agenteSaude: idosoAtendimento.agenteSaude,
                     vigilante: idosoAtendimento.vigilante,
+                    stats: idosoAtendimento.stats,
+                    score: idosoAtendimento.score,
+                    epidemiologia: idosoAtendimento.epidemiologia,
                 }
             }, { upsert: true }, function(err, result) {
                 if(err) {

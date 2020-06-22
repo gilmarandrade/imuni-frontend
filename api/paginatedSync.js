@@ -252,6 +252,7 @@ module.exports = app => {
                     telefone2: '',
                     agenteSaude: '',
                     vigilante: '',
+                    score: 0,
                 }
             }
             const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idoso);
