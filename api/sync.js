@@ -13,12 +13,12 @@ module.exports = app => {
     const syncIdosos = async (unidade, limit) => {
         limit = Math.round(limit / unidade.qtdVigilantes);
         const idososPorVigilantes = [];
-        const syncVigilantes = unidade.syncVigilantes.slice();
+        const indexIdosos = unidade.indexIdosos.slice();
         let rowsInserted = 0;
-        console.log(syncVigilantes)
+        console.log(indexIdosos)
         for(let i = 1; i <= unidade.qtdVigilantes; i++) {
             idososPorVigilantes[i - 1] = [];
-            const lastIndexSynced = limit ? syncVigilantes[i - 1] : 1;
+            const lastIndexSynced = limit ? indexIdosos[i - 1] : 1;
             const firstIndex = lastIndexSynced + 1;//2
             const lastIndex = limit ? lastIndexSynced + limit : '';//''
             // try {
@@ -46,9 +46,9 @@ module.exports = app => {
                         });
                     }
                 });
-                syncVigilantes[i - 1] = lastIndexSynced + idososPorVigilantes[i - 1].length;
+                indexIdosos[i - 1] = lastIndexSynced + idososPorVigilantes[i - 1].length;
                 if(idososPorVigilantes[i - 1].length) {
-                    console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${i}'!A${firstIndex}:E${syncVigilantes[i - 1]}`);
+                    console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${i}'!A${firstIndex}:E${indexIdosos[i - 1]}`);
 
                     let j = 0;
                     for(; j < idososPorVigilantes[i - 1].length; j++) {
@@ -66,7 +66,7 @@ module.exports = app => {
                 
         
         
-        unidade.syncVigilantes = syncVigilantes;
+        unidade.indexIdosos = indexIdosos;
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
@@ -96,8 +96,8 @@ module.exports = app => {
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
     const syncAtendimentos = async (unidade, limit) => {
-        let syncRespostas = unidade.syncRespostas;
-        const lastIndexSynced = limit ? syncRespostas : 1;
+        let indexRespostas = unidade.indexRespostas;
+        const lastIndexSynced = limit ? indexRespostas : 1;
         const firstIndex = lastIndexSynced + 1;
         const lastIndex = limit ? lastIndexSynced + limit : '';
 
@@ -183,9 +183,9 @@ module.exports = app => {
             }
         });
 
-        syncRespostas = lastIndexSynced + atendimentosArray.length;
+        indexRespostas = lastIndexSynced + atendimentosArray.length;
         if(atendimentosArray.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${syncRespostas}`);
+            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
             
             let i = 0;
             for(; i < atendimentosArray.length; i++) {
@@ -196,7 +196,7 @@ module.exports = app => {
             const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
             const resultIdososAtendimentos = await syncIdososAtendimentos(unidade, nomeLowerIdosos);
 
-            unidade.syncRespostas = syncRespostas;
+            unidade.indexRespostas = indexRespostas;
             await unidadeService.replaceOne(unidade);
             return i;
         } else {
@@ -308,6 +308,9 @@ module.exports = app => {
             idPlanilhaIdosos: '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc',
             idPlanilhaGerenciamento: '1tBlFtcTlo1xtq4lU1O2Yq94wYaFfyL9RboX6mWjKhh4',
             qtdVigilantes: 4,
+            indexIdosos: [1,1,1,1],
+            indexRespostas: 1,
+            log: [],
         });
         unidadeService.insertAll(unidades);
 
