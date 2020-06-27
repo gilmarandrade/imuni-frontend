@@ -12,7 +12,7 @@ const { mongoUris } = require('./config/environment');
   consign()
     // .include('./config/passport.js')
     .then('./config/middlewares.js')
-    // .then('./api/validation.js')
+    .then('./api/validation.js')
     .then('./api')
     // .then('./schedule')
     .then('./config/routes.js')

@@ -1,3 +1,5 @@
+//deprecated
+
 const { mongoUris } = require('./environment');
 
 // var MongoClient = require( 'mongodb' ).MongoClient;

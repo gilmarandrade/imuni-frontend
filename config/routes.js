@@ -86,4 +86,7 @@ module.exports = app => {
     app.route('/stats')
         .get(app.api.googlesheets.stats);
 
+    app.route('/users')
+        .post(app.api.user.insert);
+
 };
