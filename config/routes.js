@@ -59,6 +59,10 @@ module.exports = app => {
         res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
     });
 
+    app.post('/users', app.api.user.insert);
+    app.post('/login', app.api.auth.login);
+    app.post('/validateToken', app.api.auth.validateToken);
+
     app.route('/docs/:id/sheets/:sheetName/range/:range')
         .get(app.api.planilhas.get);
 
@@ -85,8 +89,5 @@ module.exports = app => {
 
     app.route('/stats')
         .get(app.api.googlesheets.stats);
-
-    app.route('/users')
-        .post(app.api.user.insert);
 
 };
