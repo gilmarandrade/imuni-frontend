@@ -62,10 +62,13 @@ module.exports = app => {
     app.route('/docs/:id/sheets/:sheetName/range/:range')
         .get(app.api.planilhas.get);
 
-    app.route('/sync')
-        .get(app.api.sync.sync);
+    // app.route('/sync')
+    //     .get(app.api.sync.sync);
 
-    app.route('/paginatedSync')
+    app.route('/sync/:limit')
+        .get(app.api.paginatedSync.sync);
+
+    app.route('/sync')
         .get(app.api.paginatedSync.sync);
 
     app.route('/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')

@@ -1,13 +1,8 @@
-const { calcularEscalas } = require('../config/helpers');
-const { read } = require('../config/sheetsApi');
-
-//TODO usar os services para acessar o banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');
 const idosoService = require('../service/idosoService');
-const idosoAtendimentoService = require('../service/idosoAtendimentoService');
 
 module.exports = app => {
 
@@ -16,7 +11,7 @@ module.exports = app => {
         const nomeVigilante = req.params.vigilanteId;
 
         try {
-            const result = await idosoAtendimentoService.findAllByVigilante('USF_Rocas', nomeVigilante); // TODO receber unidade por parametro
+            const result = await idosoService.findAllByVigilante('USF_Rocas', nomeVigilante); // TODO receber unidade por parametro
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);

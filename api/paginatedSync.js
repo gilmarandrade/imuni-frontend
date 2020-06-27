@@ -2,7 +2,7 @@ const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 const vigilanteService = require('../service/vigilanteService');
 const atendimentoService = require('../service/atendimentoService');
-const idosoAtendimentoService = require('../service/idosoAtendimentoService');
+const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
@@ -11,7 +11,7 @@ module.exports = app => {
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
     const syncIdosos = async (unidade, limit) => {
-        // limit = 50;
+        limit = Math.round(limit / unidade.qtdVigilantes);
         const idososPorVigilantes = [];
         const syncVigilantes = unidade.syncVigilantes.slice();
         let rowsInserted = 0;
@@ -52,7 +52,7 @@ module.exports = app => {
 
                     let j = 0;
                     for(; j < idososPorVigilantes[i - 1].length; j++) {
-                        const resultInsertMany = await idosoAtendimentoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[i - 1][j]);
+                        const resultInsertMany = await idosoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[i - 1][j]);
                     }
                     rowsInserted += j;
                 } else {
@@ -236,7 +236,7 @@ module.exports = app => {
 
        let rowsUpdated = 0;
        for(let i = 0; i < nomeLowerIdosos.length; i++) {
-            let idoso = await idosoAtendimentoService.findByNome(unidade.collectionPrefix, nomeLowerIdosos[i]);
+            let idoso = await idosoService.findByNome(unidade.collectionPrefix, nomeLowerIdosos[i]);
             if(idoso === null) {
                 idoso = {
                     row: '',
@@ -289,7 +289,7 @@ module.exports = app => {
                 idoso.epidemiologia = {};
             }
 
-            rowsUpdated += await idosoAtendimentoService.replaceOne(unidade.collectionPrefix, idoso);
+            rowsUpdated += await idosoService.replaceOne(unidade.collectionPrefix, idoso);
         }
         
         console.log(`[Sync] idososCollection: ${rowsUpdated} rows affected`)
@@ -313,7 +313,11 @@ module.exports = app => {
 
     }
 
-    const runSync = async () => {
+    /**
+     * 
+     * @param {Number} limit Se limit for definido, realiza uma sincornização parcial, se não, realiza uma sincronização total 
+     */
+    const runSync = async (limit) => {
         //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
 
@@ -324,10 +328,10 @@ module.exports = app => {
         if(unidades.length > 0) {// TODO sincroniza apenas a primeira unidade da lista, SINCRONIZAR TODAS AS UNIDADES
             console.log(`[Sync] ${unidades[0].nome} STARTING SYNC `);
 
-            const resultIdosos = await syncIdosos(unidades[0]);
+            const resultIdosos = await syncIdosos(unidades[0], limit);
             // const resultVigilantes = await syncVigilantes(unidades[0]);
     
-            const resultRespostas = await syncAtendimentos(unidades[0]);
+            const resultRespostas = await syncAtendimentos(unidades[0], limit);
             
             // const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
 
@@ -358,14 +362,14 @@ module.exports = app => {
     }
 
     /**
-     * Sincroniza o banco com uma planilha
+     * Sincronização do banco com uma planilha
      */
     const sync = async (req, res) => {
         //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
         
         try {
-            const result = await runSync();
+            const result = await runSync(+req.params.limit);
             return res.json(result);
         } catch (error) {
             console.warn(error)
