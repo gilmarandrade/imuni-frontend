@@ -1,9 +1,5 @@
-const { calcularEscalas, calcularDataProximoAtendimento } = require('../config/helpers');
+const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
-
-//TODO usar configuração do banco
-const { mongoUris } = require('../config/environment');
-const ObjectId = require('mongodb').ObjectID;
 const vigilanteService = require('../service/vigilanteService');
 const atendimentoService = require('../service/atendimentoService');
 const idosoAtendimentoService = require('../service/idosoAtendimentoService');
@@ -11,17 +7,20 @@ const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
 
-    const arrayIdososByVigilante = async (unidade) => {
-        const limit = 50;
+    /**
+     * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
+     */
+    const syncIdosos = async (unidade, limit) => {
+        // limit = 50;
         const idososPorVigilantes = [];
         const syncVigilantes = unidade.syncVigilantes.slice();
         let rowsInserted = 0;
         console.log(syncVigilantes)
         for(let i = 1; i <= unidade.qtdVigilantes; i++) {
             idososPorVigilantes[i - 1] = [];
-            const lastIndexSynced = syncVigilantes[i - 1];
-            const firstIndex = lastIndexSynced + 1;
-            const lastIndex = lastIndexSynced + limit;
+            const lastIndexSynced = limit ? syncVigilantes[i - 1] : 1;
+            const firstIndex = lastIndexSynced + 1;//2
+            const lastIndex = limit ? lastIndexSynced + limit : '';//''
             // try {
                 console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${i}'!A${firstIndex}:E${lastIndex}`);
                 const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${i}'!A${firstIndex}:E${lastIndex}`);
@@ -71,15 +70,9 @@ module.exports = app => {
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
-        console.log(`[Sync] idososCollection: ${rowsInserted} rows inserted`)
+        console.log(`[Sync] idososCollection: ${rowsInserted} rows affected`)
         return rowsInserted;
     }
-
-    const syncIdosos = async (unidade) => {
-        // console.log(unidade)
-        const idososPorVigilantes = await arrayIdososByVigilante(unidade);
-        return idososPorVigilantes;
-    } 
 
     const syncVigilantes = async (unidade) => {
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Status Atendimentos'!A2:A`);
@@ -99,12 +92,14 @@ module.exports = app => {
         return resultInsertMany;
     }
 
-    const syncAtendimentos = async (unidade) => {
+    /**
+     * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
+     */
+    const syncAtendimentos = async (unidade, limit) => {
         let syncRespostas = unidade.syncRespostas;
-        const limit = 50;
-        const lastIndexSynced = syncRespostas;
+        const lastIndexSynced = limit ? syncRespostas : 1;
         const firstIndex = lastIndexSynced + 1;
-        const lastIndex = lastIndexSynced + limit;
+        const lastIndex = limit ? lastIndexSynced + limit : '';
 
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
@@ -196,7 +191,7 @@ module.exports = app => {
             for(; i < atendimentosArray.length; i++) {
                 const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
             }
-            console.log(`[Sync] atendimentosCollection: ${i} rows inserted`);
+            console.log(`[Sync] atendimentosCollection: ${i} rows affected`);
 
             const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
             const resultIdososAtendimentos = await syncIdososAtendimentos(unidade, nomeLowerIdosos);
@@ -297,7 +292,7 @@ module.exports = app => {
             rowsUpdated += await idosoAtendimentoService.replaceOne(unidade.collectionPrefix, idoso);
         }
         
-        console.log(`[Sync] idososAtendimentosCollection: ${rowsUpdated} rows updated`)
+        console.log(`[Sync] idososCollection: ${rowsUpdated} rows affected`)
         return rowsUpdated;
     }
 
