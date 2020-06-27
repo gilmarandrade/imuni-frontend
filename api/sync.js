@@ -194,7 +194,7 @@ module.exports = app => {
             console.log(`[Sync] atendimentosCollection: ${i} rows affected`);
 
             const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
-            const resultIdososAtendimentos = await syncIdososAtendimentos(unidade, nomeLowerIdosos);
+            const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);
 
             unidade.indexRespostas = indexRespostas;
             await unidadeService.replaceOne(unidade);
@@ -205,7 +205,12 @@ module.exports = app => {
         }
     }
 
-    const syncIdososAtendimentos = async (unidade, nomeLowerIdosos) => {
+    /**
+     * Recalcula as estatisticas dos idosos, com base nos atendimentos registrados
+     * @param {*} unidade 
+     * @param {*} nomeLowerIdosos 
+     */
+    const syncIdososStats = async (unidade, nomeLowerIdosos) => {
         /** IdosoAtendimento Object:
             {
                 "row": "'Vigilante 1'!A19:M19",
@@ -321,7 +326,6 @@ module.exports = app => {
      * @param {Number} limit Se limit for definido, realiza uma sincornização parcial, se não, realiza uma sincronização total 
      */
     const runSync = async (limit) => {
-        //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
 
         // await insertUnidades();
@@ -335,10 +339,7 @@ module.exports = app => {
             // const resultVigilantes = await syncVigilantes(unidades[0]);
     
             const resultRespostas = await syncAtendimentos(unidades[0], limit);
-            
-            // const resultIdososAtendimentos = await syncIdososAtendimentos(unidades[0]);
-
-            
+                        
             console.log(`[Sync] ${unidades[0].nome} SYNCED`);
             
             const log = {
@@ -347,7 +348,6 @@ module.exports = app => {
                 idosos: resultIdosos,
                 atendimentos: resultRespostas,
                 // vigilantes: resultVigilantes,
-                // idososAtendimentos: resultIdososAtendimentos,
                 runtime: ((new Date()) - start)/1000,    
             }
             const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
@@ -368,7 +368,6 @@ module.exports = app => {
      * Sincronização do banco com uma planilha
      */
     const sync = async (req, res) => {
-        //TODO criar um banco para armazenar o log de sincronização, hora da ultima sincronização, se está em sincronização, etc...
         const start = new Date();
         
         try {
@@ -388,6 +387,11 @@ module.exports = app => {
         }
         
     };
+
+    /**
+     * Resetar indices de sincronização
+     */
+    //TODO
 
     return { sync, runSync };
 };
