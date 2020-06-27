@@ -389,7 +389,7 @@ module.exports = app => {
     };
 
     /**
-     * Resetar indices de sincronização
+     * Resetar indices de sincronização de uma unidade
      */
     //TODO
 

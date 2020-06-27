@@ -118,4 +118,32 @@ const updateSyncDate = async (unidade, log) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate };
+const resetSyncIndexes = async (unidade) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.updateOne({ _id : ObjectId(unidade._id) } , {
+                $set: { 
+                    //TODO generalizar para qualquer tamanho de array
+                    indexIdosos: [1,1,1,1],
+                    indexRespostas: 1,
+                }
+            }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate, resetSyncIndexes };
