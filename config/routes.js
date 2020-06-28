@@ -6,88 +6,49 @@ module.exports = app => {
     app.use(express.static('public'));
     
     //  A ordem das urls tem que ser da mais especifica para a mais genérica
-    // app.post('/signup', app.api.user.save);
-    // app.post('/signin', app.api.auth.signin);
-    // app.post('/validateToken', app.api.auth.validateToken);
-
-    // app.route('/users')
-    //     .all(app.config.passport.authenticate())
-    //     .post(admin(app.api.user.save))
-    //     .get(admin(app.api.user.get));
-
-    // app.route('/users/:id')
-    //     .all(app.config.passport.authenticate())
-    //     .put(admin(app.api.user.save))
-    //     .get(admin(app.api.user.getById))
-    //     .delete(admin(app.api.user.getById));
-
-    // app.route('/categories')
-    //     .all(app.config.passport.authenticate())
-    //     .post(admin(app.api.category.save))
-    //     .get(app.api.category.get);
-
-    // app.route('/categories/tree')
-    //     .all(app.config.passport.authenticate())
-    //     .get(app.api.category.getTree);
-
-    // app.route('/categories/:id')
-    //     .all(app.config.passport.authenticate())
-    //     .put(admin(app.api.category.save))
-    //     .get(app.api.category.getById)
-    //     .delete(admin(app.api.category.remove));
-
-    // app.route('/articles')
-    //     .all(app.config.passport.authenticate())
-    //     .get(app.api.article.get)
-    //     .post(admin(app.api.article.save));
-
-    // app.route('/articles/:id')
-    //     .all(app.config.passport.authenticate())
-    //     .get(app.api.article.getById)
-    //     .put(admin(app.api.article.save))
-    //     .delete(admin(app.api.article.remove));
-
-    // app.route('/categories/:id/articles')
-    //     .all(app.config.passport.authenticate())
-    //     .get(app.api.article.getByCategory);
-
-    // app.route('/stats')
-    //     .all(app.config.passport.authenticate())
-    //     .get(app.api.stat.get);
 
     app.get('/', function (req, res) {
         res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
     });
 
-    app.post('/users', app.api.user.insert);
+    app.post('/users', app.api.user.insert);//TODO o cadastro de usuarios não pode ser público
     app.post('/login', app.api.auth.login);
     app.post('/validateToken', app.api.auth.validateToken);
 
     app.route('/docs/:id/sheets/:sheetName/range/:range')
+        .all(app.config.passport.authenticate())
         .get(app.api.planilhas.get);
 
     app.route('/sync/:limit')
+        .all(app.config.passport.authenticate())
         .get(app.api.sync.sync);
 
     app.route('/sync')
+        .all(app.config.passport.authenticate())
         .get(app.api.sync.sync);
 
     app.route('/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.idososByVigilante);
 
     app.route('/idosos/:id')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.idoso);
 
     app.route('/idosos/:id/atendimentos')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.atendimentosByIdoso);
 
     app.route('/atendimentos/:id')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.atendimento);
 
     app.route('/unidades/:unidadeId/vigilantes')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.vigilantes);
 
     app.route('/stats')
+        .all(app.config.passport.authenticate())
         .get(app.api.googlesheets.stats);
 
 };

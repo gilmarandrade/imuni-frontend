@@ -2,15 +2,8 @@ const app = require('express')();
 const consign = require('consign');
 const { mongoUris } = require('./config/environment');
 
-// const mongodbutil = require( './config/mongodb' );
-
-// mongodbutil.connectToServer( function( err) {
-
-  // const expressMongoDb = require('express-mongo-db');
-  // app.use(expressMongoDb(mongoUris));
-  
   consign()
-    // .include('./config/passport.js')
+    .include('./config/passport.js')
     .then('./config/middlewares.js')
     .then('./api/validation.js')
     .then('./api')

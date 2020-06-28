@@ -24,7 +24,7 @@ module.exports = app => {
 
         // obs: quando o token expira, o usuário precisa fazer login novamente
         const payload = {
-            id: user.id,
+            id: user._id,
             name: user.name,
             email: user.email,
             iat: now, //issued at: data de emissão do token (timestamp em segundos)
