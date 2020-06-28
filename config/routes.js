@@ -1,5 +1,5 @@
 const express = require('express');
-// const admin = require('./admin');
+const role = require('./role');
 
 module.exports = app => {
     // servindo arquivos estáticos

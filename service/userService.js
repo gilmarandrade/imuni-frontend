@@ -74,7 +74,7 @@ const insertAll = async (array) => {
     return promise;
 }
 
-const replaceOne = async (unidade) => {
+const replaceOne = async (usuario) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
@@ -82,7 +82,7 @@ const replaceOne = async (unidade) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.replaceOne({ _id : ObjectId(unidade._id) } , unidade, function(err, result) {
+            collection.replaceOne({ _id : ObjectId(usuario._id) } , usuario, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {

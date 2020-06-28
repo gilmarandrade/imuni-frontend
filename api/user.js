@@ -28,6 +28,7 @@ module.exports = app => {
         }
 
         user.password = encryptPassword(user.password);
+        user.role = 'ADMINISTRADOR';//TODO o papel deve ser definido no formulario de cadastro
         delete user.confirmPassword;
 
         try {
