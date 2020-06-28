@@ -28,6 +28,7 @@ module.exports = app => {
             name: user.name,
             email: user.email,
             role: user.role,
+            unidadeId: user.unidadeId,
             iat: now, //issued at: data de emissão do token (timestamp em segundos)
             exp: now + (60 * 60 * 24 * 1), // prazo de expiração do token (em segundos) 
         };

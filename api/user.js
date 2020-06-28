@@ -20,6 +20,12 @@ module.exports = app => {
             existsOrError(user.password, 'Senha não informada');
             existsOrError(user.confirmPassword, 'Confirmação de senha não informada');
             equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem');
+            existsOrError(user.role, 'Permissão não informada');
+
+            if(user.role === 'VIGILANTE') {
+                existsOrError(user.unidadeId, 'Unidade de Saúde não informada'); 
+                //TODO deveria verificar se a unidade existe?
+            }
             //verifica se já existe um usuario com esse email
             const userByEmail = await userService.findByEmail(user.email);
             notExistsOrError(userByEmail, 'Usuário já cadastrado com o email informado');
@@ -28,7 +34,7 @@ module.exports = app => {
         }
 
         user.password = encryptPassword(user.password);
-        user.role = 'ADMINISTRADOR';//TODO o papel deve ser definido no formulario de cadastro
+        
         delete user.confirmPassword;
 
         try {
