@@ -45,7 +45,7 @@ module.exports = app => {
 
     app.route('/unidades/:unidadeId/vigilantes')
         .all(app.config.passport.authenticate())
-        .get(app.api.googlesheets.vigilantes);
+        .get(role(app.api.googlesheets.vigilantes, 'ADMINISTRADOR'));
 
     app.route('/stats')
         .all(app.config.passport.authenticate())
