@@ -3,15 +3,17 @@ const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');
 const idosoService = require('../service/idosoService');
+const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
 
     const idososByVigilante = async (req, res) => {
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.vigilanteId;
+        const collectionPrefix = req.params.unidadeId;
 
         try {
-            const result = await idosoService.findAllByVigilante('USF_Rocas', nomeVigilante); // TODO receber unidade por parametro
+            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante);
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);
@@ -153,5 +155,15 @@ module.exports = app => {
         return promise;
     } 
 
-    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats };
+    const unidades = async (req, res) => {
+        // console.log('unidadeId: ', req.params.unidadeId)
+        try {
+            const result = await unidadeService.findAll();
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats, unidades };
 };
