@@ -146,4 +146,28 @@ const resetSyncIndexes = async (unidade) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate, resetSyncIndexes };
+
+const findById = async (id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, updateSyncDate, resetSyncIndexes, findById };

@@ -29,6 +29,8 @@ module.exports = app => {
             email: user.email,
             role: user.role,
             unidadeId: user.unidadeId,
+            collectionPrefix: user.collectionPrefix,
+            nomeUnidade: user.nomeUnidade,
             iat: now, //issued at: data de emissão do token (timestamp em segundos)
             exp: now + (60 * 60 * 24 * 1), // prazo de expiração do token (em segundos) 
             //TODO calcular o prazo de expiração para sempre expirar de madrugada, fora do horario de utilização
