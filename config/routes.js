@@ -49,7 +49,7 @@ module.exports = app => {
 
     app.route('/unidades/:unidadeId/ativacao/:status')
         .all(app.config.passport.authenticate())
-        .get(role(app.api.googlesheets.toggleSync, 'ADMINISTRADOR'));
+        .get(role(app.api.unidades.toggleSync, 'ADMINISTRADOR'));
 
     app.route('/unidades/:unidadeId/sync')
         .all(app.config.passport.authenticate())
@@ -57,11 +57,12 @@ module.exports = app => {
 
     app.route('/unidades/:unidadeId')
         .all(app.config.passport.authenticate())
-        .get(role(app.api.googlesheets.unidade, 'ADMINISTRADOR'));
+        .get(role(app.api.unidades.getById, 'ADMINISTRADOR'));
 
     app.route('/unidades')
         .all(app.config.passport.authenticate())
-        .get(role(app.api.googlesheets.unidades, 'ADMINISTRADOR'));
+        .get(role(app.api.unidades.get, 'ADMINISTRADOR'))
+        .post(role(app.api.unidades.save, 'ADMINISTRADOR'));
 
     app.route('/stats')
         .all(app.config.passport.authenticate())
