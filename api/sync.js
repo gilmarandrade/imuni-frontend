@@ -360,6 +360,50 @@ module.exports = app => {
                 error: 'não há unidades para sincronizar',
             };
             const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
+            return log;
+        }
+
+    }
+
+    
+    /**
+     * 
+     * @param {Number} limit Se limit for definido, realiza uma sincornização parcial, se não, realiza uma sincronização total 
+     */
+    const runSyncUnidade = async (unidadeId, limit) => {
+        const start = new Date();
+
+        const unidade = await unidadeService.findById(unidadeId);
+
+        if(unidade) {
+            console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
+
+            const resultIdosos = await syncIdosos(unidade, limit);
+            // const resultVigilantes = await syncVigilantes(unidade);
+    
+            const resultRespostas = await syncAtendimentos(unidade, limit);
+                        
+            console.log(`[Sync] ${unidade.nome} SYNCED`);
+            
+            const log = {
+                ok: true,
+                time: new Date(),
+                idosos: resultIdosos,
+                atendimentos: resultRespostas,
+                // vigilantes: resultVigilantes,
+                runtime: ((new Date()) - start)/1000,    
+            }
+            const resultSync = await unidadeService.updateSyncDate(unidade, log);
+
+            return log;
+        } else {
+            const log = {
+                ok: false,
+                time: new Date(),
+                error: 'não há unidade para sincronizar',
+            };
+            const resultSync = await unidadeService.updateSyncDate(unidade, log);
+            return log;
         }
 
     }
@@ -388,10 +432,32 @@ module.exports = app => {
         
     };
 
+    //TODO retornar status 204 no content quando não tem resposta...
+    const syncUnidade = async (req, res) => {
+        const start = new Date();
+        
+        try {
+            const result = await runSyncUnidade(req.params.unidadeId, +req.params.limit);
+            return res.json(result);
+        } catch (error) {
+            console.warn(error)
+            const log = {
+                ok: false,
+                time: new Date(),
+                error: error.toString(),
+                runtime: ((new Date()) - start)/1000,
+            };
+            const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
+
+            return res.json(log);
+        }
+        
+    };
+
     /**
      * Resetar indices de sincronização de uma unidade
      */
     //TODO
 
-    return { sync, runSync };
+    return { sync, runSync, syncUnidade, runSyncUnidade };
 };

@@ -166,15 +166,29 @@ module.exports = app => {
     }
 
     const unidade = async (req, res) => {
-        console.log('unidadeId: ', req.params.unidadeId)
         try {
             const result = await unidadeService.findById(req.params.unidadeId);
-            console.log(result)
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);
         }
     }
 
-    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats, unidades, unidade };
+    const toggleSync = async (req, res) => {
+        try {
+            const status = req.params.status === 'true' ? true : false;
+            const result = await unidadeService.setAtivo(req.params.unidadeId, status);
+            if(status) {
+                //TODO SINCRONIZAR
+                const resultSync = await app.api.sync.runSyncUnidade(req.params.unidadeId);
+                console.log(resultSync);
+                return res.json(resultSync);
+            }
+            return res.status(204).json();
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats, unidades, unidade, toggleSync };
 };
