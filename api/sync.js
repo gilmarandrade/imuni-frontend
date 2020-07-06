@@ -82,14 +82,22 @@ module.exports = app => {
             vigilantes[item[0]] = { nome: item[0] };
         });
 
-        const arrayVigilantes = Object.values(vigilantes);
+        const arrayNovosVigilantes = Object.values(vigilantes);
+        
+        //insere no banco apenas os novos vigilantes
+        const nomesVigilantesDaUnidade = unidade.vigilantes.map(item => item.nome);
+        for(let i = 0; i < arrayNovosVigilantes.length; i++ ){
+            
+            if(!nomesVigilantesDaUnidade.includes(arrayNovosVigilantes[i].nome)){
+                unidade.vigilantes.push(arrayNovosVigilantes[i]);
+                unidade.qtdVigilantes++;
+                unidade.indexIdosos.push(1);
+            }
+        }
 
-        const resultDelete = await vigilanteService.deleteAll(unidade.collectionPrefix);
-        console.log(`[Sync] vigilantesCollection: ${resultDelete} rows deleted`)
-
-        const resultInsertMany = await vigilanteService.insertAll(unidade.collectionPrefix, arrayVigilantes);
-        console.log(`[Sync] vigilantesCollection: ${resultInsertMany} rows inserted`)
-        return resultInsertMany;
+        const result = await unidadeService.replaceOne(unidade);
+        console.log(`[Sync] ${arrayNovosVigilantes.length} vigilantes found`);
+        return result;
     }
 
     /**
@@ -374,12 +382,16 @@ module.exports = app => {
         const start = new Date();
 
         const unidade = await unidadeService.findById(unidadeId);
+        // console.log(unidade)
 
         if(unidade) {
             console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
 
+            if(!limit) {//atualiza a lista de vigilantes, se for uma sincornização total
+                const resultVigilantes = await syncVigilantes(unidade);
+            }
+
             const resultIdosos = await syncIdosos(unidade, limit);
-            // const resultVigilantes = await syncVigilantes(unidade);
     
             const resultRespostas = await syncAtendimentos(unidade, limit);
                         
@@ -415,6 +427,7 @@ module.exports = app => {
         const start = new Date();
         
         try {
+            //refatorar runSync para atualizar os vigilantes das unidades
             const result = await runSync(+req.params.limit);
             return res.json(result);
         } catch (error) {

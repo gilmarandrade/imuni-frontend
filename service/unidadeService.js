@@ -86,7 +86,8 @@ const insertOne = async (unidade) => {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.result.n);
+                    resolve(result.insertedId);
+                    //TODO retorar o id dos elementos inseridos em todas as chamadas ao banco da api
                 }
             });
         });
