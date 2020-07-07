@@ -75,6 +75,37 @@ module.exports = app => {
     }
 
     const syncVigilantes = async (unidade) => {
+        const arrayNovosVigilantes = [];
+        try {
+            let i = 1;
+            while(i <= 10) {
+                console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${i}'!A2:A2`);
+                const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${i}'!A2:A2`);
+                arrayNovosVigilantes.push({ nome: rows[0][0] });
+                i++;
+            }
+        } catch(err) {
+            console.log(err);
+        }
+        
+        //insere no banco apenas os novos vigilantes
+        const nomesVigilantesDaUnidade = unidade.vigilantes.map(item => item.nome);
+        for(let i = 0; i < arrayNovosVigilantes.length; i++ ){
+            if(!nomesVigilantesDaUnidade.includes(arrayNovosVigilantes[i].nome)){
+                unidade.vigilantes.push(arrayNovosVigilantes[i]);
+                unidade.qtdVigilantes++;
+                unidade.indexIdosos.push(1);
+            }
+        }
+
+        console.log(unidade)
+        const result = await unidadeService.replaceOne(unidade);
+        console.log(`[Sync] ${arrayNovosVigilantes.length} vigilantes found`);
+        return result;
+    }
+
+    // deprecated
+    const syncVigilantes2 = async (unidade) => {
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Status Atendimentos'!A2:A`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Status Atendimentos'!A2:A`);
         const vigilantes = {};
