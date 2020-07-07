@@ -412,8 +412,14 @@ module.exports = app => {
     const runSyncUnidade = async (unidadeId, limit) => {
         const start = new Date();
 
+        
         const unidade = await unidadeService.findById(unidadeId);
         // console.log(unidade)
+        
+        const properties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+        console.log(properties.namedRanges);
+        console.log(properties.sheets[6].properties);
+        
 
         if(unidade) {
             console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
@@ -491,7 +497,7 @@ module.exports = app => {
                 error: error.toString(),
                 runtime: ((new Date()) - start)/1000,
             };
-            const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
+            // const resultSync = await unidadeService.updateSyncDate(unidades[0], log);
 
             return res.json(log);
         }

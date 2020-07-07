@@ -28,4 +28,23 @@ const read = async (spreadsheetId, range) => {
     return promise;
 };
 
-module.exports = { read };
+const getProperties = async (spreadsheetId) => {
+    // console.log('Reading', spreadsheetId, range)
+    const googleClient = await getGoogleClient();
+    
+    const promise = new Promise( (resolve, reject) => {
+        sheets.spreadsheets.get({
+            auth: googleClient,
+            spreadsheetId: spreadsheetId
+        }, (err, apiRes) => {
+            if (err) {
+                return reject(err.message);
+            }
+            return resolve(apiRes.data);
+        });
+    });
+
+    return promise;
+};
+
+module.exports = { read, getProperties };
