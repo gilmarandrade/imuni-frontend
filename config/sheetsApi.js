@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config();//lê o env file do projeto
 const { google } = require('googleapis'); 
 const sheets = google.sheets('v4');
 const getGoogleClient = require('../config/google-client');
