@@ -120,7 +120,7 @@ const insertOne = async (usuario) => {
 }
 
 
-const findByEmail = async (email) => {
+const findByEmail = async (email) => {//TODO VERIFICAR SE OS METODOS QUE RETORNAM USUARIOS ESTÃO TRAZENDO A SENHA (FALHA DE SEGURANÇA)
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
@@ -166,4 +166,27 @@ const findById = async (id) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById };
+const findByUnidade = async (unidadeId) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.find({ unidadeId: unidadeId }, { projection: { password: 0 } }).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade };
