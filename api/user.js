@@ -11,6 +11,7 @@ module.exports = app => {
     };
     
     const insert = async (req, res) => {
+        //TODO é preciso atualizar a lista de vigilantes e ids na collection unidade?
 
         const user = { ...req.body };
 
