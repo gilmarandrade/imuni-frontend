@@ -47,6 +47,14 @@ module.exports = app => {
         .all(app.config.passport.authenticate())
         .get(role(app.api.googlesheets.vigilantes, 'ADMINISTRADOR'));
 
+    app.route('/unidades/:unidadeId/ativacao/:status')
+        .all(app.config.passport.authenticate())
+        .get(role(app.api.googlesheets.toggleSync, 'ADMINISTRADOR'));
+
+    app.route('/unidades/:unidadeId/sync')
+        .all(app.config.passport.authenticate())
+        .get(role(app.api.sync.syncUnidade, 'ADMINISTRADOR'));
+
     app.route('/unidades/:unidadeId')
         .all(app.config.passport.authenticate())
         .get(role(app.api.googlesheets.unidade, 'ADMINISTRADOR'));
