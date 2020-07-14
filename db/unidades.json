@@ -16,98 +16,7 @@
     250
   ],
   "indexRespostas": 242,
-  "log": [
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-06-28T23:48:37.561Z"
-      },
-      "idosos": 0,
-      "atendimentos": 0,
-      "runtime": 7.587
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-06T02:27:25.804Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 45.251
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:29:54.882Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 35.975
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:31:55.252Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 43.8
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:34:07.669Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 38.246
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:37:08.722Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 45.674
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:38:40.338Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 34.963
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:40:38.370Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 35.627
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:42:14.949Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 47.809
-    },
-    {
-      "ok": true,
-      "time": {
-        "$date": "2020-07-07T02:44:03.168Z"
-      },
-      "idosos": 999,
-      "atendimentos": 241,
-      "runtime": 40.665
-    }
-  ],
+  "log": [],
   "vigilantes": [
     {
       "usuarioId": "5eee639b4fdfa558183809bc",
@@ -126,7 +35,35 @@
       "nome": "Maria Wégila Félix Gomes"
     }
   ],
-  "ativo": true
+  "ativo": true,
+  "sync": [
+    {
+      "indexed": 1,
+      "size": 1000,
+      "sheetName": "Respostas"
+    },
+    {
+      "indexed": 1,
+      "size": 1000,
+      "sheetName": "Vigilante 1"
+    },
+    {
+      "indexed": 1,
+      "sheetName": "Vigilante 2",
+      "size": 1000
+    },
+    {
+      "indexed": 1,
+      "size": 1000,
+      "sheetName": "Vigilante 3"
+    },
+    {
+      "indexed": 1,
+      "size": 1000,
+      "sheetName": "Vigilante 4"
+    }
+  ],
+  "lastSyncDate": null
 },{
   "_id": {
     "$oid": "5f0248183dc8c39150e066f1"
