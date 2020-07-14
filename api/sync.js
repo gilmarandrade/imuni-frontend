@@ -415,14 +415,19 @@ module.exports = app => {
         
         const unidade = await unidadeService.findById(unidadeId);
         // console.log(unidade)
-        
-        const properties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
-        console.log(properties.namedRanges);
-        console.log(properties.sheets[6].properties);
-        
 
         if(unidade) {
             console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
+
+            const properties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+            
+            for(let i = 0; i < properties.sheets.length; i++) {
+                console.log(properties.sheets[i].properties.title, properties.sheets[i].properties.gridProperties.rowCount);
+            }
+
+            for(let i = 0; i< unidade.sync.length; i++) {
+                console.log(unidade.sync[i])
+            }
 
             if(!limit) {//atualiza a lista de vigilantes, se for uma sincornização total
                 const resultVigilantes = await syncVigilantes(unidade);
@@ -509,5 +514,61 @@ module.exports = app => {
      */
     //TODO
 
-    return { sync, runSync, syncUnidade, runSyncUnidade };
+
+
+    /*
+    */
+    const testeSyncUnidade = async (unidadeId, limit) => {
+        const start = new Date();
+
+        const unidade = await unidadeService.findById(unidadeId);
+        // console.log(unidade)
+
+        if(unidade) {
+            console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
+
+            const properties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+            
+            for(let i = 0; i < properties.sheets.length; i++) {
+                console.log(properties.sheets[i].properties.title, properties.sheets[i].properties.gridProperties.rowCount);
+            }
+
+            for(let i = 0; i< unidade.sync.length; i++) {
+                console.log(unidade.sync[i])
+            }
+
+            if(!limit) {//atualiza a lista de vigilantes, se for uma sincornização total
+                const resultVigilantes = await syncVigilantes(unidade);
+            }
+
+            const resultIdosos = await syncIdosos(unidade, limit);
+    
+            const resultRespostas = await syncAtendimentos(unidade, limit);
+                        
+            console.log(`[Sync] ${unidade.nome} SYNCED`);
+            
+            const log = {
+                ok: true,
+                time: new Date(),
+                idosos: resultIdosos,
+                atendimentos: resultRespostas,
+                // vigilantes: resultVigilantes,
+                runtime: ((new Date()) - start)/1000,    
+            }
+            const resultSync = await unidadeService.updateSyncDate(unidade, log);
+
+            return log;
+        } else {
+            const log = {
+                ok: false,
+                time: new Date(),
+                error: 'não há unidade para sincronizar',
+            };
+            const resultSync = await unidadeService.updateSyncDate(unidade, log);
+            return log;
+        }
+
+    }
+
+    return { sync, runSync, syncUnidade, runSyncUnidade, testeSyncUnidade, syncVigilantes };
 };
