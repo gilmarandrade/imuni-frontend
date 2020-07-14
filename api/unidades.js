@@ -59,6 +59,7 @@ module.exports = app => {
 
         try {
             //TODO a unidade não pode ter um nome que já existe
+            //TODO o que acontece com a sincronização se o links das planilhas for cadastrado errado?
             app.api.validation.existsOrError(unidade.nome, 'Nome: campo obrigatório')
             app.api.validation.existsOrError(unidade.distrito, 'Distrito: campo obrigatório')
             app.api.validation.existsOrError(unidade.planilhaIdosos, 'Planilha de idosos: campo obrigatório')
@@ -84,12 +85,15 @@ module.exports = app => {
         unidade.collectionPrefix = unidade.nome.replace(/[^a-zA-Z0-9]/g,'_');
         unidade.ativo = false;
         unidade.log = [];
+        unidade.qtdVigilantes = 0;
+        unidade.indexIdosos = [];
+        unidade.indexRespostas = 1;
+        unidade.vigilantes = [];
 
         console.log(unidade);
         try {
             const result = await unidadeService.insertOne(unidade);
-            console.log(result)
-            return res.status(204).json();
+            return res.status(200).json(result);
         } catch(err) {
             return res.status(500).send(err);
         }
