@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config();//lê o env file do projeto
 const { google } = require('googleapis'); 
 const sheets = google.sheets('v4');
 const getGoogleClient = require('../config/google-client');
@@ -28,23 +28,4 @@ const read = async (spreadsheetId, range) => {
     return promise;
 };
 
-const getProperties = async (spreadsheetId) => {
-    // console.log('Reading', spreadsheetId, range)
-    const googleClient = await getGoogleClient();
-    
-    const promise = new Promise( (resolve, reject) => {
-        sheets.spreadsheets.get({
-            auth: googleClient,
-            spreadsheetId: spreadsheetId
-        }, (err, apiRes) => {
-            if (err) {
-                return reject(err.message);
-            }
-            return resolve(apiRes.data);
-        });
-    });
-
-    return promise;
-};
-
-module.exports = { read, getProperties };
+module.exports = { read };
