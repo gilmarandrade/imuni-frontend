@@ -23,7 +23,7 @@ module.exports = app => {
             equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem');
             existsOrError(user.role, 'Permissão não informada');
 
-            if(user.role === 'VIGILANTE') {
+            if(user.role === 'VIGILANTE') {//TODO deveria permitir o cadastro de usuarios de outros tipos: progenitor, tutor?
                 existsOrError(user.unidadeId, 'Unidade de Saúde não informada');
                 const unidade = await unidadeService.findById(user.unidadeId);
                 user.collectionPrefix = unidade.collectionPrefix;
@@ -51,5 +51,24 @@ module.exports = app => {
 
     }
 
-    return { insert }
+    // const get = async (req, res) => {
+    //     try {
+    //         const result = await userService.findAll();
+    //         return res.json(result);
+    //     } catch(err) {
+    //         return res.status(500).send(err);
+    //     }
+    // }
+
+    const getByUnidadeId = async (req, res) => {
+        try {
+            const result = await userService.findByUnidade(req.params.unidadeId);
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { insert, getByUnidadeId }
 }
