@@ -11,7 +11,7 @@ module.exports = app => {
         res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
     });
 
-    app.post('/users', app.api.user.insert);//TODO o cadastro de usuarios não pode ser público
+    
     app.post('/login', app.api.auth.login);
     app.post('/validateToken', app.api.auth.validateToken);
 
@@ -45,7 +45,8 @@ module.exports = app => {
 
     app.route('/unidades/:unidadeId/usuarios')
         .all(app.config.passport.authenticate())
-        .get(role(app.api.user.getByUnidadeId, 'ADMINISTRADOR'));
+        .get(role(app.api.user.getByUnidadeId, 'ADMINISTRADOR'))
+        .post(role(app.api.user.insert, 'ADMINISTRADOR'));
 
     app.route('/unidades/:unidadeId/vigilantes')
         .all(app.config.passport.authenticate())
