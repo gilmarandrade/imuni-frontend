@@ -155,26 +155,5 @@ module.exports = app => {
         return promise;
     } 
 
-    const unidades = async (req, res) => {
-        // console.log('unidadeId: ', req.params.unidadeId)
-        try {
-            const result = await unidadeService.findAll();
-            return res.json(result);
-        } catch(err) {
-            return res.status(500).send(err);
-        }
-    }
-
-    const unidade = async (req, res) => {
-        console.log('unidadeId: ', req.params.unidadeId)
-        try {
-            const result = await unidadeService.findById(req.params.unidadeId);
-            console.log(result)
-            return res.json(result);
-        } catch(err) {
-            return res.status(500).send(err);
-        }
-    }
-
-    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats, unidades, unidade };
+    return { idososByVigilante, idoso, atendimentosByIdoso, atendimento, vigilantes, stats };
 };
