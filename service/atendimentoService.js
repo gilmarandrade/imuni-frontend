@@ -3,7 +3,7 @@
 //TODO usar configuração do banco
 const { mongoUris } = require('../config/environment');
 const ObjectId = require('mongodb').ObjectID;
-const dbName = 'planilhas';
+const dbName = 'covidrn_planilha';
 const collectionName = 'atendimentos';
 
 

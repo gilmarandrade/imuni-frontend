@@ -30,4 +30,36 @@
   "email": "iago@mail.com",
   "password": "$2a$10$.pKjXFbg0QsaBzOmzuEeAuXy/BJ9.wU7ITaBgqcahYq/K8I0gqDbu",
   "role": "VIGILANTE"
+},{
+  "_id": {
+    "$oid": "5f0d0fe1f80bd3c8a0593276"
+  },
+  "name": "sdfsddf",
+  "email": "fdsdf@sdds.com",
+  "password": "$2a$10$9nDWTeC6qllw2qaxYucM8u6n4KcwHAMORP3e9OJrokIO5zDAj/6Ji",
+  "role": "VIGILANTE"
+},{
+  "_id": {
+    "$oid": "5f0d102df80bd3c8a0593277"
+  },
+  "name": "fddf",
+  "email": "fgdfg@sdad.com",
+  "password": "$2a$10$FX.AbNoZ3OuXe/.tETdifuSw.EWQqChAdz/PjJpNDI34BImETzPiS",
+  "role": "VIGILANTE"
+},{
+  "_id": {
+    "$oid": "5f0d1084f80bd3c8a0593278"
+  },
+  "name": "Nataniel",
+  "email": "nat@mail.com",
+  "password": "$2a$10$rvKHonr9k2pSWRDNzF51SeoIQCP6cg70VPAy20du3YnlUVfetk4sy",
+  "role": "VIGILANTE"
+},{
+  "_id": {
+    "$oid": "5f0d110ef80bd3c8a0593279"
+  },
+  "name": "Brenda Nayara Carlos Ferreira",
+  "email": "brenda@mail.com",
+  "password": "$2a$10$2UuAatCMNxd6JNqNUJtMWucmx3dwLlAZ.MbsS0iQOQGY9XO5gFJay",
+  "role": "VIGILANTE"
 }]

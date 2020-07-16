@@ -10,12 +10,12 @@
   "idFichaVigilancia": "1ceBxDQI2XtYXAOCuiYC1NK10lJY21TxnOGQMdIgxzyM",
   "qtdVigilantes": 4,
   "indexIdosos": [
-    251,
-    251,
-    251,
-    250
+    1,
+    1,
+    1,
+    1
   ],
-  "indexRespostas": 242,
+  "indexRespostas": 1,
   "log": [],
   "vigilantes": [
     {
@@ -76,12 +76,12 @@
   "idFichaVigilancia": "1ceBxDQI2XtYXAOCuiYC1NK10lJY21TxnOGQMdIgxzyM",
   "qtdVigilantes": 4,
   "indexIdosos": [
-    251,
-    251,
-    251,
-    250
+    1,
+    1,
+    1,
+    1
   ],
-  "indexRespostas": 242,
+  "indexRespostas": 1,
   "log": [
     {
       "ok": true,
