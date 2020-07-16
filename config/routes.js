@@ -11,6 +11,14 @@ module.exports = app => {
         res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
     });
 
+    app.route('/teste')
+        .get((req, res) => {
+            try {
+                return res.json({ funcionou: "sim", "finalmente": true });
+            } catch(err) {
+                return res.status(500).send(err);
+            }
+        });
     
     app.post('/login', app.api.auth.login);
     app.post('/validateToken', app.api.auth.validateToken);
