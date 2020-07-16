@@ -29,6 +29,6 @@ const { mongoUris } = require('./config/environment');
  
   const port = process.env.PORT || 3000;
   server.listen(port, ()=>{
-    console.log('[api-frenteprevencaocovidrn-org-br] BACKEND executando na porta '+ port + '. Mongodb: ' + mongoUris);
+    console.log('[api.frenteprevencaocovidrn.com.br] BACKEND executando na porta '+ port + '. Mongodb: ' + mongoUris);
   });
 
