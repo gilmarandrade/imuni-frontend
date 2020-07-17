@@ -32,7 +32,7 @@ module.exports = app => {
             const result = await unidadeService.setAtivo(req.params.unidadeId, status);
             if(status) {
                 //TODO SINCRONIZAR
-                const resultSync = await app.api.sync.runSyncUnidade(req.params.unidadeId);
+                const resultSync = await app.server.api.sync.runSyncUnidade(req.params.unidadeId);
                 console.log(resultSync);
                 return res.json(resultSync);
             }
@@ -60,19 +60,19 @@ module.exports = app => {
         try {
             //TODO a unidade não pode ter um nome que já existe
             //TODO o que acontece com a sincronização se o links das planilhas for cadastrado errado?
-            app.api.validation.existsOrError(unidade.nome, 'Nome: campo obrigatório')
-            app.api.validation.existsOrError(unidade.distrito, 'Distrito: campo obrigatório')
-            app.api.validation.existsOrError(unidade.planilhaIdosos, 'Planilha de idosos: campo obrigatório')
-            app.api.validation.existsOrError(unidade.planilhaGerenciamento, 'Planilha de gerenciamento: campo obrigatório')
-            app.api.validation.existsOrError(unidade.fichaVigilancia, 'Ficha de vigilância: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.nome, 'Nome: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.distrito, 'Distrito: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.planilhaIdosos, 'Planilha de idosos: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.planilhaGerenciamento, 'Planilha de gerenciamento: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.fichaVigilancia, 'Ficha de vigilância: campo obrigatório')
             
             unidade.idPlanilhaIdosos = getSpreadsheetId(unidade.planilhaIdosos);
             unidade.idPlanilhaGerenciamento = getSpreadsheetId(unidade.planilhaGerenciamento);
             unidade.idFichaVigilancia = getFormId(unidade.fichaVigilancia);
 
-            app.api.validation.existsOrError(unidade.idPlanilhaIdosos, 'Planilha de idosos: preencha com uma URL válida')
-            app.api.validation.existsOrError(unidade.idPlanilhaGerenciamento, 'Planilha de gerenciamento: preencha com uma URL válida')
-            app.api.validation.existsOrError(unidade.idFichaVigilancia, 'Ficha de vigilância: preencha com uma URL válida')
+            app.server.api.validation.existsOrError(unidade.idPlanilhaIdosos, 'Planilha de idosos: preencha com uma URL válida')
+            app.server.api.validation.existsOrError(unidade.idPlanilhaGerenciamento, 'Planilha de gerenciamento: preencha com uma URL válida')
+            app.server.api.validation.existsOrError(unidade.idFichaVigilancia, 'Ficha de vigilância: preencha com uma URL válida')
 
             delete unidade.planilhaIdosos;
             delete unidade.planilhaGerenciamento;

@@ -7,7 +7,7 @@ module.exports = app => {
         const categoriresCount = 5;
         const articlesCount = 10;
 
-        const { Stat } = app.api.stat;
+        const { Stat } = app.server.api.stat;
 
         const lastStat = await Stat.findOne({}, {}, { sort: { 'createdAt': -1 } });
 

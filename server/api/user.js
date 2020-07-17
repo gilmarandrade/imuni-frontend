@@ -3,7 +3,7 @@ const userService = require('../service/userService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
-    const { existsOrError, notExistsOrError, equalsOrError } = app.api.validation;
+    const { existsOrError, notExistsOrError, equalsOrError } = app.server.api.validation;
 
     const encryptPassword = password => {
         const salt = bcrypt.genSaltSync(10);

@@ -3,19 +3,19 @@ const consign = require('consign');
 const { mongoUris } = require('./config/environment');
 
   consign()
-    .include('./config/passport.js')
-    .then('./config/socket.js')
-    .then('./config/middlewares.js')
-    .then('./api/validation.js')
-    .then('./api')
-    // .then('./schedule')
-    .then('./config/routes.js')
+    .include('/server/config/passport.js')
+    .then('/server/config/socket.js')
+    .then('/server/config/middlewares.js')
+    .then('/server/api/validation.js')
+    .then('/server/api')
+    // .then('/server/schedule')
+    .then('/server/config/routes.js')
     .into(app);
   
     
     //protocolo http
     const server = require('http').createServer(app);//TODO e se for https?
-    app.config.socket.init(server);
+    app.server.config.socket.init(server);
   // //protocolo wss (websocket)
   // const io = require('socket.io')(server, { origins: '*:*' });
 

@@ -2,10 +2,10 @@
   "name": "api-frenteprevencaocovidrn-org-br",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server/app.js",
   "scripts": {
-    "start": "node app",
-    "dev": "nodemon"
+    "start": "node server/app",
+    "dev": "nodemon server/app"
   },
   "repository": {
     "type": "git",
