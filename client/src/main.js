@@ -19,12 +19,13 @@ Vue.config.productionTip = false
 
 Vue.use(new VueSocketIO({
     debug: true,
-    connection: 'http://api.frenteprevencaocovidrn.com.br',//TODO não funciona no localhost
+    connection: environment.socketUrl,
     vuex: {
         store,
         actionPrefix: 'SOCKET_',
         mutationPrefix: 'SOCKET_'
-    }
+    },
+    // options: { path: '/api/socket.io' } //Optional options
 }))
 
 

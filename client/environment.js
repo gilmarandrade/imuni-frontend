@@ -9,4 +9,5 @@ module.exports = {
     node_env: process.env.NODE_ENV,
     // api: 'http://localhost:3000/api',
     api: (process.env.NODE_ENV === 'production') ? 'http://api.frenteprevencaocovidrn.com.br/api' : 'http://localhost:3000/api',
+    socketUrl: (process.env.NODE_ENV === 'production') ? 'http://api.frenteprevencaocovidrn.com.br' : 'http://localhost:3000',
 }
