@@ -7,7 +7,7 @@ const unidadeService = require('../service/unidadeService');
 module.exports = app => {
     const init = async (server) => {
         //protocolo wss (websocket)
-        const io = require('socket.io')(server, { origins: 'http://frenteprevencaocovidrn.com.br:80 http://frenteprevencaocovidrn.com.br:3000 http://localhost:8080' });
+        const io = require('socket.io')(server, { origins: 'http://api.frenteprevencaocovidrn.com.br:80 http://api.frenteprevencaocovidrn.com.br:3000 http://localhost:8080' });
 
         io.on('connection', socket => {
             console.log('[socket] conectado', socket.id);

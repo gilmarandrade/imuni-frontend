@@ -78,9 +78,9 @@ module.exports = app => {
         // servindo arquivos estáticos
         app.use(express.static(path.resolve(__dirname, "../public")));
         // handle SPA
-        app.get("*", (req, res) => {// O wildcard '*' serve para servir o mesmo index.html independente do caminho especificado pelo navegador.
-            res.sendFile(path.join(__dirname, "../public", "index.html"));
-        });
+        // app.get("*", (req, res) => {// O wildcard '*' serve para servir o mesmo index.html independente do caminho especificado pelo navegador.
+        //     res.sendFile(path.join(__dirname, "../public", "index.html"));
+        // });
     }
 
 };
