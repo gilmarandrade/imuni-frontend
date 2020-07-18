@@ -1,10 +1,8 @@
 const express = require('express');
 const role = require('./role');
+const path = require('path');
 
-module.exports = app => {
-    // servindo arquivos estáticos
-    app.use(express.static('frontend'));
-    
+module.exports = app => {    
     //  A ordem das urls tem que ser da mais especifica para a mais genérica
 
     // app.get('/', function (req, res) {
@@ -74,5 +72,15 @@ module.exports = app => {
     app.route('/api/stats')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.googlesheets.stats);
+
+    //TODO Handle Production routes
+    if(process.env.NODE_ENV === 'production') {
+        // servindo arquivos estáticos
+        app.use(express.static(path.resolve(__dirname, "../public")));
+        // handle SPA
+        app.get("*", (req, res) => {// O wildcard '*' serve para servir o mesmo index.html independente do caminho especificado pelo navegador.
+            res.sendFile(path.join(__dirname, "../public", "index.html"));
+        });
+    }
 
 };
