@@ -75,7 +75,7 @@ const insertAll = async (collectionPrefix, array) => {
 const replaceOne = async (collectionPrefix, idosoAtendimento) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
@@ -99,7 +99,7 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
     // console.log(idosoAtendimento);
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: true }, function( err, client ) {
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
