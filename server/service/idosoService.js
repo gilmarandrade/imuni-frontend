@@ -271,13 +271,34 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
             
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-            collection.find({ vigilante: nomeVigilante }).sort({"score":-1}).toArray(function(err, result) {
+            collection.aggregate([
+                {
+                    $lookup:
+                    {
+                        from: 'USF_Rocas.ultimasEscalas',//TODO hardcoded
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimaEscala'
+                    }
+                },
+                // { $unwind: "$ultimaEscala" },
+                { $match: { vigilante: nomeVigilante } },
+                { $sort : { 'ultimaEscala.score': -1, nome: 1 } },
+            ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
+                    // console.log(result);
                     resolve(result);
                 }
             });
+            // collection.find({ vigilante: nomeVigilante }).sort({"score":-1}).toArray(function(err, result) {
+            //     if(err) {
+            //         reject(err);
+            //     } else {
+            //         resolve(result);
+            //     }
+            // });
         });
 
     });

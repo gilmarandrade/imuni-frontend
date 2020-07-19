@@ -162,4 +162,58 @@ const replaceOne = async (collectionPrefix, atendimento) => {
 }
 
 
-module.exports = {  findAll, deleteAll, insertAll, findAtendimentosByIdoso, replaceOne, bulkReplaceOne };
+const aggregateEscalas = async (collectionPrefix) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(`${collectionPrefix}.idosos`);
+
+            //ultimo atendimento efetuado (ligação atendida)
+            collection.aggregate([
+                    {
+                        $lookup:
+                        {
+                            from: 'USF_Rocas.atendimentos',//TODO hardcoded
+                            localField: 'nome',
+                            foreignField: 'fichaVigilancia.dadosIniciais.nome',
+                            as: 'atendimentos'
+                        }
+                    },
+                    { $unwind: "$atendimentos" },
+                    { $match: { "atendimentos.fichaVigilancia.dadosIniciais.atendeu": true } },
+                    { $sort : { nome : 1, 'atendimentos.fichaVigilancia.data': -1 } },
+                    {
+                        $group:
+                        {
+                            _id: "$_id",
+                            data: { $first: "$atendimentos.fichaVigilancia.data" },
+                            // ultimoAtendimentoAtendeu: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.atendeu" },
+                            nome: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.nome" },
+                            score: { $first: "$atendimentos.escalas.scoreOrdenacao" },
+                            vulnerabilidade: { $first: "$atendimentos.escalas.vulnerabilidade"  },
+                            epidemiologica: { $first: "$atendimentos.escalas.epidemiologica"  },
+                            riscoContagio: { $first: "$atendimentos.escalas.riscoContagio"  },
+                            dataProximoAtendimento: { $first: "$atendimentos.escalas.dataProximoAtendimento"  },
+                            // epidemiologia: { $last: "$atendimentos.fichaVigilancia.epidemiologia"  },
+
+                        }
+                    },
+                    { $out: 'USF_Rocas.ultimasEscalas' }, //TODO hardcoded
+                ]).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    console.log(result);
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, findAtendimentosByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas };

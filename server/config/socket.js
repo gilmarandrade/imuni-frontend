@@ -252,8 +252,10 @@ module.exports = app => {
             //     const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
             // }
             const resultUpsert = await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
-            console.log(`[Sync] atendimentosCollection: updated (TODO: RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS)`);
-
+            console.log(`[Sync] atendimentosCollection: updated`);
+            
+            await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
+            console.log(`[Sync] ultimasEscalasCollection: partial update`);
             //TODO RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS
             // const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
             // const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);

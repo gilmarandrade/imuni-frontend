@@ -7,8 +7,8 @@
                 <div>
                     <b>{{ data.item.nome }}</b>
                 </div>
-                <div class="badges" v-if="data.item.stats.ultimaEscala">
-                     <popper v-if="data.item.stats.ultimaEscala.vulnerabilidade"
+                <div class="badges" v-if="data.item.ultimaEscala[0]">
+                     <popper v-if="data.item.ultimaEscala[0].vulnerabilidade"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -18,10 +18,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.stats.ultimaEscala.vulnerabilidade" />
+                            <Badge :value="data.item.ultimaEscala[0].vulnerabilidade" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.stats.ultimaEscala.epidemiologica"
+                    <popper v-if="data.item.ultimaEscala[0].epidemiologica"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -31,10 +31,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.stats.ultimaEscala.epidemiologica" />
+                            <Badge :value="data.item.ultimaEscala[0].epidemiologica" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.stats.ultimaEscala.riscoContagio"
+                    <popper v-if="data.item.ultimaEscala[0].riscoContagio"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -44,7 +44,7 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.stats.ultimaEscala.riscoContagio" />
+                            <Badge :value="data.item.ultimaEscala[0].riscoContagio" />
                         </span>
                     </popper>
                 </div>
@@ -106,7 +106,7 @@
                         </popper>
                     </span>
 
-                    <span class="dataProximoAtendimento" v-if="data.item.stats.ultimaEscala && data.item.stats.ultimaEscala.dataProximoAtendimento">
+                    <span class="dataProximoAtendimento" v-if="data.item.ultimaEscala[0] && data.item.ultimaEscala[0].dataProximoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -118,7 +118,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-clock"></i> {{ formatDate(data.item.stats.ultimaEscala.dataProximoAtendimento) }}
+                                <i class="far fa-clock"></i> {{ formatDate(data.item.ultimaEscala[0].dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>
@@ -146,7 +146,7 @@ export default {
             carregando: true,
             idosos: [],
             fields: [ 
-                { key: 'score', label: 'Score' },
+                { key: 'ultimaEscala[0].score', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
                 { key: 'col-2', label: ' ' },
             ],
