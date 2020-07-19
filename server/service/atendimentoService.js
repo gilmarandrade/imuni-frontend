@@ -170,12 +170,15 @@ const aggregateEscalas = async (collectionPrefix) => {
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.idosos`);
 
+            const atendimentosCollection = `${collectionPrefix}.atendimentos`;
+            const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
+
             //ultimo atendimento efetuado (ligação atendida)
             collection.aggregate([
                     {
                         $lookup:
                         {
-                            from: 'USF_Rocas.atendimentos',//TODO hardcoded
+                            from: atendimentosCollection,
                             localField: 'nome',
                             foreignField: 'fichaVigilancia.dadosIniciais.nome',
                             as: 'atendimentos'
@@ -200,7 +203,7 @@ const aggregateEscalas = async (collectionPrefix) => {
 
                         }
                     },
-                    { $out: 'USF_Rocas.ultimasEscalas' }, //TODO hardcoded
+                    { $out: ultimasEscalasCollection },
                 ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);

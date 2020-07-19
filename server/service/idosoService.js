@@ -268,14 +268,15 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
         MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
+            const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
             
-            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+            const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
 
-            collection.aggregate([
+            idososCollection.aggregate([
                 {
                     $lookup:
                     {
-                        from: 'USF_Rocas.ultimasEscalas',//TODO hardcoded
+                        from: ultimasEscalasCollection,
                         localField: 'nome',
                         foreignField: 'nome',
                         as: 'ultimaEscala'
