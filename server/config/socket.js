@@ -99,7 +99,7 @@ module.exports = app => {
     const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
         const idososPorVigilantes = [];
         let indexIdosos = unidade.sync[vigilanteIndex].indexed;
-        let rowsInserted = 0;
+        let rowsInserted = null;
         const lastIndexSynced = limit ? indexIdosos : 1;
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = limit ? lastIndexSynced + limit : '';//''
@@ -133,11 +133,11 @@ module.exports = app => {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${indexIdosos}`);
 
             //insere os idosos no banco
-            let j = 0;
-            for(; j < idososPorVigilantes.length; j++) {
-                const resultInsertMany = await idosoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[j]);
-            }
-            rowsInserted += j;
+            // let j = 0;
+            // for(; j < idososPorVigilantes.length; j++) {
+            //     const resultInsertMany = await idosoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[j]);
+            // }
+            await idosoService.bulkUpdateOne(unidade.collectionPrefix, idososPorVigilantes);
         } else {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
         }
@@ -148,7 +148,7 @@ module.exports = app => {
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
-        console.log(`[Sync] idososCollection: ${rowsInserted} rows affected`)
+        console.log(`[Sync] idososCollection updated`)
         return rowsInserted;
     }
 
@@ -247,14 +247,16 @@ module.exports = app => {
         if(atendimentosArray.length) {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
             
-            let i = 0;
-            for(; i < atendimentosArray.length; i++) {
-                const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
-            }
-            console.log(`[Sync] atendimentosCollection: ${i} rows affected`);
+            let i = null;
+            // for(; i < atendimentosArray.length; i++) {
+            //     const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
+            // }
+            const resultUpsert = await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
+            console.log(`[Sync] atendimentosCollection: updated (TODO: RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS)`);
 
-            const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
-            const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);
+            //TODO RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS
+            // const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
+            // const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);
 
             unidade.sync[0].indexed = indexRespostas;
             await unidadeService.replaceOne(unidade);
@@ -299,7 +301,8 @@ module.exports = app => {
             }
         */
 
-       let rowsUpdated = 0;
+       let rowsUpdated = null;
+       const idososArray = [];
        for(let i = 0; i < nomeLowerIdosos.length; i++) {
             let idoso = await idosoService.findByNome(unidade.collectionPrefix, nomeLowerIdosos[i]);
             if(idoso === null) {
@@ -354,10 +357,12 @@ module.exports = app => {
                 idoso.epidemiologia = {};
             }
 
-            rowsUpdated += await idosoService.replaceOne(unidade.collectionPrefix, idoso);
+            idososArray.push(idoso);
         }
+
+        await idosoService.bulkReplaceOne(unidade.collectionPrefix, idososArray);
         
-        console.log(`[Sync] idososCollection: ${rowsUpdated} rows affected`)
+        console.log(`[Sync] idososCollection: updated`)
         return rowsUpdated;
     }
 
