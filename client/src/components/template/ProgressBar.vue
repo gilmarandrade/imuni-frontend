@@ -1,5 +1,5 @@
 <template>
-  <div class="progressBar" :class="{ 'isLoading':  syncStatus.isSyncing, 'indeterminated':  syncStatus.isSyncing && syncStatus.progress == null }">
+  <div class="progressBar" v-show="syncStatus.isSyncing" :class="{ 'isLoading':  syncStatus.isSyncing, 'indeterminated':  syncStatus.isSyncing && syncStatus.progress == null }">
     <div class="bar" :style="{ width : syncStatus.progress+'%' }"></div> {{ syncStatus.progress }}
     {{ syncStatus }}
    </div>
@@ -40,11 +40,11 @@ export default {
     background: rgb(98, 0, 255);
     width: 0%;
     height: 100%;
-    transition: none;
+    /* transition: none; */
   }
   .progressBar.isLoading .bar {
     width: 10%;
     background: blue;
-    transition: 10s width ease-out;
+    /* transition: 10s width ease-out; */
   } 
 </style>

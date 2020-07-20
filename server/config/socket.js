@@ -24,7 +24,7 @@ module.exports = app => {
     const listenEvents = (socket) => {
         socket.on('syncEvent', async (data) => {
             try {
-                    let total = 0;
+                    let total = 8;
                     let current = 0;
                     socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: null });
                     console.log(data)
@@ -36,22 +36,19 @@ module.exports = app => {
                     if(unidade) {
                         console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
                         const properties = await prepareDataToSync(unidade);// TODO devo atualizar a qtdVigilantes da unidade no db?
-                        total = properties.totalCount;
+                        current++;
                         socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
                         
                         for(let i = 1; i <= properties.qtdVigilantes; i++) {
                             const result = await syncIdososByVigilanteIndex(unidade, i);
-                            current += result;
+                            current++;
                             socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
                             console.log(result, 'rows inserted in idosos')
                         }
                         
-                        const result = await syncAtendimentos(unidade);
-                        current += result;
-                        socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
-                        total = current;
-                        socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })// TODO salvar a data de sincronizaçao no bd
-        
+                        const result = await syncAtendimentos(unidade, null, socket, total, current);
+                        // current++;
+                        // socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })// TODO salvar a data de sincronizaçao no bd
                     } else {
                         socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, lastSyncDate: null, msg: 'erro: unidade não encontrada ou unidade id não existe ou erro de banco' })
                     }
@@ -155,7 +152,7 @@ module.exports = app => {
         /**
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
-    const syncAtendimentos = async (unidade, limit) => {
+    const syncAtendimentos = async (unidade, limit, socket, total, current) => {
         let indexRespostas = unidade.sync[0].indexed;
         const lastIndexSynced = limit ? indexRespostas : 1;
         const firstIndex = lastIndexSynced + 1;
@@ -253,15 +250,21 @@ module.exports = app => {
             // }
             const resultUpsert = await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
             console.log(`[Sync] atendimentosCollection: updated`);
+            current++;
+            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+
             
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
             console.log(`[Sync] ultimasEscalasCollection: updated`);
+            current++;
+            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+
 
             await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
             console.log(`[Sync] ultimosAtendimentosCollection: updated`);
-            //TODO RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS
-            // const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
-            // const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);
+            current++;
+            socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+
 
             unidade.sync[0].indexed = indexRespostas;
             await unidadeService.replaceOne(unidade);
@@ -270,105 +273,6 @@ module.exports = app => {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
             return 0;
         }
-    }
-
-    /**
-     * Recalcula as estatisticas dos idosos, com base nos atendimentos registrados no banco até o momento
-     * @param {*} unidade 
-     * @param {*} nomeLowerIdosos 
-     */
-    const syncIdososStats = async (unidade, nomeLowerIdosos) => {
-        /** IdosoAtendimento Object:
-            {
-                "row": "'Vigilante 1'!A19:M19",
-                "score": 81,
-                "stats": {
-                    "qtdAtendimentosEfetuados": 2,
-                    "qtdAtendimentosNaoEfetuados": 2,
-                    "ultimoAtendimento": {
-                        "efetuado": true,
-                        "data": "25/05/2020 10:45:50"
-                    },
-                    "ultimaEscala": {
-                        "vulnerabilidade": "O - Sem Vulnerabilidade",
-                        "epidemiologica": "IVb - Idoso sintomático",
-                        "riscoContagio": "Baixo",
-                        "data": "",
-                        "scoreOrdenacao?": 81
-                    },
-                    "dataProximoAtendimento": "26/05/2020"
-                },
-                "vigilante": "Jaiane Carmélia Monteiro Viana",
-                "nome": "João Inácio Filho",
-                "telefone1": "988015537",
-                "telefone2": "",
-                "agenteSaude": "Roberto"
-            }
-        */
-
-       let rowsUpdated = null;
-       const idososArray = [];
-       for(let i = 0; i < nomeLowerIdosos.length; i++) {
-            let idoso = await idosoService.findByNome(unidade.collectionPrefix, nomeLowerIdosos[i]);
-            if(idoso === null) {
-                idoso = {
-                    row: '',
-                    dataNascimento: '',
-                    nome: nomeLowerIdosos[i],
-                    nomeLower: nomeLowerIdosos[i],
-                    telefone1: '',
-                    telefone2: '',
-                    agenteSaude: '',
-                    vigilante: '',
-                    score: 0,
-                }
-            }
-            const atendimentos = await atendimentoService.findAtendimentosByIdoso(unidade.collectionPrefix, idoso);
-            idoso.vigilante = atendimentos[0].fichaVigilancia.vigilante;
-            const qtdAtendimentosEfetuados = atendimentos.reduce((prevVal, atendimento) => { 
-                if(atendimento.fichaVigilancia.dadosIniciais.atendeu) {
-                    return prevVal + 1;
-                } else {
-                    return prevVal;
-                }
-            }, 0);
-
-            const ultimoAtendimento = atendimentos.filter((atendimento, index, array) => {
-                return index == 0;
-            }).map((atendimento) => {
-                return {
-                    data: atendimento.fichaVigilancia.data,
-                    efetuado: atendimento.fichaVigilancia.dadosIniciais.atendeu,
-                }
-            })[0] || null;
-
-            const ultimoAtendimentoEfetuado = atendimentos.filter((atendimento, index, array) => {
-                return atendimento.fichaVigilancia.dadosIniciais.atendeu;
-            })[0] || null;
-
-            idoso.stats = {};
-
-            idoso.stats.qtdAtendimentosEfetuados = qtdAtendimentosEfetuados;
-            idoso.stats.qtdAtendimentosNaoEfetuados = atendimentos.length - qtdAtendimentosEfetuados;
-            idoso.stats.ultimoAtendimento = ultimoAtendimento;
-            if(ultimoAtendimentoEfetuado) {
-                idoso.stats.ultimaEscala = ultimoAtendimentoEfetuado.escalas;
-                idoso.stats.ultimaEscala.data = ultimoAtendimentoEfetuado.fichaVigilancia.data;
-                idoso.score =  ultimoAtendimentoEfetuado.escalas.scoreOrdenacao;
-                idoso.epidemiologia = ultimoAtendimentoEfetuado.fichaVigilancia.epidemiologia;
-            } else {
-                idoso.stats.ultimaEscala = {};
-                idoso.score = 0;
-                idoso.epidemiologia = {};
-            }
-
-            idososArray.push(idoso);
-        }
-
-        await idosoService.bulkReplaceOne(unidade.collectionPrefix, idososArray);
-        
-        console.log(`[Sync] idososCollection: updated`)
-        return rowsUpdated;
     }
 
     return { init };

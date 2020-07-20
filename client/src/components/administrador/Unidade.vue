@@ -22,7 +22,7 @@
         <b-checkbox v-model="unidade.ativo" name="check-button" switch @change="toggleSync">
           {{ unidade.ativo ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
         </b-checkbox>
-        <button @click="manualSync" class="btn btn-primary">sincronizar agora</button>
+        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
         <div v-if="loading">carregando...</div>
    </header>
    <div class="container">
@@ -75,6 +75,7 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
+import { mapState } from 'vuex';
 
 export default {
     name: 'Unidade',
@@ -92,6 +93,7 @@ export default {
             ],
         }
     },
+    computed: mapState(['syncStatus']),
     methods: {
         loadUnidade() {
             const url = `${baseApiUrl}/unidades/${this.$route.params.id}`;
