@@ -41,7 +41,7 @@ export default new Vuex.Store({
             state.isLoadingApp = isLoading;
         },
         SOCKET_syncStatusEvent(state, data){
-            console.log( 'syncStatusEvent', data);
+            // console.log( 'syncStatusEvent', data);
             state.syncStatus = data;
         }
     },

@@ -19,11 +19,15 @@
         </div>
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
+        <!--TODO ativar e desativar autosync  -->
         <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync" disabled>
           {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
         </b-checkbox>
+        <!-- TODO ao terminar de syncronizar, atualizar a data da ultima sincronização -->
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
+        <!-- TODO incluir um botão de resetar que apaga o banco e refaz a siconrização do zero -->
         <div v-if="loading">carregando...</div>
+        
    </header>
    <div class="container">
        <div class="card mb-4">
