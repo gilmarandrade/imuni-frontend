@@ -1,7 +1,8 @@
 <template>
   <div class="progressBar" v-show="syncStatus.isSyncing" :class="{ 'isLoading':  syncStatus.isSyncing, 'indeterminated':  syncStatus.isSyncing && syncStatus.progress == null }">
-    <div class="bar" :style="{ width : syncStatus.progress+'%' }"></div> {{ syncStatus.progress }}
-    {{ syncStatus }}
+    <div class="bar" :style="{ width : syncStatus.progress+'%' }"></div>
+    <!-- {{ syncStatus.progress }} -->
+    <!-- {{ syncStatus }} -->
    </div>
 </template>
 

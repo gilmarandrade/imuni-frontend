@@ -195,7 +195,7 @@ const findById = async (id) => {
 
 
 //TODO falta implementar a sincronização automatica
-const setAtivo = async (id, status) => {
+const setAutoSync = async (id, status) => {
     console.log(id, status, typeof status)
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -222,4 +222,4 @@ const setAtivo = async (id, status) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, insertOne, replaceOne, updateSyncDate, resetSyncIndexes, findById, setAtivo };
+module.exports = {  findAll, deleteAll, insertAll, insertOne, replaceOne, updateSyncDate, resetSyncIndexes, findById, setAutoSync };

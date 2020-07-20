@@ -26,7 +26,7 @@ module.exports = app => {
             try {
                     let total = 8;
                     let current = 0;
-                    socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: null });
+                    socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current });
                     console.log(data)
                     const start = new Date();
         
@@ -37,24 +37,24 @@ module.exports = app => {
                         console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
                         const properties = await prepareDataToSync(unidade);// TODO devo atualizar a qtdVigilantes da unidade no db?
                         current++;
-                        socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+                        socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current })
                         
                         for(let i = 1; i <= properties.qtdVigilantes; i++) {
                             const result = await syncIdososByVigilanteIndex(unidade, i);
                             current++;
-                            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+                            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current })
                             console.log(result, 'rows inserted in idosos')
                         }
                         
                         const result = await syncAtendimentos(unidade, null, socket, total, current);
                         // current++;
-                        // socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })// TODO salvar a data de sincronizaçao no bd
+                        // socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current })// TODO salvar a data de sincronizaçao no bd
                     } else {
-                        socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, lastSyncDate: null, msg: 'erro: unidade não encontrada ou unidade id não existe ou erro de banco' })
+                        socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, msg: 'erro: unidade não encontrada ou unidade id não existe ou erro de banco' })
                     }
                     
                 } catch(err) {
-                    socket.emit('syncStatusEvent', {isSyncing: false, progress: null, total: 0, current: 0, lastSyncDate: null, msg: err.toString() })
+                    socket.emit('syncStatusEvent', {isSyncing: false, progress: null, total: 0, current: 0, msg: err.toString() })
                 }
             });
     }
@@ -65,7 +65,7 @@ module.exports = app => {
      * @param {*} unidade 
      */
     const prepareDataToSync = async (unidade) => {
-        let totalCount = 0;
+        let totalCount = 0;//@deprecated
         const sheetsToSync = [];
         try {
             const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
@@ -96,7 +96,7 @@ module.exports = app => {
     const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
         const idososPorVigilantes = [];
         let indexIdosos = unidade.sync[vigilanteIndex].indexed;
-        let rowsInserted = null;
+        let rowsInserted = null;//@deprecated
         const lastIndexSynced = limit ? indexIdosos : 1;
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = limit ? lastIndexSynced + limit : '';//''
@@ -141,7 +141,7 @@ module.exports = app => {
                 
                 
         
-        unidade.sync[vigilanteIndex].indexed = indexIdosos;
+        unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
@@ -244,31 +244,32 @@ module.exports = app => {
         if(atendimentosArray.length) {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
             
-            let i = null;
+            // let i = null;
             // for(; i < atendimentosArray.length; i++) {
             //     const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
             // }
             const resultUpsert = await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
             console.log(`[Sync] atendimentosCollection: updated`);
             current++;
-            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current })
 
             
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
             console.log(`[Sync] ultimasEscalasCollection: updated`);
             current++;
-            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+            socket.emit('syncStatusEvent', {isSyncing: true, progress: Math.round(current/total * 100), total, current })
 
 
             await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
             console.log(`[Sync] ultimosAtendimentosCollection: updated`);
             current++;
-            socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current, lastSyncDate: new Date() })
+            socket.emit('syncStatusEvent', {isSyncing: false, progress: Math.round(current/total * 100), total, current })
 
 
             unidade.sync[0].indexed = indexRespostas;
+            unidade.lastSyncDate = new Date();
             await unidadeService.replaceOne(unidade);
-            return i;
+            return null;
         } else {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
             return 0;

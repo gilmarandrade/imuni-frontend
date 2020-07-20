@@ -26,13 +26,13 @@ module.exports = app => {
         }
     }
 
-    const toggleSync = async (req, res) => {
+    const toggleAutoSync = async (req, res) => {
         try {
             const status = req.params.status === 'true' ? true : false;
-            const result = await unidadeService.setAtivo(req.params.unidadeId, status);
+            const result = await unidadeService.setAutoSync(req.params.unidadeId, status);
             if(status) {
                 //TODO SINCRONIZAR
-                const resultSync = await app.server.api.sync.runSyncUnidade(req.params.unidadeId);
+                const resultSync = await app.server.api.sync.runSyncUnidade(req.params.unidadeId);//TODO totalmente errado, a sincronização agora é executada através do socket!
                 console.log(resultSync);
                 return res.json(resultSync);
             }
@@ -99,5 +99,5 @@ module.exports = app => {
         }
     }
 
-    return { get, getById, save, toggleSync };
+    return { get, getById, save, toggleAutoSync };
 };

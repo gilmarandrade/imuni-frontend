@@ -2,20 +2,20 @@
  <div class="unidades">
         <h1>Unidades</h1>
         <ul class="grid-list row">
-            <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.ativo }" class="col-sm-6 col-md-4 col-lg-3">
+            <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.autoSync }" class="col-sm-6 col-md-4 col-lg-3">
               <router-link :to="'/unidades/'+unidade._id" class="item" title="clique para ver detalhes">
-                <div v-if="unidade.log.length" class="sync-state">
+                <div v-if="unidade.lastSyncDate" class="sync-state">
                   <popper
                       trigger="hover"
                       :options="{
                         placement: 'top'
                       }">
                       <div class="popper">
-                          {{ unidade.ativo ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
+                          {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
                       </div>
 
                       <span slot="reference">
-                          <i class="fas fa-sync"></i> {{ formatDate(unidade.log[unidade.log.length - 1].time) }}
+                          <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
                       </span>
                   </popper>
                 </div>

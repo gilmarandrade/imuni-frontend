@@ -1,7 +1,7 @@
 <template>
  <div class="unidades" v-if="unidade">
    <header class="header-page">
-        <div v-if="unidade.log.length > 0" class="sync-state" :class="{ 'ativo' : unidade.ativo }">
+        <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
           <popper
               trigger="hover"
               :options="{
@@ -13,14 +13,14 @@
 
               <span slot="reference">
                 <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
-                  <i class="fas fa-sync"></i> {{ formatDate(unidade.log[unidade.log.length - 1].time) }}
+                  <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
               </span>
           </popper>
         </div>
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
-        <b-checkbox v-model="unidade.ativo" name="check-button" switch @change="toggleSync">
-          {{ unidade.ativo ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
+        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync" disabled>
+          {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
         </b-checkbox>
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
         <div v-if="loading">carregando...</div>
@@ -120,7 +120,7 @@ export default {
           //TODO escolher se vai usar o this.loading ou this.$store para mostrar um loading no sistema (ou usar silhouete)
           this.loading = true;
           this.$store.commit('setIsLoadingApp', true); 
-          const url = `${baseApiUrl}/unidades/${this.$route.params.id}/ativacao/${e}`;
+          const url = `${baseApiUrl}/unidades/${this.$route.params.id}/autosync/${e}`;
           console.log(url);
 
           axios.get(url).then(res => {

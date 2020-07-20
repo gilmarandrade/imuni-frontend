@@ -12,7 +12,6 @@ export default new Vuex.Store({
         syncStatus: { 
             isSyncing: false,
             progress: 0,
-            lastSyncDate: null,
         },
     },
     mutations: {
