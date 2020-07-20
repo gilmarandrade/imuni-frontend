@@ -149,9 +149,9 @@ const bulkUpdateOne = async (collectionPrefix, idososArray) => {
                 telefone2: item.telefone2,
                 agenteSaude: item.agenteSaude,
                 vigilante: item.vigilante,
-                stats: item.stats,
-                score: item.score,
-                epidemiologia: item.epidemiologia,
+                // stats: item.stats,
+                // score: item.score,
+                // epidemiologia: item.epidemiologia,
             }
         });
     };
@@ -244,9 +244,9 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
                     telefone2: idosoAtendimento.telefone2,
                     agenteSaude: idosoAtendimento.agenteSaude,
                     vigilante: idosoAtendimento.vigilante,
-                    stats: idosoAtendimento.stats,
-                    score: idosoAtendimento.score,
-                    epidemiologia: idosoAtendimento.epidemiologia,
+                    // stats: idosoAtendimento.stats,
+                    // score: idosoAtendimento.score,
+                    // epidemiologia: idosoAtendimento.epidemiologia,
                 }
             }, { upsert: true }, function(err, result) {
                 if(err) {
@@ -319,6 +319,7 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
     return promise;
 }
 
+//TODO todos os finds estão buscando na tabela errada, verificar se esses metodos são realmente utilizados
 const findByNome = async (collectionPrefix, nomeLower) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;

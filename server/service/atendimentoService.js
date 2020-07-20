@@ -161,7 +161,10 @@ const replaceOne = async (collectionPrefix, atendimento) => {
     return promise;
 }
 
-
+/**
+ * Cria a collection auxiliar que contém a ultima escala calculada para cada idoso que possui escala calculada (ou seja, que já teve pelo menos 1 atendimento efetuado)
+ * @param {*} collectionPrefix 
+ */
 const aggregateEscalas = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -192,7 +195,6 @@ const aggregateEscalas = async (collectionPrefix) => {
                         {
                             _id: "$_id",
                             data: { $first: "$atendimentos.fichaVigilancia.data" },
-                            // ultimoAtendimentoAtendeu: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.atendeu" },
                             nome: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.nome" },
                             score: { $first: "$atendimentos.escalas.scoreOrdenacao" },
                             vulnerabilidade: { $first: "$atendimentos.escalas.vulnerabilidade"  },
@@ -200,8 +202,7 @@ const aggregateEscalas = async (collectionPrefix) => {
                             riscoContagio: { $first: "$atendimentos.escalas.riscoContagio"  },
                             dataProximoAtendimento: { $first: "$atendimentos.escalas.dataProximoAtendimento"  },
                             qtdAtendimentosEfetuados: { $sum: 1 },
-                            // epidemiologia: { $last: "$atendimentos.fichaVigilancia.epidemiologia"  },
-
+                            epidemiologia: { $last: "$atendimentos.fichaVigilancia.epidemiologia"  },
                         }
                     },
                     { $out: ultimasEscalasCollection },
@@ -220,6 +221,10 @@ const aggregateEscalas = async (collectionPrefix) => {
     return promise;
 }
 
+/**
+ * Cria a collection auxiliar que contém o ultimo atendimento para cada idoso (ligação atendida ou não)
+ * @param {*} collectionPrefix 
+ */
 const aggregateUltimosAtendimentos = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -253,7 +258,6 @@ const aggregateUltimosAtendimentos = async (collectionPrefix) => {
                             efetuado: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.atendeu" },
                             nome: { $first: "$atendimentos.fichaVigilancia.dadosIniciais.nome" },
                             qtdTentativas: { $sum: 1 },
-                            epidemiologia: { $last: "$atendimentos.fichaVigilancia.epidemiologia"  },
                         }
                     },
                     { $out: ultimosAtendimentosCollection },
