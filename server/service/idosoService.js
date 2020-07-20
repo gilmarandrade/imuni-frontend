@@ -271,7 +271,8 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
             const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
             
             const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
-
+            const ultimosAtendimentosCollection = `${collectionPrefix}.ultimosAtendimentos`;
+            // TODO criar uma View com essa collection?
             idososCollection.aggregate([
                 {
                     $lookup:
@@ -285,6 +286,17 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
                 // { $unwind: "$ultimaEscala" },
                 { $match: { vigilante: nomeVigilante } },
                 { $sort : { 'ultimaEscala.score': -1, nome: 1 } },
+                {
+                    $lookup:
+                    {
+                        from: ultimosAtendimentosCollection,
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimoAtendimento'
+                    }
+                },
+                { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+                { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
             ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);

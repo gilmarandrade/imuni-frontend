@@ -255,7 +255,10 @@ module.exports = app => {
             console.log(`[Sync] atendimentosCollection: updated`);
             
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
-            console.log(`[Sync] ultimasEscalasCollection: partial update`);
+            console.log(`[Sync] ultimasEscalasCollection: updated`);
+
+            await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
+            console.log(`[Sync] ultimosAtendimentosCollection: updated`);
             //TODO RESYNC STATUS IDOSOS COM NOVOS ATENDIMENTOS INSERIDOS
             // const nomeLowerIdosos = atendimentosArray.map((atendimento)=> atendimento.fichaVigilancia.dadosIniciais.nomeLower);
             // const resultIdososAtendimentos = await syncIdososStats(unidade, nomeLowerIdosos);

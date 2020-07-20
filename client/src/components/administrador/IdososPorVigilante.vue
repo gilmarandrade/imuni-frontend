@@ -7,8 +7,8 @@
                 <div>
                     <b>{{ data.item.nome }}</b>
                 </div>
-                <div class="badges" v-if="data.item.ultimaEscala[0]">
-                     <popper v-if="data.item.ultimaEscala[0].vulnerabilidade"
+                <div class="badges" v-if="data.item.ultimaEscala">
+                     <popper v-if="data.item.ultimaEscala.vulnerabilidade"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -18,10 +18,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala[0].vulnerabilidade" />
+                            <Badge :value="data.item.ultimaEscala.vulnerabilidade" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.ultimaEscala[0].epidemiologica"
+                    <popper v-if="data.item.ultimaEscala.epidemiologica"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -31,10 +31,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala[0].epidemiologica" />
+                            <Badge :value="data.item.ultimaEscala.epidemiologica" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.ultimaEscala[0].riscoContagio"
+                    <popper v-if="data.item.ultimaEscala.riscoContagio"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -44,7 +44,7 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala[0].riscoContagio" />
+                            <Badge :value="data.item.ultimaEscala.riscoContagio" />
                         </span>
                     </popper>
                 </div>
@@ -63,12 +63,12 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="fas fa-headset"></i> {{ data.item.stats.qtdAtendimentosEfetuados }}/{{ data.item.stats.qtdAtendimentosEfetuados + data.item.stats.qtdAtendimentosNaoEfetuados }}
+                                <i class="fas fa-headset"></i> {{ data.item.ultimaEscala ? data.item.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.ultimoAtendimento ? data.item.ultimoAtendimento.qtdTentativas : 0) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento" v-if="data.item.stats.ultimoAtendimento" :class="{ 'atendido' : data.item.stats.ultimoAtendimento.efetuado }">
+                    <span class="statusUltimoAtendimento" v-if="data.item.ultimoAtendimento" :class="{ 'atendido' : data.item.ultimoAtendimento.efetuado }">
                         <popper
                             trigger="hover"
                             :options="{
@@ -77,19 +77,19 @@
                             }">
                             <div class="popper">
                                Último atendimento: 
-                               <span v-if="data.item.stats.ultimoAtendimento.efetuado">Ligação atendida</span>
-                               <span v-if="!data.item.stats.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                               <span v-if="data.item.ultimoAtendimento.efetuado">Ligação atendida</span>
+                               <span v-if="!data.item.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-check-circle" v-show="data.item.stats.ultimoAtendimento.efetuado"></i>
-                                <i class="far fa-times-circle" v-show="!data.item.stats.ultimoAtendimento.efetuado"></i>
-                                {{ formatDate(data.item.stats.ultimoAtendimento.data) }}
+                                <i class="far fa-check-circle" v-show="data.item.ultimoAtendimento.efetuado"></i>
+                                <i class="far fa-times-circle" v-show="!data.item.ultimoAtendimento.efetuado"></i>
+                                {{ formatDate(data.item.ultimoAtendimento.data) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento atencao" v-if="!data.item.stats.ultimoAtendimento">
+                    <span class="statusUltimoAtendimento atencao" v-if="!data.item.ultimoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -106,7 +106,7 @@
                         </popper>
                     </span>
 
-                    <span class="dataProximoAtendimento" v-if="data.item.ultimaEscala[0] && data.item.ultimaEscala[0].dataProximoAtendimento">
+                    <span class="dataProximoAtendimento" v-if="data.item.ultimaEscala && data.item.ultimaEscala.dataProximoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -118,7 +118,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-clock"></i> {{ formatDate(data.item.ultimaEscala[0].dataProximoAtendimento) }}
+                                <i class="far fa-clock"></i> {{ formatDate(data.item.ultimaEscala.dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>
@@ -146,7 +146,7 @@ export default {
             carregando: true,
             idosos: [],
             fields: [ 
-                { key: 'ultimaEscala[0].score', label: 'Score' },
+                { key: 'ultimaEscala.score', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
                 { key: 'col-2', label: ' ' },
             ],
