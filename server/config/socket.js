@@ -90,7 +90,7 @@ module.exports = app => {
         return { totalCount, qtdVigilantes: sheetsToSync.length - 1 };
     }
 
-        /**
+    /**
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
     const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
@@ -100,11 +100,12 @@ module.exports = app => {
         const lastIndexSynced = limit ? indexIdosos : 1;
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = limit ? lastIndexSynced + limit : '';//''
-
+        let vigilanteNome = '';
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
         rows.forEach((item, index) => {
             if(item[1]) {//se o idoso tem nome
+                vigilanteNome = item[0];
                 idososPorVigilantes.push({
                     row: `'Vigilante ${vigilanteIndex}'!A${firstIndex + index}:E${firstIndex + index}`,
                     dataNascimento: '',
@@ -142,6 +143,12 @@ module.exports = app => {
                 
         
         unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
+        //atualiza lista de vigilantes da unidade
+        if(unidade.vigilantes[vigilanteIndex - 1]) {
+            unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
+        } else {
+            unidade.vigilantes[vigilanteIndex - 1] = { usuarioId: '', nome: vigilanteNome };
+        }
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)

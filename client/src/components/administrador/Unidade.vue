@@ -49,8 +49,8 @@
           <div class="card-body">
             <h5 class="card-title">Vigilantes</h5>
             <ul>
-                <li v-for="vigilante in unidade.vigilantes" :key="vigilante.usuarioId">
-                    <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/vigilantes/'+vigilante.usuarioId+'/'+vigilante.nome">{{ vigilante.nome }}</router-link>
+                <li v-for="vigilante in unidade.vigilantes" :key="vigilante.nome">
+                    <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/vigilantes/'+vigilante.nome">{{ vigilante.nome }}</router-link>
                 </li>
             </ul>
          </div>

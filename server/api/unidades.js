@@ -4,6 +4,7 @@ const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');
 const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
+const sheetsApi = require('../config/sheetsApi');
 
 
 module.exports = app => {
@@ -83,12 +84,39 @@ module.exports = app => {
         }
 
         unidade.collectionPrefix = unidade.nome.replace(/[^a-zA-Z0-9]/g,'_');
-        unidade.ativo = false;
-        unidade.log = [];
-        unidade.qtdVigilantes = 0;
-        unidade.indexIdosos = [];
-        unidade.indexRespostas = 1;
+        unidade.ativo = true;
+        unidade.autoSync = false;
+        unidade.lastSyncDate = null;
+        // unidade.log = [];
+        // unidade.qtdVigilantes = 0;
+        // unidade.indexIdosos = [];
+        // unidade.indexRespostas = 1;
         unidade.vigilantes = [];
+
+        const sheetsToSync = [];
+        sheetsToSync.push({
+            indexed: 0,//não utilizado por enquanto
+            size: 1000,//não utilizado...
+            sheetName: "Respostas",
+        })
+        try {
+            const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+
+            for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
+                const sheetName = spreadSheetProperties.sheets[i].properties.title;
+                if(sheetName.startsWith("Vigilante ")){
+                    sheetsToSync.push({
+                        indexed: 0,//não utilizado por enquanto
+                        size: 1000,//não utilizado...
+                        sheetName,
+                    })
+                }
+            }
+
+            unidade.sync = sheetsToSync;
+        } catch(err) {
+            return console.log(err);
+        }
 
         console.log(unidade);
         try {
