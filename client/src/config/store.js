@@ -43,6 +43,12 @@ export default new Vuex.Store({
         SOCKET_syncStatusEvent(state, data){
             // console.log( 'syncStatusEvent', data);
             state.syncStatus = data;
+
+            if(state.syncStatus.isSyncing === false && state.syncStatus.progress === 100) {
+                location.reload();
+                // this.$router.go()
+                // this.$toasted.global.defaultSuccess();
+            }
         }
     },
     // actions: {

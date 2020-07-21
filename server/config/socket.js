@@ -147,6 +147,7 @@ module.exports = app => {
         if(unidade.vigilantes[vigilanteIndex - 1]) {
             unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
         } else {
+            //atualmente, o campo usuarioId não está sendo utilizado
             unidade.vigilantes[vigilanteIndex - 1] = { usuarioId: '', nome: vigilanteNome };
         }
         // console.log(unidade);
