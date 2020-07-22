@@ -98,7 +98,7 @@ module.exports = app => {
             indexed: 0,//não utilizado por enquanto
             size: 1000,//não utilizado...
             sheetName: "Respostas",
-        })
+        });
         try {
             const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 

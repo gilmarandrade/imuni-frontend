@@ -23,9 +23,8 @@
         <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync" disabled>
           {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
         </b-checkbox>
-        <!-- TODO ao terminar de syncronizar, atualizar a data da ultima sincronização -->
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
-        <!-- TODO incluir um botão de resetar que apaga o banco e refaz a siconrização do zero -->
+        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.isSyncing">resetar</button>
         <div v-if="loading">carregando...</div>
         
    </header>
@@ -141,24 +140,12 @@ export default {
         manualSync() {
           // $socket is socket.io-client instance
           console.log('emit syncEvent')
-          this.$socket.emit('syncEvent', { idUnidade: this.unidade._id,  descricao: this.mensagem, data: new Date(), numero: Math.random() })
-
-          // this.loading = true; 
-          // this.$store.commit('setIsLoadingApp', true);
-          // //TODO CHANGE STATE NO BANCO
-          // const url = `${baseApiUrl}/unidades/${this.$route.params.id}/sync`;
-          // console.log(url);
-
-          // axios.get(url).then(res => {
-          //   console.log(res)
-          //   this.$router.go();//refresh page
-
-          // }).catch((err) => {
-          //       console.log(err);
-          //       this.loading = false;
-          //       this.$store.commit('setIsLoadingApp', false);
-          //       showError(err);
-          // })
+          this.$socket.emit('syncEvent', { idUnidade: this.unidade._id });
+        },
+        manualReset() {
+          // $socket is socket.io-client instance
+          console.log('emit resetEvent')
+          this.$socket.emit('resetEvent', { idUnidade: this.unidade._id });
         },
     },
     sockets: {
