@@ -1,7 +1,31 @@
 <template>
     <div class="listaIdosos">
         <h6>{{ user.nomeUnidade }} / {{ user.name }}</h6>
-        <h1>Meus Idosos ({{idosos.length}})</h1> <span v-if="carregando">Carregando...</span>
+
+        <div v-if="unidade">
+            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
+            <popper
+                trigger="hover"
+                :options="{
+                    placement: 'top'
+                }">
+                <div class="popper">
+                    Última sincronização
+                </div>
+
+                <span slot="reference">
+                    <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
+                    <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
+                </span>
+            </popper>
+            </div>
+            <!-- <h1>{{ unidade.nome }}</h1>
+            <p>Distrito {{ unidade.distrito }}</p> -->
+        </div>
+
+        <h1>Meus Idosos ({{idosos.length}})</h1>
+        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.isSyncing">sincronizar agora</button>
+        <div v-if="carregando">Carregando...</div>
         <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
@@ -143,10 +167,11 @@ import { mapState } from 'vuex';
 export default {
     name: 'VigilanteHome',
     components: { Badge, 'popper': Popper },
-    computed: mapState(['user']),
+    computed: mapState(['user', 'syncStatus']),
     data: function() {
         return {
             carregando: true,
+            unidade: null,
             idosos: [],
             fields: [ 
                 { key: 'ultimaEscala.score', label: 'Score' },
@@ -156,6 +181,15 @@ export default {
         }
     },
     methods: {
+        loadUnidade() {
+            const url = `${baseApiUrl}/unidades/${this.user.unidadeId}`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
+        },
         loadIdosos() {
             const url = `${baseApiUrl}/unidades/${this.user.collectionPrefix}/vigilantes/${this.user.name}/idosos`;
             console.log(url);
@@ -168,14 +202,32 @@ export default {
         formatDate(date) {
             return new Date(date).toLocaleString();
         },
+        manualSync() {
+          // $socket is socket.io-client instance
+          console.log('emit syncEvent')
+          this.$socket.emit('syncEvent', { idUnidade: this.user.unidadeId });
+        },
     },
     mounted() {
         this.loadIdosos();
+        this.loadUnidade();
     }
 }
 </script>
 
 <style>
+
+
+  .listaIdosos .sync-state {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  .listaIdosos .sync-state.ativo {
+    color: #27AE60;
+  }
+
     /* table thead {
         display: none;
     } */

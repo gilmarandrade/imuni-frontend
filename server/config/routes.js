@@ -62,7 +62,7 @@ module.exports = app => {
 
     app.route('/api/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.unidades.getById, 'ADMINISTRADOR'));
+        .get(app.server.api.unidades.getById);
 
     app.route('/api/unidades')
         .all(app.server.config.passport.authenticate())
