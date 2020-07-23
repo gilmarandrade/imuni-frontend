@@ -6,6 +6,7 @@ const { mongoUris } = require('./config/environment');
     .include('/server/config/passport.js')
     .then('/server/config/socket.js')
     .then('/server/config/middlewares.js')
+    .then('/server/config/mail.js')
     .then('/server/api/validation.js')
     .then('/server/api')
     // .then('/server/schedule')
