@@ -1,21 +1,20 @@
 <template>
     <div class="auth-content">
         <div class="auth-modal">
-            <div class="auth-title">Login</div>
+            <div class="auth-title">Resetar senha</div>
+            <p>Informe seu e-mail, caso ele esteja cadastrado, você receberá um e-mail com instruções para recuperar sua senha.</p>
             <input v-model="user.email" name="email" placeholder="E-mail" type="email">
-            <input v-model="user.password" name="password" placeholder="Senha" type="password">
-            <router-link to="/forgot">Esqueceu a senha?</router-link>
-            <button @click="login">Entrar</button>
+            <button @click="login">Enviar</button>
         </div>
     </div>
 </template>
 
 <script>
-import { baseApiUrl, showError, userKey } from '@/global';
+import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 //TODO quando o usuario esta logado ele está conseguindo acessar a tela de login e fazer login novamente
 export default {
-    name: 'Auth',
+    name: 'ForgotPassword',
     data: function() {
         return {
             user: {}
@@ -23,17 +22,9 @@ export default {
     },
     methods: {
         login() {
-            axios.post(`${baseApiUrl}/login`, this.user)
-                .then(res => {
-                    this.$store.commit('setUser', res.data);
-                    localStorage.setItem(userKey, JSON.stringify(res.data));
-                    this.$router.push({ path: '/'});
-                    // //TODO esse é o local de redirecionar dependendo do role?
-                    // if(res.data.role === 'VIGILANTE') {
-                    //     this.$router.push({ name: 'vigilanteHome', params: { vigilanteId: res.data.id, vigilanteNome: res.data.name } });
-                    // } else {
-                    //     this.$router.push({ path: '/'});
-                    // }
+            axios.post(`${baseApiUrl}/forgotPassword`, this.user)
+                .then((res) => {
+                    this.$toasted.global.defaultSuccess({msg: res.data});
                 })
                 .catch(showError);
         } 

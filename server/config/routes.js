@@ -14,6 +14,9 @@ module.exports = app => {
     
     app.post('/api/login', app.server.api.auth.login);
     app.post('/api/validateToken', app.server.api.auth.validateToken);
+    app.post('/api/forgotPassword', app.server.api.auth.forgotPassword);
+    app.post('/api/validateResetToken', app.server.api.auth.validateResetToken);
+    app.post('/api/resetPassword', app.server.api.auth.resetPassword);
 
     app.route('/api/docs/:id/sheets/:sheetName/range/:range')
         .all(app.server.config.passport.authenticate())

@@ -6,9 +6,7 @@
         <a href="#" class="toggle" @click="toggleMenu" v-show="!hideToggle && !isMenuVisible">
             <i class="fa fa-lg fa-angle-down" ></i>
         </a>
-        <h1 class="title">
-            <router-link to="/"> {{ title }}</router-link>
-        </h1>
+        <h1 class="title"> {{ title }} </h1>
         <UserDropdown v-if="!hideUserDropdown" />
   </header>
 </template>

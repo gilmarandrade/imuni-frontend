@@ -189,4 +189,27 @@ const findByUnidade = async (unidadeId) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade };
+const validateResetToken = async (id, token) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id), resetPasswordToken: token,  resetPasswordExpires: { $gt: Date.now() } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken };

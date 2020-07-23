@@ -13,6 +13,8 @@ import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
 import AdicionarUsuario from '@/components/administrador/AdicionarUsuario'
 import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
 import Auth from '@/components/auth/Auth'
+import ForgotPassword from '@/components/auth/ForgotPassword'
+import ResetPassword from '@/components/auth/ResetPassword'
 
 Vue.use(VueRouter);
 
@@ -47,6 +49,16 @@ const routes = [
         name: 'auth',
         path: '/auth',
         component: Auth,
+    },
+    {
+        name: 'forgotPassword',
+        path: '/forgot',
+        component: ForgotPassword,
+    },
+    {
+        name: 'resetPassword',
+        path: '/reset/:id/:token',
+        component: ResetPassword,
     },
     {
         name: 'adicionarUsuarioDaUnidade',
