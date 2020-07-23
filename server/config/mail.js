@@ -2,20 +2,6 @@ require('dotenv').config();
 const nodemailer = require("nodemailer");
 
 module.exports = app => {    
-  const body = 
-  `
-  <div>
-    <header style="text-align: center;">
-      <h1 style="padding:34px 65px; font-family: 'Open Sans', verdana, sans-serif; font-size: 2.1875rem; font-weight:normal; line-height: 2.9rem;background-color:#BED1D2; color:#206164; text-align: center;">Teste email</h1>
-    </header>
-    <section style="padding:34px 65px;font-family: Open Sans, verdana, sans-serif; font-size: 1rem;line-height: 1.375rem; color: rgba(0, 0, 0, 0.87);">
-      <p>Prezado(a) Anilson Soares,</p>
-      <p>
-      Isto é apenas um teste
-      </p>
-    </section>
-  </div>
-  `;
   
   // async..await is not allowed in global scope, must use a wrapper
   async function send(message, subject, to) {
@@ -39,7 +25,7 @@ module.exports = app => {
   
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: '"Frente Prevenção COVID19 RN" <frenteprevencaocovidrn@gmail.com>', // sender address
+      from: '"Frente Prevenção COVID19 RN" <' + process.env.SMTP_USER + '>', // sender address
       to: to, // list of receivers
       subject: subject, // Subject line
       text: message, // plain text body

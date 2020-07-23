@@ -98,7 +98,9 @@ module.exports = app => {
                 `,
                 "Recuperação de senha",
                 user.email
-            ).catch(console.error);
+            ).catch((err) => {
+                console.log(err)
+            });
 
             delete user.password
             return res.status(200).send("Verfique seu e-mail para obter instruções");
