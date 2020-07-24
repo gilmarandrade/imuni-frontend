@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{ 'hide-menu' : !isMenuVisible || !user}">
+  <div id="app" :class="{ 'hide-menu' : !isMenuVisible }">
    <Header title="Monitoramento de Idosos" :hideToggle="!user" :hideUserDropdown="!user"/>
    <Menu v-if="user"/>
    <Loading v-if="isLoadingApp" />

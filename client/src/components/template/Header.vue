@@ -1,11 +1,11 @@
 <template>
   <header class="header">
-        <a href="#" class="toggle" @click="toggleMenu" v-show="!hideToggle && isMenuVisible">
+        <!-- <a href="#" class="toggle" @click="toggleMenu" v-show="!hideToggle && isMenuVisible">
             <i class="fa fa-lg fa-angle-left"></i>
         </a>
         <a href="#" class="toggle" @click="toggleMenu" v-show="!hideToggle && !isMenuVisible">
             <i class="fa fa-lg fa-angle-down" ></i>
-        </a>
+        </a> -->
         <h1 class="title"> {{ title }} </h1>
         <UserDropdown v-if="!hideUserDropdown" />
   </header>

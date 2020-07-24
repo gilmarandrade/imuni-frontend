@@ -4,8 +4,8 @@
             <div class="auth-title">Login</div>
             <input v-model="user.email" name="email" placeholder="E-mail" type="email">
             <input v-model="user.password" name="password" placeholder="Senha" type="password">
-            <router-link to="/forgot">Esqueceu a senha?</router-link>
             <button @click="login">Entrar</button>
+            <router-link to="/forgot">Esqueceu a senha?</router-link>
         </div>
     </div>
 </template>

@@ -11,6 +11,9 @@
           <div>
               {{ user.role }}
           </div>
+          <div>
+              {{ user.email }}
+          </div>
           <!-- <router-link to="/admin">
               <i class="fa fa-cogs"></i> Administração
           </router-link> -->
@@ -73,7 +76,7 @@ export default {
         position: absolute;
         right: 0;
         background-color: #f9f9f9;
-        min-width: 170px;
+        min-width: 270px;
         box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         padding: 10px;
         z-index: 1;
