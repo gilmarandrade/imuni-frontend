@@ -1,8 +1,8 @@
-require('dotenv').config();
+// require('dotenv').config();
 const jwt = require('jwt-simple');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
-const { authSecret } = require('../config/environment');
+const { authSecret, clientUrl } = require('../config/environment');
 const userService = require('../service/userService');
 
 module.exports = app => {
@@ -90,7 +90,7 @@ module.exports = app => {
                     <p>Prezado(a) ${user.name},</p>
                     <p>
                     Você está recebendo esse e-mail porque você requisitou resetar sua senha. Por favor clique no link abaixo para alterar sua senha.
-                    <a href="${process.env.CLIENT_URL}/reset/${user._id}/${user.resetPasswordToken}">${process.env.CLIENT_URL}/reset/${user._id}/${user.resetPasswordToken}</a>
+                    <a href="${clientUrl}/reset/${user._id}/${user.resetPasswordToken}">${clientUrl}/reset/${user._id}/${user.resetPasswordToken}</a>
                     Se você não requisitou essa alteração, ignore esse email.
                     </p>
                   </section>
