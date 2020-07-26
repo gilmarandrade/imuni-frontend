@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { baseApiUrl, node_env, showError } from '@/global';
+import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 
 export default {
@@ -31,7 +31,7 @@ export default {
             const id = '1sP1UegbOnv5dVoO6KMtk2nms6HqjFs3vuYN5FGMWasc';
             const sheetName = 'Idosos';
             const range = 'A2:E';
-            console.log('idosos base api url', baseApiUrl, node_env);
+            console.log('idosos base api url', baseApiUrl);
             const url = `${baseApiUrl}/docs/${id}/sheets/${sheetName}/range/${range}`;
 
             axios.get(url).then(res => {

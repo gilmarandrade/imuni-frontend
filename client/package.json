@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-staging": "set NODE_ENV=production && vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint",
     "start": "node server",
     "postinstall": "npm run build"

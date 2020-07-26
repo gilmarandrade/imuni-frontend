@@ -26,7 +26,7 @@ a api está em localhost:3000/api
 na pasta /client execute
 npm install ára baixar as dependências do frontend
 
-em client/environment.js estão a configuração das variáveis de ambiente do projeto
+em .env estão a configuração das variáveis de ambiente do projeto
 
 
 ### Project setup

@@ -12,14 +12,13 @@ import VueSocketIO from 'vue-socket.io';
 import '@fortawesome/fontawesome-free/css/all.css'
 import '@fortawesome/fontawesome-free/js/all.js'
 
-const environment = require('../environment');
-console.log(environment);
+console.log(process.env);
 
 Vue.config.productionTip = false
 
 Vue.use(new VueSocketIO({
     debug: true,
-    connection: environment.socketUrl,
+    connection: process.env.VUE_APP_SOCKET_URL,
     vuex: {
         store,
         actionPrefix: 'SOCKET_',
