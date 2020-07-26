@@ -1,4 +1,4 @@
-const { mongoUris } = require('../config/environment');
+ 
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');
@@ -25,7 +25,7 @@ module.exports = app => {
         const nomeIdoso = req.params.id;
 
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const idososStatsCollection = db.collection('idososStats');
 
@@ -43,7 +43,7 @@ module.exports = app => {
         //TODO futuramente deverá ser pelo id
         const nomeIdoso = req.params.id;
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
@@ -71,7 +71,7 @@ module.exports = app => {
         console.log(id)
 
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             const db = client.db('planilhas');
             const atendimentosCollection = db.collection('atendimentos');
 
@@ -143,7 +143,7 @@ module.exports = app => {
     const countDocuments = async (collectionName) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
                 if(err) return reject(err);
                 const db = client.db('planilhas');
                 const collection = db.collection(collectionName);

@@ -1,7 +1,7 @@
 // const { calcularEscalas } = require('../config/helpers');
 
 //TODO usar configuração do banco
-const { mongoUris } = require('../config/environment');
+ 
 const ObjectId = require('mongodb').ObjectID;
 const dbName = 'covidrn_planilha';
 const collectionName = 'usuarios';
@@ -9,7 +9,7 @@ const collectionName = 'usuarios';
 const findAll = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -32,7 +32,7 @@ const findAll = async () => {
 const deleteAll = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -55,7 +55,7 @@ const deleteAll = async () => {
 const insertAll = async (array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
@@ -77,7 +77,7 @@ const insertAll = async (array) => {
 const replaceOne = async (usuario) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
@@ -100,7 +100,7 @@ const replaceOne = async (usuario) => {
 const insertOne = async (usuario) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
@@ -123,7 +123,7 @@ const insertOne = async (usuario) => {
 const findByEmail = async (email) => {//TODO VERIFICAR SE OS METODOS QUE RETORNAM USUARIOS ESTÃO TRAZENDO A SENHA (FALHA DE SEGURANÇA)
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -146,7 +146,7 @@ const findByEmail = async (email) => {//TODO VERIFICAR SE OS METODOS QUE RETORNA
 const findById = async (id) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -169,7 +169,7 @@ const findById = async (id) => {
 const findByUnidade = async (unidadeId) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -192,7 +192,7 @@ const findByUnidade = async (unidadeId) => {
 const validateResetToken = async (id, token) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             

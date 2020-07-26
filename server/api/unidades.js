@@ -1,4 +1,4 @@
-const { mongoUris } = require('../config/environment');
+ 
 const ObjectId = require('mongodb').ObjectID;
 const atendimentoService = require('../service/atendimentoService');
 const vigilanteService = require('../service/vigilanteService');

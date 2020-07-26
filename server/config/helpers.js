@@ -1,5 +1,9 @@
 
-    
+/**
+ * regras de negocio para calculo das escalas
+ */
+
+
 function calcularEscalas(atendimento) {
     const vulnerabilidade = calcularEscalaVulnerabilidade(atendimento);
     const epidemiologica = calculaEscalaEpidemiologica(atendimento);

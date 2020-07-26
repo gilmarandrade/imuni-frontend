@@ -1,7 +1,7 @@
 // const { calcularEscalas } = require('../config/helpers');
 
 //TODO usar configuração do banco
-const { mongoUris } = require('../config/environment');
+ 
 const ObjectId = require('mongodb').ObjectID;
 const dbName = 'covidrn_planilha';
 const collectionName = 'vigilantes';
@@ -9,7 +9,7 @@ const collectionName = 'vigilantes';
 const findAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -32,7 +32,7 @@ const findAll = async (collectionPrefix) => {
 const deleteAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -55,7 +55,7 @@ const deleteAll = async (collectionPrefix) => {
 const insertAll = async (collectionPrefix, array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);

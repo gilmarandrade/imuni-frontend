@@ -1,7 +1,7 @@
 // const { calcularEscalas } = require('../config/helpers');
 
 //TODO usar configuração do banco
-const { mongoUris } = require('../config/environment');
+ 
 const ObjectId = require('mongodb').ObjectID;
 const dbName = 'covidrn_planilha';
 const collectionName = 'atendimentos';
@@ -10,7 +10,7 @@ const collectionName = 'atendimentos';
 const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if (err) { return reject(err); }
 
             const db = client.db(dbName);
@@ -32,7 +32,7 @@ const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
 const findAll = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -56,7 +56,7 @@ const findAll = async (collectionPrefix) => {
 const deleteCollection = async (collectionName) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
@@ -85,7 +85,7 @@ const deleteAll = async (unidade) => {
 const insertAll = async (collectionPrefix, array) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
@@ -111,7 +111,7 @@ const bulkReplaceOne = async (collectionPrefix, atendimentosArray) => {
 
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
@@ -149,7 +149,7 @@ const bulkReplaceOne = async (collectionPrefix, atendimentosArray) => {
 const replaceOne = async (collectionPrefix, atendimento) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
@@ -175,7 +175,7 @@ const replaceOne = async (collectionPrefix, atendimento) => {
 const aggregateEscalas = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.idosos`);
@@ -235,7 +235,7 @@ const aggregateEscalas = async (collectionPrefix) => {
 const aggregateUltimosAtendimentos = async (collectionPrefix) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( mongoUris, { useUnifiedTopology: false }, function( err, client ) {
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.idosos`);

@@ -2,7 +2,7 @@
 const jwt = require('jwt-simple');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
-const { authSecret, clientUrl } = require('../config/environment');
+ 
 const userService = require('../service/userService');
 
 module.exports = app => {
@@ -48,7 +48,7 @@ module.exports = app => {
 
         return res.json({
             ...payload,
-            token: jwt.encode(payload, authSecret), //gera um token a partir do auth secret
+            token: jwt.encode(payload, process.env.AUTH_SECRET), //gera um token a partir do auth secret
         });
     };
 
@@ -56,7 +56,7 @@ module.exports = app => {
         const userData = req.body || null;
         try {
             if(userData) {
-                const token = jwt.decode(userData.token, authSecret);
+                const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
                 if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
                     return res.send(true);
                     // Em vez de mndar true, pode-se mandar um novo token (renovar o token de forma transparente para o usuário)
@@ -90,7 +90,7 @@ module.exports = app => {
                     <p>Prezado(a) ${user.name},</p>
                     <p>
                     Você está recebendo esse e-mail porque você requisitou resetar sua senha. Por favor clique no link abaixo para alterar sua senha.
-                    <a href="${clientUrl}/reset/${user._id}/${user.resetPasswordToken}">${clientUrl}/reset/${user._id}/${user.resetPasswordToken}</a>
+                    <a href="${process.env.CLIENT_URL}/reset/${user._id}/${user.resetPasswordToken}">${process.env.CLIENT_URL}/reset/${user._id}/${user.resetPasswordToken}</a>
                     Se você não requisitou essa alteração, ignore esse email.
                     </p>
                   </section>

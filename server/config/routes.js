@@ -77,7 +77,7 @@ module.exports = app => {
         .get(app.server.api.googlesheets.stats);
 
         
-    //TODO Handle Production routes
+    //Handle Production routes
     if(process.env.NODE_ENV === 'production') {
         // servindo arquivos estáticos
         app.use(express.static(path.resolve(__dirname, "../public")));
