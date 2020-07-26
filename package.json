@@ -1,5 +1,5 @@
 {
-  "name": "api-frenteprevencaocovidrn-org-br",
+  "name": "frenteprevencaocovidrn",
   "version": "1.0.0",
   "description": "",
   "main": "server/app.js",
@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@geonosis.deploy.umbler.com:9922/klql1p6j/api-frenteprevencaocovidrn-org-br.git"
+    "url": "https://github.com/gilmarandrade/frenteprevencaocovidrn.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Gilmar Andrade",
+  "license": "MIT",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "consign": "^0.1.6",
