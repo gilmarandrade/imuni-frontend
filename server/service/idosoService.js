@@ -1,6 +1,6 @@
  
 const ObjectId = require('mongodb').ObjectID;
-const dbName = 'covidrn_planilha';
+const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'idosos';
 
 const findAll = async (collectionPrefix) => {
