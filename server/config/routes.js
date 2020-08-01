@@ -73,6 +73,11 @@ module.exports = app => {
         .get(role(app.server.api.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.unidades.save, 'ADMINISTRADOR'));
 
+    app.route('/api/administradores')
+        .all(app.server.config.passport.authenticate())
+        .get(role(app.server.api.user.getAdministradores, 'ADMINISTRADOR'))
+        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
+
     app.route('/api/stats')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.googlesheets.stats);

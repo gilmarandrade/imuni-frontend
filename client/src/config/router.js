@@ -16,6 +16,8 @@ import Auth from '@/components/auth/Auth'
 import ForgotPassword from '@/components/auth/ForgotPassword'
 import ResetPassword from '@/components/auth/ResetPassword'
 import AcceptInvitation from '@/components/auth/AcceptInvitation'
+import Administradores from '@/components/administrador/Administradores'
+import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
 
 Vue.use(VueRouter);
 
@@ -68,6 +70,12 @@ const routes = [
         meta: { requiresAdmin: true }
     },
     {
+        name: 'convidarAdministrador',
+        path: '/administradores/addUsuario',
+        component: ConvidarAdministrador,
+        meta: { requiresAdmin: true }
+    },
+    {
         name: 'acceptInvitation',
         path: '/acceptInvitation/:id/:token',
         component: AcceptInvitation,
@@ -88,6 +96,12 @@ const routes = [
         name: 'adicionarUnidade',
         path: '/adicionarUnidade',
         component: AdicionarUnidade,
+        meta: { requiresAdmin: true }
+    },
+    {
+        name: 'administradores',
+        path: '/administradores',
+        component: Administradores,
         meta: { requiresAdmin: true }
     },
 ]

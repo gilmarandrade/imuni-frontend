@@ -140,5 +140,15 @@ module.exports = app => {
         }
     }
 
-    return { insert, getByUnidadeId, sendInvitation }
+    const getAdministradores = async (req, res) => {
+        try {
+            const result = await userService.findAdministradores();
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { insert, getByUnidadeId, sendInvitation, getAdministradores }
 }

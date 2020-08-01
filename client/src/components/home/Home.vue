@@ -11,7 +11,10 @@
             </li>
         </ul> -->
         <div v-if="user.role === 'ADMINISTRADOR'">
-            <router-link to="/unidades">unidades</router-link>
+            <ul>
+                <li><router-link to="/unidades">unidades</router-link></li>
+                <li><router-link to="/administradores">administradores</router-link></li>
+            </ul>
         </div>
         <div v-if="user.role === 'VIGILANTE'">
             <h2>Seja bem vindo vigilante</h2>
