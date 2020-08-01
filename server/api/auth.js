@@ -183,7 +183,7 @@ module.exports = app => {
                     `
                     <div>
                       <header style="text-align: center;">
-                        <h1 style="padding:34px 65px; font-family: 'Open Sans', verdana, sans-serif; font-size: 2.1875rem; font-weight:normal; line-height: 2.9rem;background-color:#BED1D2; color:#206164; text-align: center;">Senha Alterada</h1>
+                        <h1 style="padding:34px 65px; font-family: 'Open Sans', verdana, sans-serif; font-size: 2.1875rem; font-weight:normal; line-height: 2.9rem;background-color:#BED1D2; color:#206164; text-align: center;">Seja bem vindo!</h1>
                       </header>
                       <section style="padding:34px 65px;font-family: Open Sans, verdana, sans-serif; font-size: 1rem;line-height: 1.375rem; color: rgba(0, 0, 0, 0.87);">
                         <p>Prezado(a) ${user.name},</p>
@@ -194,7 +194,7 @@ module.exports = app => {
                       </section>
                     </div>
                     `,
-                    "Seja bem vindo",
+                    "Seja bem vindo!",
                     user.email
                   ).catch(console.error);
                 return res.status(200).send("Usuário cadastrado com sucesso");
