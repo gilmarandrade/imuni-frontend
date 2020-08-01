@@ -17,6 +17,7 @@ module.exports = app => {
     app.post('/api/forgotPassword', app.server.api.auth.forgotPassword);
     app.post('/api/validateResetToken', app.server.api.auth.validateResetToken);
     app.post('/api/resetPassword', app.server.api.auth.resetPassword);
+    app.post('/api/acceptInvite', app.server.api.auth.acceptInvite);
 
     app.route('/api/docs/:id/sheets/:sheetName/range/:range')
         .all(app.server.config.passport.authenticate())
@@ -49,7 +50,7 @@ module.exports = app => {
     app.route('/api/unidades/:unidadeId/usuarios')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.user.getByUnidadeId, 'ADMINISTRADOR'))
-        .post(role(app.server.api.user.insert, 'ADMINISTRADOR'));
+        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/unidades/:unidadeId/vigilantes')
         .all(app.server.config.passport.authenticate())

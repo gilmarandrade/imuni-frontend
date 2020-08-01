@@ -109,7 +109,7 @@ const insertOne = async (usuario) => {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.result.n);
+                    resolve(usuario._id);
                 }
             });
         });
@@ -212,4 +212,27 @@ const validateResetToken = async (id, token) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken };
+const validateInvitationToken = async (id, token) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id), invitationToken: token,  invitationExpires: { $gt: Date.now() } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken, validateInvitationToken };

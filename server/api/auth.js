@@ -165,5 +165,48 @@ module.exports = app => {
 
     };
 
-    return { login, validateToken, forgotPassword, validateResetToken, resetPassword };
+    const acceptInvite = async (req, res) => {
+        try {
+            const user = await userService.validateInvitationToken(req.body._id, req.body.invitationToken);
+            if(user) {
+                delete user.invitationToken;
+                delete user.invitationExpires;
+
+                existsOrError(req.body.password, 'Senha não informada');
+                existsOrError(req.body.confirmPassword, 'Confirmação de senha não informada');
+                equalsOrError(req.body.password, req.body.confirmPassword, 'Senhas não conferem');
+
+                user.password = encryptPassword(req.body.password);
+
+                const result = await userService.replaceOne(user);
+                app.server.config.mail.send(
+                    `
+                    <div>
+                      <header style="text-align: center;">
+                        <h1 style="padding:34px 65px; font-family: 'Open Sans', verdana, sans-serif; font-size: 2.1875rem; font-weight:normal; line-height: 2.9rem;background-color:#BED1D2; color:#206164; text-align: center;">Senha Alterada</h1>
+                      </header>
+                      <section style="padding:34px 65px;font-family: Open Sans, verdana, sans-serif; font-size: 1rem;line-height: 1.375rem; color: rgba(0, 0, 0, 0.87);">
+                        <p>Prezado(a) ${user.name},</p>
+                        <p>
+                        Seja bem vindo ao sistema de monitoramento... Faça login
+                        <a href="${process.env.CLIENT_URL}">${process.env.CLIENT_URL}</a>
+                        </p>
+                      </section>
+                    </div>
+                    `,
+                    "Seja bem vindo",
+                    user.email
+                  ).catch(console.error);
+                return res.status(200).send("Usuário cadastrado com sucesso");
+            } else {
+                return res.status(400).send("Convite expirado ou token inválido");
+            }
+        } catch (err) {
+            console.log(err)
+            return res.status(400).send(err);
+        }
+
+    };
+
+    return { login, validateToken, forgotPassword, validateResetToken, resetPassword, acceptInvite };
 };

@@ -10,11 +10,12 @@ import VigilanteHome from '@/components/vigilante/VigilanteHome'
 import Unidades from '@/components/administrador/Unidades'
 import Unidade from '@/components/administrador/Unidade'
 import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
-import AdicionarUsuario from '@/components/administrador/AdicionarUsuario'
+import ConvidarUsuario from '@/components/administrador/ConvidarUsuario'
 import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
 import Auth from '@/components/auth/Auth'
 import ForgotPassword from '@/components/auth/ForgotPassword'
 import ResetPassword from '@/components/auth/ResetPassword'
+import AcceptInvitation from '@/components/auth/AcceptInvitation'
 
 Vue.use(VueRouter);
 
@@ -61,10 +62,15 @@ const routes = [
         component: ResetPassword,
     },
     {
-        name: 'adicionarUsuarioDaUnidade',
+        name: 'convidarUsuarioDaUnidade',
         path: '/unidades/:id/:unidadeNome/addUsuario',
-        component: AdicionarUsuario,
+        component: ConvidarUsuario,
         meta: { requiresAdmin: true }
+    },
+    {
+        name: 'acceptInvitation',
+        path: '/acceptInvitation/:id/:token',
+        component: AcceptInvitation,
     },
     {
         name: 'unidade',
