@@ -89,7 +89,7 @@ export default {
                 planilhaGerenciamento: '',
                 fichaVigilancia: '',
             },
-            distritos: [ { text: 'Selecione...', value: null }, 'Norte', 'Sul', 'Leste', 'Oeste' ],
+            distritos: [ { text: 'Selecione...', value: null }, 'Norte I', 'Norte II', 'Sul', 'Leste', 'Oeste' ],
         }
     },
      methods: {
