@@ -299,7 +299,6 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, sort) => {
                         as: 'ultimaEscala'
                     }
                 },
-                // { $unwind: "$ultimaEscala" },
                 { $match: { vigilante: nomeVigilante } },
                 {
                     $lookup:
@@ -312,6 +311,8 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, sort) => {
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+                // { $match: { 'ultimaEscala': { $exists : false } } },//apenas idosos sem escalas
+                // { $match: { 'ultimaEscala': { $exists : true } } },//apenas idosos com escalas
                 querySort,
             ]).toArray(function(err, result) {
                 if(err) {

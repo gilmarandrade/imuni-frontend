@@ -1,51 +1,7 @@
 <template>
-    <div class="listaIdosos">
-        <h6>{{ user.nomeUnidade }} / {{ user.name }}</h6>
-
-        <div v-if="unidade">
-            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
-            <popper
-                trigger="hover"
-                :options="{
-                    placement: 'top'
-                }">
-                <div class="popper">
-                    Última sincronização
-                </div>
-
-                <span slot="reference">
-                    <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
-                    <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
-                </span>
-            </popper>
-            </div>
-            <!-- <h1>{{ unidade.nome }}</h1>
-            <p>Distrito {{ unidade.distrito }}</p> -->
-        </div>
-
-        <h1>Meus Idosos ({{idosos.length}})</h1>
-        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.isSyncing">sincronizar agora</button>
-
-        <div v-if="carregando">Carregando...</div>
-
-        <b-row align-h="end" class="mb-3">
-            <b-col cols="2">
-                ordenar por 
-                <b-form-select size="sm" v-model="orderBy" :options="sortOptions" @change="loadIdosos"></b-form-select>
-            </b-col>
-        </b-row>
-
-         <b-tabs content-class="mt-3">
-            <b-tab title="Todos" active>
-                <TableIdosos :idosos="idosos"></TableIdosos>
-            </b-tab>
-            <b-tab title="Com escalas" lazy>
-                <TableIdosos :idosos="idosos"></TableIdosos>
-            </b-tab>
-            <b-tab title="Sem escalas" lazy><p>I'm a disabled tab!</p></b-tab>
-        </b-tabs>
-
-        <!-- <b-table :items="idosos" :fields="fields">
+    <div class="tableIdosos">
+        
+        <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
                     <b>{{ data.item.nome }}</b>
@@ -186,36 +142,21 @@
                     Telefones: {{ data.item.telefone1 }} {{ data.item.telefone2 }}
                 </div>
           </template>
-        </b-table> -->
+        </b-table>
     </div>
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
-import axios from 'axios';
-// import Badge from '@/components/template/Badge';
-import TableIdosos from '@/components/TableIdosos';
+import Badge from '@/components/template/Badge';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
-// import { userKey } from '@/global';
-import { mapState } from 'vuex';
 
 export default {
-    name: 'VigilanteHome',
-    components: { TableIdosos, 'popper': Popper },
-    computed: mapState(['user', 'syncStatus']),
+    name: 'TableIdosos',
+    props: ['idosos'],
+    components: { Badge, 'popper': Popper },
     data: function() {
         return {
-            carregando: true,
-            unidade: null,
-            orderBy: 'proximo-atendimento',
-            sortOptions: [ 
-                { value: 'score', text: 'Score' },
-                { value: 'ultimo-atendimento', text: 'Último atendimento' },
-                { value: 'proximo-atendimento', text: 'Próximo atendimento' },
-                { value: 'nome', text: 'Nome' },
-            ],
-            idosos: [],
             fields: [ 
                 { key: 'ultimaEscala.score', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
@@ -224,100 +165,62 @@ export default {
         }
     },
     methods: {
-        loadUnidade() {
-            const url = `${baseApiUrl}/unidades/${this.user.unidadeId}`;
-            console.log(url);
-
-            axios.get(url).then(res => {
-                this.unidade = res.data
-                console.log(this.unidade)
-            }).catch(showError)
-        },
-        loadIdosos() {
-            const url = `${baseApiUrl}/unidades/${this.user.collectionPrefix}/vigilantes/${this.user.name}/idosos?sort=${this.orderBy}`;
-            console.log(url);
-            axios.get(url).then(res => {
-                this.idosos = res.data;
-                console.log(this.idosos)
-                this.carregando = false;
-            }).catch(showError)
-        },
         formatDate(date) {
             return new Date(date).toLocaleString();
         },
-        manualSync() {
-          // $socket is socket.io-client instance
-          console.log('emit syncEvent')
-          this.$socket.emit('syncEvent', { idUnidade: this.user.unidadeId });
-        },
     },
-    mounted() {
-        this.loadIdosos();
-        this.loadUnidade();
-    }
 }
 </script>
 
 <style>
 
-
-  .listaIdosos .sync-state {
-    margin: 0;
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.54);
-  }
-
-  .listaIdosos .sync-state.ativo {
-    color: #27AE60;
-  }
-
     /* table thead {
         display: none;
     } */
 
-    .listaIdosos td:nth-child(1){
+    .tableIdosos td:nth-child(1){
         /* background: red; */
         width: 10%;
     }
 
-    .listaIdosos td:nth-child(2) {
+    .tableIdosos td:nth-child(2) {
         /* background: red; */
         width: 50%;
     }
 
-    .listaIdosos td:nth-child(3) {
+    .tableIdosos td:nth-child(3) {
         text-align: right;
         /* background: blue; */
         width: 40%;
     }
 
-    .listaIdosos .badges .badge {
+    .tableIdosos .badges .badge {
         margin-right: 8px;
     }
 
-    .listaIdosos .statusAtendimentos > span {
+    .tableIdosos .statusAtendimentos > span {
         margin-left: 15px;
     }
 
-    .listaIdosos .statusUltimoAtendimento {
+    .tableIdosos .statusUltimoAtendimento {
         /* background: red; */
         color: rgb(235, 87, 87);
     }
 
-    .listaIdosos .statusUltimoAtendimento.atendido {
+    .tableIdosos .statusUltimoAtendimento.atendido {
         color: rgb(39, 174, 96);
     }
 
-    .listaIdosos .statusUltimoAtendimento.atencao {
+    .tableIdosos .statusUltimoAtendimento.atencao {
         /* background: yellow; */
         color: rgb(235, 87, 87);
     }
 
-    .listaIdosos .dataProximoAtendimento {
+    .tableIdosos .dataProximoAtendimento {
         /* background: blue; */
     }
 
-    .listaIdosos .dataProximoAtendimento.atencao {
+    .tableIdosos .dataProximoAtendimento.atencao {
         color: rgb(235, 87, 87);
     }
 
