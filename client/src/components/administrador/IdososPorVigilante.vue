@@ -2,6 +2,14 @@
     <div class="idososPorVigilante">
         <h6>{{ $route.params.unidadeNome }} / {{ $route.params.vigilanteNome }}</h6>
         <h1>Meus Idosos ({{idosos.length}})</h1> <span v-if="carregando">Carregando...</span>
+
+        <b-row align-h="end" class="mb-3">
+            <b-col cols="2">
+                ordenar por 
+                <b-form-select size="sm" v-model="orderBy" :options="sortOptions" @change="loadIdosos"></b-form-select>
+            </b-col>
+        </b-row>
+
         <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
@@ -122,6 +130,22 @@
                             </span>
                         </popper>
                     </span>
+                    <span v-else>
+                        <popper
+                            trigger="hover"
+                            :options="{
+                             placement: 'top',
+                             modifiers: { offset: { offset: '0,10px' } }
+                            }">
+                            <div class="popper">
+                               Sugestão de próximo atendimento
+                            </div>
+
+                            <span slot="reference">
+                                <i class="far fa-clock"></i> Não definido
+                            </span>
+                        </popper>
+                    </span>
                 </div>
                 <div>
                     Telefones: {{ data.item.telefone1 }} {{ data.item.telefone2 }}
@@ -144,6 +168,13 @@ export default {
     data: function() {
         return {
             carregando: true,
+            orderBy: 'proximo-atendimento',
+            sortOptions: [ 
+                { value: 'score', text: 'Score' },
+                { value: 'ultimo-atendimento', text: 'Último atendimento' },
+                { value: 'proximo-atendimento', text: 'Próximo atendimento' },
+                { value: 'nome', text: 'Nome' },
+            ],
             idosos: [],
             fields: [ 
                 { key: 'ultimaEscala.score', label: 'Score' },
@@ -154,7 +185,7 @@ export default {
     },
     methods: {
         loadIdosos() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadePrefix}/vigilantes/${this.$route.params.vigilanteNome}/idosos`;
+            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadePrefix}/vigilantes/${this.$route.params.vigilanteNome}/idosos?sort=${this.orderBy}`;
             console.log(url);
             axios.get(url).then(res => {
                 this.idosos = res.data;

@@ -262,14 +262,30 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
     return promise;
 }
 
-const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
+const findAllByVigilante = async (collectionPrefix, nomeVigilante, sort) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
-            
+
+            let querySort;
+            switch(sort) {
+                case 'score':
+                    querySort = { $sort : { 'ultimaEscala.score': -1, nome: 1 } };//ultima escala descendente
+                break;
+                case 'ultimo-atendimento':
+                    querySort = { $sort: { 'ultimoAtendimento.data': -1, nome: 1 } };//ultimo atendimento (tentativa) des
+                    break;
+                case 'proximo-atendimento':
+                    querySort = { $sort: { 'ultimaEscala.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
+                    break;
+                case 'nome':
+                default:
+                    querySort = { $sort : { nome: 1 } };//nome asc 
+            }
+  
             const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
             const ultimosAtendimentosCollection = `${collectionPrefix}.ultimosAtendimentos`;
             // TODO criar uma View com essa collection?
@@ -285,7 +301,6 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
                 },
                 // { $unwind: "$ultimaEscala" },
                 { $match: { vigilante: nomeVigilante } },
-                { $sort : { 'ultimaEscala.score': -1, nome: 1 } },
                 {
                     $lookup:
                     {
@@ -297,6 +312,7 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante) => {
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+                querySort,
             ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);

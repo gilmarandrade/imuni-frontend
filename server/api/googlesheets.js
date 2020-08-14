@@ -11,9 +11,10 @@ module.exports = app => {
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.vigilanteId;
         const collectionPrefix = req.params.unidadeId;
+        console.log(req.query)
 
         try {
-            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante);
+            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante, req.query.sort);
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);
