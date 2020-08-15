@@ -1,6 +1,16 @@
 <template>
     <div class="tableIdosos">
-        
+        {{ collectionPrefix }}
+        {{ vigilanteNome }}
+        <div v-if="carregando">Carregando...</div>
+
+        <b-row align-h="end" class="mb-3">
+            <b-col cols="2">
+                ordenar por 
+                <b-form-select size="sm" v-model="orderBy" :options="sortOptions" @change="loadIdosos"></b-form-select>
+            </b-col>
+        </b-row>
+        ({{idosos.length}})
         <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
@@ -147,16 +157,28 @@
 </template>
 
 <script>
+import { baseApiUrl, showError } from '@/global';
+import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'TableIdosos',
-    props: ['idosos'],
+    props: ['collectionPrefix', 'vigilanteNome'],
     components: { Badge, 'popper': Popper },
     data: function() {
         return {
+            carregando: true,
+            unidade: null,
+            orderBy: 'proximo-atendimento',
+            sortOptions: [ 
+                { value: 'score', text: 'Score' },
+                { value: 'ultimo-atendimento', text: 'Último atendimento' },
+                { value: 'proximo-atendimento', text: 'Próximo atendimento' },
+                { value: 'nome', text: 'Nome' },
+            ],
+            idosos: [],
             fields: [ 
                 { key: 'ultimaEscala.score', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
@@ -165,10 +187,22 @@ export default {
         }
     },
     methods: {
+        loadIdosos() {
+            const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?sort=${this.orderBy}`;
+            console.log(url);
+            axios.get(url).then(res => {
+                this.idosos = res.data;
+                console.log(this.idosos)
+                this.carregando = false;
+            }).catch(showError)
+        },
         formatDate(date) {
             return new Date(date).toLocaleString();
         },
     },
+    mounted() {
+        this.loadIdosos();
+    }
 }
 </script>
 
