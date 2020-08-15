@@ -33,11 +33,11 @@ module.exports = app => {
 
     app.route('/api/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.idososByVigilante);
+        .get(app.server.api.idosos.idososByVigilante);
 
     app.route('/api/idosos/:id')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.idoso);
+        .get(app.server.api.idosos.idoso);
 
     app.route('/api/idosos/:id/atendimentos')
         .all(app.server.config.passport.authenticate())
