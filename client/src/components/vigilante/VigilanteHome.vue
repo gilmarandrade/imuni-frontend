@@ -29,13 +29,13 @@
 
          <b-tabs content-class="mt-3">
             <b-tab title="Com escalas" active lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="com-escalas"></TableIdosos>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="sem-escalas"></TableIdosos>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" :userId="user.id" filter="sem-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Todos" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="all"></TableIdosos>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
         </b-tabs>
     </div>

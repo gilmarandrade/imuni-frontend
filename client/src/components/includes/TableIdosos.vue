@@ -169,13 +169,12 @@ import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'TableIdosos',
-    props: ['collectionPrefix', 'vigilanteNome', 'filter'],
+    props: ['collectionPrefix', 'vigilanteNome', 'userId', 'filter', 'orderBy'],
     components: { Badge, 'popper': Popper },
     data: function() {
         return {
             carregando: true,
             unidade: null,
-            orderBy: 'proximo-atendimento',
             sortOptions: [ 
                 { value: 'nome', text: 'Nome' },
                 { value: 'proximo-atendimento', text: 'Próximo atendimento' },
@@ -192,7 +191,8 @@ export default {
     },
     methods: {
         loadIdosos() {
-            const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
+            // const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
+            const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
             console.log(url);
             axios.get(url).then(res => {
                 this.idosos = res.data;
