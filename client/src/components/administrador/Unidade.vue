@@ -49,7 +49,7 @@
             <h5 class="card-title">Vigilantes</h5>
             <ul>
                 <li v-for="vigilante in unidade.vigilantes" :key="vigilante.nome">
-                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/vigilantes/' + vigilante.nome">{{ vigilante.nome }}</router-link>
+                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/usuarios/undefined/' + vigilante.nome">{{ vigilante.nome }}</router-link>
                 </li>
             </ul>
          </div>

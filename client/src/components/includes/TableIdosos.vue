@@ -192,9 +192,12 @@ export default {
     methods: {
         loadIdosos() {
             let url;
-            if(this.userId) {
+            // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
+            if(this.userId != 'undefined') {
+                console.log('user id', this.userId)
                 url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
             } else if(this.vigilanteNome) {
+                console.log('vigilanteNome', this.vigilanteNome)
                 url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
             }
             console.log(url);
@@ -202,7 +205,7 @@ export default {
                 this.idosos = res.data;
                 console.log(this.idosos)
                 this.carregando = false;
-            }).catch(showError)
+            }).catch(function(e) {console.error(e);showError(e)})
         },
         formatDate(date) {
             return new Date(date).toLocaleString();

@@ -43,7 +43,7 @@ const routes = [
         component: VigilanteHome,
     },
     {
-        name: 'idososPorVigilante',
+        name: 'idososPorUsuario',
         path: '/unidades/:unidadePrefix/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome',
         component: IdososPorVigilante,
         meta: { requiresAdmin: true }
