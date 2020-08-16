@@ -264,6 +264,29 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
     return promise;
 }
 
+const findById = async (collectionName, id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
 const findAllByUser = async (collectionPrefix, usuarioId, filter, sort) => {
 
     const user = await userService.findById(usuarioId);
@@ -350,6 +373,7 @@ const findAll = async (collectionPrefix, filter, sort) => {
                     }
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+                { $project: { "ultimaEscala.epidemiologia": 0 } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
                 match,
                 querySort,
@@ -437,6 +461,7 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort)
                     }
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+                { $project: { "ultimaEscala.epidemiologia": 0 } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
                 match,
                 querySort,
@@ -486,4 +511,4 @@ const findByNome = async (collectionPrefix, nomeLower) => {
     return promise;
 }
 
-module.exports = { findAll, deleteAll, insertAll, findAllByUser, findAllByVigilante, replaceOne, updateOne, findByNome, bulkUpdateOne, bulkReplaceOne };
+module.exports = { findAll, deleteAll, insertAll, findAllByUser, findAllByVigilante, replaceOne, updateOne, findByNome, bulkUpdateOne, bulkReplaceOne, findById };

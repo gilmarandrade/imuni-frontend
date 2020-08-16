@@ -37,22 +37,15 @@ module.exports = app => {
     }
 
     const idoso = async (req, res) => {
-        //TODO futuramente deverá ser pelo id
-        const nomeIdoso = req.params.id;
+        const id = req.params.idosoId;
+        const collectionPrefix = req.params.unidadeId;
 
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            const db = client.db('planilhas');
-            const idososStatsCollection = db.collection('idososStats');
-
-            idososStatsCollection.findOne({ nome: nomeIdoso }, function(err, result) {
-                // client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                // console.log(result)
-                return res.json(result);
-            });
-        });
+        try {
+            const result = await idosoService.findById(collectionPrefix, id);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
     }
 
     return { idososByUser, idososByVigilante, idoso };

@@ -15,6 +15,7 @@
             <template v-slot:cell(col-1)="data">
                 <div>
                     <b>{{ data.item.nome }}</b>
+                    {{data.item}}
                 </div>
                 <div class="badges" v-if="data.item.ultimaEscala">
                      <popper v-if="data.item.ultimaEscala.vulnerabilidade"
