@@ -8,7 +8,6 @@ const unidadeService = require('../service/unidadeService');
 module.exports = app => {
 
     const idososByVigilante = async (req, res) => {
-        const page = req.query.page || 1;
 
         //TODO futuramente deverá ser pelo id
         const nomeVigilante = req.params.vigilanteId;
@@ -16,7 +15,7 @@ module.exports = app => {
         console.log(req.query)
 
         try {
-            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante, req.query.sort);
+            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante, req.query.filter, req.query.sort);
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);

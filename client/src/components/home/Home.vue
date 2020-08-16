@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <PageTitle icon="fa fa-home" main="Home" sub="Bem vindo ao sistema de monitoramento" />
+        <PageTitle icon="" main="Home" sub="Bem vindo ao sistema de monitoramento" />
         <!-- <h2>Planilhas</h2>
         <ul>
             <li>

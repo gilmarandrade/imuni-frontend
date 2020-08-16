@@ -15,7 +15,7 @@
 
                 <span slot="reference">
                     <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
-                    <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
+                    <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                 </span>
             </popper>
             </div>
@@ -27,15 +27,16 @@
         <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.isSyncing">sincronizar agora</button>
 
 
-
          <b-tabs content-class="mt-3">
-            <b-tab title="Todos" active>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name"></TableIdosos>
+            <b-tab title="Com escalas" active lazy>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="com-escalas"></TableIdosos>
             </b-tab>
-            <b-tab title="Com escalas">
-                <!-- <TableIdosos :idosos="idosos"></TableIdosos> -->
+            <b-tab title="Sem escalas" lazy>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="sem-escalas"></TableIdosos>
             </b-tab>
-            <b-tab title="Sem escalas"><p>I'm a disabled tab!</p></b-tab>
+            <b-tab title="Todos" lazy>
+                <TableIdosos :collectionPrefix="user.collectionPrefix" :vigilanteNome="user.name" filter="all"></TableIdosos>
+            </b-tab>
         </b-tabs>
     </div>
 </template>

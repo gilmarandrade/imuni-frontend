@@ -1,16 +1,16 @@
 <template>
     <div class="tableIdosos">
-        {{ collectionPrefix }}
-        {{ vigilanteNome }}
         <div v-if="carregando">Carregando...</div>
 
-        <b-row align-h="end" class="mb-3">
+        <b-row align-h="end" class="mb-3" align-v="end">
+            <b-col cols="2" class="text-right text-muted">
+                {{ idosos.length }} resultados
+            </b-col>
             <b-col cols="2">
                 ordenar por 
                 <b-form-select size="sm" v-model="orderBy" :options="sortOptions" @change="loadIdosos"></b-form-select>
             </b-col>
         </b-row>
-        ({{idosos.length}})
         <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
@@ -72,7 +72,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="fas fa-headset"></i> {{ data.item.ultimaEscala ? data.item.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.ultimoAtendimento ? data.item.ultimoAtendimento.qtdTentativas : 0) }}
+                                <font-awesome-icon :icon="['fas', 'headset']"  /> {{ data.item.ultimaEscala ? data.item.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.ultimoAtendimento ? data.item.ultimoAtendimento.qtdTentativas : 0) }}
                             </span>
                         </popper>
                     </span>
@@ -86,19 +86,23 @@
                             }">
                             <div class="popper">
                                Último atendimento: 
-                               <span v-if="data.item.ultimoAtendimento.efetuado">Ligação atendida</span>
-                               <span v-if="!data.item.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                                <span v-if="data.item.ultimoAtendimento.efetuado">Ligação atendida</span>
+                                <span v-if="!data.item.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-check-circle" v-show="data.item.ultimoAtendimento.efetuado"></i>
-                                <i class="far fa-times-circle" v-show="!data.item.ultimoAtendimento.efetuado"></i>
+                                <span v-show="data.item.ultimoAtendimento.efetuado">
+                                    <font-awesome-icon :icon="['far', 'check-circle']"  />
+                                </span>
+                                <span v-show="!data.item.ultimoAtendimento.efetuado">
+                                    <font-awesome-icon :icon="['far', 'times-circle']" />
+                                </span>
                                 {{ formatDate(data.item.ultimoAtendimento.data) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento atencao" v-if="!data.item.ultimoAtendimento">
+                    <span class="statusUltimoAtendimento atencao" v-show="!data.item.ultimoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -110,7 +114,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="fas fa-exclamation-circle"></i> pendente
+                                <font-awesome-icon :icon="['fas', 'exclamation-circle']" /> pendente
                             </span>
                         </popper>
                     </span>
@@ -127,7 +131,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-clock"></i> {{ formatDate(data.item.ultimaEscala.dataProximoAtendimento) }}
+                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(data.item.ultimaEscala.dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>
@@ -143,7 +147,7 @@
                             </div>
 
                             <span slot="reference">
-                                <i class="far fa-clock"></i> Não definido
+                                <font-awesome-icon :icon="['far', 'clock']" /> Não definido
                             </span>
                         </popper>
                     </span>
@@ -165,7 +169,7 @@ import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'TableIdosos',
-    props: ['collectionPrefix', 'vigilanteNome'],
+    props: ['collectionPrefix', 'vigilanteNome', 'filter'],
     components: { Badge, 'popper': Popper },
     data: function() {
         return {
@@ -173,10 +177,10 @@ export default {
             unidade: null,
             orderBy: 'proximo-atendimento',
             sortOptions: [ 
+                { value: 'nome', text: 'Nome' },
+                { value: 'proximo-atendimento', text: 'Próximo atendimento' },
                 { value: 'score', text: 'Score' },
                 { value: 'ultimo-atendimento', text: 'Último atendimento' },
-                { value: 'proximo-atendimento', text: 'Próximo atendimento' },
-                { value: 'nome', text: 'Nome' },
             ],
             idosos: [],
             fields: [ 
@@ -188,7 +192,7 @@ export default {
     },
     methods: {
         loadIdosos() {
-            const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?sort=${this.orderBy}`;
+            const url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
             console.log(url);
             axios.get(url).then(res => {
                 this.idosos = res.data;

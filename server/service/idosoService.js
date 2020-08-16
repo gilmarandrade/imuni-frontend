@@ -262,7 +262,27 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
     return promise;
 }
 
-const findAllByVigilante = async (collectionPrefix, nomeVigilante, sort) => {
+const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort) => {
+    if(filter) {
+        console.log(filter)
+    } else {
+        console.log('sem filtro')
+    }
+
+    let match;
+    switch(filter) {
+        case 'com-escalas':
+            match = { $match: { 'ultimaEscala': { $exists : true } } }; //apenas idosos com escalas
+            break;
+        case 'sem-escalas':
+            match = { $match: { 'ultimaEscala': { $exists : false } } }; //apenas idosos sem escalas
+            break;
+        case 'all':
+        default:
+            match = { $match: { '_id': { $exists : true } } }; //todos
+            break;
+    }
+
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -311,8 +331,7 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, sort) => {
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
-                // { $match: { 'ultimaEscala': { $exists : false } } },//apenas idosos sem escalas
-                // { $match: { 'ultimaEscala': { $exists : true } } },//apenas idosos com escalas
+                match,
                 querySort,
             ]).toArray(function(err, result) {
                 if(err) {

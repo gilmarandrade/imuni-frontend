@@ -15,7 +15,7 @@
                       </div>
 
                       <span slot="reference">
-                          <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
+                          <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                       </span>
                   </popper>
                 </div>
@@ -25,7 +25,7 @@
             </li>
             <li class="col-sm-6 col-md-4 col-lg-3">
               <router-link to="/adicionarUnidade" class="item button">
-                <h2><i class="fas fa-plus"></i> Adicionar unidade</h2>
+                <h2><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar unidade</h2>
               </router-link>
             </li>
         </ul>

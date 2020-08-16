@@ -1,6 +1,6 @@
 <template>
     <div>
-       <PageTitle icon="fa fa-home" main="Planilha de Gerenciamento" sub="unidade xxxx" />
+       <PageTitle icon="" main="Planilha de Gerenciamento" sub="unidade xxxx" />
        <b-card no-body>
           <b-tabs card>
             <b-tab title="Vigilante 1">
