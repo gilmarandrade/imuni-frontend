@@ -29,6 +29,7 @@ export default {
                 .then(res => {
                     console.log(res.data)
                     // this.$toasted.global.defaultSuccess({msg: res.data});
+                    //TODO mensagem de cadastro realizado com sucesso não está aparecendo...
                     window.location.href = window.location.origin;
                 })
                 .catch(showError);

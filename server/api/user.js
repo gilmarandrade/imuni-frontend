@@ -84,7 +84,7 @@ module.exports = app => {
             // equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem');
             existsOrError(user.role, 'Permissão não informada');
 
-            if(user.role === 'VIGILANTE') {//TODO deveria permitir o cadastro de usuarios de outros tipos: progenitor, tutor?
+            if(user.role === 'VIGILANTE' || user.role === 'PRECEPTOR') {//TODO deveria permitir o cadastro de usuarios de outros tipos: preceptor, tutor?
                 existsOrError(user.unidadeId, 'Unidade de Saúde não informada');
                 const unidade = await unidadeService.findById(user.unidadeId);
                 user.collectionPrefix = unidade.collectionPrefix;
