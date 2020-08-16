@@ -1,6 +1,6 @@
 <template>
     <div class="idososPorVigilante">
-        <h6>{{ $route.params.unidadeNome }} / {{ $route.params.vigilanteNome }}</h6>
+        <h6>{{ $route.params.unidadeNome }} / {{ $route.params.nome }}</h6>
 
         <div v-if="unidade">
             <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
@@ -29,13 +29,13 @@
 
         <b-tabs content-class="mt-3">
             <b-tab title="Com escalas" active lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :vigilanteNome="$route.params.vigilanteNome" filter="com-escalas"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" filter="com-escalas" orderBy="score"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :vigilanteNome="$route.params.vigilanteNome" filter="sem-escalas"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" filter="sem-escalas"  orderBy="score"></TableIdosos>
             </b-tab>
             <b-tab title="Todos" lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :vigilanteNome="$route.params.vigilanteNome" filter="all"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" filter="all"  orderBy="score"></TableIdosos>
             </b-tab>
         </b-tabs>
     </div>
