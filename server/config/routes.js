@@ -45,11 +45,11 @@ module.exports = app => {
 
     app.route('/api/idosos/:id/atendimentos')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.atendimentosByIdoso);
+        .get(app.server.api.atendimentos.atendimentosByIdoso);
 
     app.route('/api/atendimentos/:id')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.atendimento);
+        .get(app.server.api.atendimentos.atendimento);
 
     app.route('/api/unidades/:unidadeId/usuarios')
         .all(app.server.config.passport.authenticate())

@@ -14,9 +14,7 @@
         <b-table :items="idosos" :fields="fields">
             <template v-slot:cell(col-1)="data">
                 <div>
-                    <b>
-                        <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
-                    </b>
+                    <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
                 </div>
                 <div class="badges" v-if="data.item.ultimaEscala">
                      <popper v-if="data.item.ultimaEscala.vulnerabilidade"
