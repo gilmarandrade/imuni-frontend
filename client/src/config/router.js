@@ -18,6 +18,7 @@ import ResetPassword from '@/components/auth/ResetPassword'
 import AcceptInvitation from '@/components/auth/AcceptInvitation'
 import Administradores from '@/components/administrador/Administradores'
 import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
+import Idoso from '@/components/idoso/Idoso'
 
 Vue.use(VueRouter);
 
@@ -79,6 +80,11 @@ const routes = [
         name: 'acceptInvitation',
         path: '/acceptInvitation/:id/:token',
         component: AcceptInvitation,
+    },
+    {
+        name: 'idoso',
+        path: '/unidades/:unidadeId/idosos/:idosoId',
+        component: Idoso,
     },
     {
         name: 'unidade',

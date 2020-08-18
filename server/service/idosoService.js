@@ -145,6 +145,7 @@ const bulkUpdateOne = async (collectionPrefix, idososArray) => {
         batch.find({ nomeLower: item.nomeLower }).upsert().updateOne({
             $set: { 
                 row: item.row,
+                unidade: item.unidade,
                 nome: item.nome,
                 dataNascimento: item.dataNascimento,
                 telefone1: item.telefone1,
@@ -240,6 +241,7 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
             collection.updateOne({ nomeLower: idosoAtendimento.nomeLower }, {
                 $set: { 
                     row: idosoAtendimento.row,
+                    unidade: idosoAtendimento.unidade,
                     nome: idosoAtendimento.nome,
                     dataNascimento: idosoAtendimento.dataNascimento,
                     telefone1: idosoAtendimento.telefone1,
@@ -264,22 +266,60 @@ const updateOne = async (collectionPrefix, idosoAtendimento) => {
     return promise;
 }
 
-const findById = async (collectionName, id) => {
+const findById = async (collectionPrefix, id) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
             if(err) return reject(err);
             const db = client.db(dbName);
             
-            const collection = db.collection(collectionName);
+            const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
+            const ultimosAtendimentosCollection = `${collectionPrefix}.ultimosAtendimentos`;
+            // TODO criar uma View com essa collection?
+            idososCollection.aggregate([
+                {
+                    $lookup:
+                    {
+                        from: ultimasEscalasCollection,
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimaEscala'
+                    }
+                },
+                { $match: { _id: ObjectId(id) } },
+                {
+                    $lookup:
+                    {
+                        from: ultimosAtendimentosCollection,
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimoAtendimento'
+                    }
+                },
+                { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+                { $project: { "ultimaEscala.epidemiologia": 0 } },
+                { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+                { $limit : 1 },
+            ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result);
+                    // console.log(result);
+                    if(result.length == 0) resolve(null);
+                    else resolve(result[0]);
                 }
             });
+
+
+            // idososCollection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            //     if(err) {
+            //         reject(err);
+            //     } else {
+            //         resolve(result);
+            //     }
+            // });
         });
 
     });

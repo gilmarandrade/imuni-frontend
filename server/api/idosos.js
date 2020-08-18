@@ -38,7 +38,7 @@ module.exports = app => {
 
     const idoso = async (req, res) => {
         const id = req.params.idosoId;
-        const collectionPrefix = req.params.unidadeId;
+        const collectionPrefix = req.params.unidadeId.replace(/[^a-zA-Z0-9]/g,'_');
 
         try {
             const result = await idosoService.findById(collectionPrefix, id);
