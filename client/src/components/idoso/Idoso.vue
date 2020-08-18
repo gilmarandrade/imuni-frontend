@@ -170,13 +170,66 @@
             </div>
         </div>
 
+        <h2 class="my-5">Histórico de atendimentos</h2>
+        <b-table :items="atendimentos" :fields="fields">
+            <template v-slot:cell(col-data)="data">
+                {{ formatDate(data.item.fichaVigilancia.data) }}
+            </template>
+            <template v-slot:cell(col-status)="data">
+                <span class="statusUltimoAtendimento" v-if="data.item.fichaVigilancia.dadosIniciais" :class="{ 'atendido' : data.item.fichaVigilancia.dadosIniciais.atendeu }">
+                    <span v-show="data.item.fichaVigilancia.dadosIniciais.atendeu">
+                        <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
+                    </span>
+                    <span v-show="!data.item.fichaVigilancia.dadosIniciais.atendeu">
+                        <font-awesome-icon :icon="['far', 'times-circle']" /> Ligação não atendida
+                    </span>
+                </span>
+            </template>
+            <template v-slot:cell(col-escalas)="data">
+                <div class="badges" v-if="data.item.escalas">
+                     <popper v-if="data.item.escalas.vulnerabilidade"
+                        trigger="hover"
+                        :options="{
+                            placement: 'top'
+                        }">
+                        <div class="popper">
+                            Escala de Vulnerabilidade
+                        </div>
 
+                        <span slot="reference">
+                            <Badge :value="data.item.escalas.vulnerabilidade" />
+                        </span>
+                    </popper>
+                    <popper v-if="data.item.escalas.epidemiologica"
+                        trigger="hover"
+                        :options="{
+                            placement: 'top'
+                        }">
+                        <div class="popper">
+                            Escala Epidemiológica
+                        </div>
 
-        
+                        <span slot="reference">
+                            <Badge :value="data.item.escalas.epidemiologica" />
+                        </span>
+                    </popper>
+                    <popper v-if="data.item.escalas.riscoContagio"
+                        trigger="hover"
+                        :options="{
+                            placement: 'top'
+                        }">
+                        <div class="popper">
+                            Risco de Contágio por COVID-19
+                        </div>
 
-        {{ $route.params.unidadeId }}
-        {{ $route.params.idosoId }}
-        {{ idoso }}
+                        <span slot="reference">
+                            <Badge :value="data.item.escalas.riscoContagio" />
+                        </span>
+                    </popper>
+                </div>
+            </template>
+        </b-table>
+        {{atendimentos}}
     </div>
 </template>
 
@@ -193,6 +246,13 @@ export default {
     data: function() {
         return {
             idoso: null,
+            atendimentos: [],
+            fields: [ 
+                { key: 'col-data', label: 'Data' },
+                { key: 'col-status', label: 'Status' },
+                { key: 'col-escalas', label: 'Escalas' },
+                { key: 'fichaVigilancia.vigilante', label: 'Vigilante' },
+            ],
             loading: false,
         }
     },
@@ -203,7 +263,17 @@ export default {
 
             axios.get(url).then(res => {
                 this.idoso = res.data
-                console.log(this.idoso)
+                console.log(this.idoso);
+                this.loadAtendimentos();
+            }).catch(showError)
+        },
+        loadAtendimentos() {
+            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.idoso.nomeLower}/atendimentos`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.atendimentos = res.data
+                console.log(this.atendimentos)
             }).catch(showError)
         },
         formatDate(date) {

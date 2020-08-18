@@ -9,28 +9,17 @@ module.exports = app => {
 
     const atendimentosByIdoso = async (req, res) => {
         //TODO futuramente deverá ser pelo id
-        const nomeIdoso = req.params.id;
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            const db = client.db('planilhas');
-            const atendimentosCollection = db.collection('atendimentos');
+        const collectionPrefix = req.params.unidadeId.replace(/[^a-zA-Z0-9]/g,'_');
+        const nomeLower = req.params.idosoId;
 
-            atendimentosCollection.find({ "fichaVigilancia.dadosIniciais.nome" : nomeIdoso }, {
-                projection: {
-                    _id: 1,
-                    "fichaVigilancia.data": 1,
-                    "fichaVigilancia.dadosIniciais.atendeu": 1,
-                    "escalas": 1,
-                    "fichaVigilancia.vigilante": 1,
-                    "fichaVigilancia.duracaoChamada": 1,
-                }
-            }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
-                // client.close();
-                if (err) 
-                    return res.status(500).send(err);
-                return res.json(result);
-            });
-        });
+        console.log(collectionPrefix, nomeLower)
+
+        try {
+            const result = await atendimentoService.findAllByIdoso(collectionPrefix, nomeLower);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
     }
 
     const atendimento = async (req, res) => {
