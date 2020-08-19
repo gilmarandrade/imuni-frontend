@@ -292,4 +292,28 @@ const aggregateUltimosAtendimentos = async (collectionPrefix) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, findAllByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos };
+
+const findById = async (collectionPrefix, id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, findAllByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos, findById };

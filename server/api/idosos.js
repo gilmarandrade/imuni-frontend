@@ -37,11 +37,18 @@ module.exports = app => {
     }
 
     const idoso = async (req, res) => {
-        const id = req.params.idosoId;
         const collectionPrefix = req.params.unidadeId.replace(/[^a-zA-Z0-9]/g,'_');
+        const checkValidObjectId = new RegExp("^[0-9a-fA-F]{24}$");
+
+        const id = req.params.idosoId;
 
         try {
-            const result = await idosoService.findById(collectionPrefix, id);
+            let result;
+            if(checkValidObjectId.test(id)) {
+                result = await idosoService.findById(collectionPrefix, id);
+            } else {
+                result = await idosoService.findByNome(collectionPrefix, id);
+            }
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);

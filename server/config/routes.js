@@ -47,7 +47,7 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.atendimentos.atendimentosByIdoso);
 
-    app.route('/api/atendimentos/:id')
+    app.route('/api/unidades/:unidadeId/atendimentos/:id')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.atendimentos.atendimento);
 

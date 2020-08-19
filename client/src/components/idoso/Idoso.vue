@@ -171,9 +171,12 @@
         </div>
 
         <h2 class="my-5">Histórico de atendimentos</h2>
+
         <b-table :items="atendimentos" :fields="fields">
             <template v-slot:cell(col-data)="data">
-                {{ formatDate(data.item.fichaVigilancia.data) }}
+                <router-link :to="'/unidades/'+$route.params.unidadeId+'/atendimentos/'+ data.item._id">
+                    {{ formatDate(data.item.fichaVigilancia.data) }}
+                </router-link>
             </template>
             <template v-slot:cell(col-status)="data">
                 <span class="statusUltimoAtendimento" v-if="data.item.fichaVigilancia.dadosIniciais" :class="{ 'atendido' : data.item.fichaVigilancia.dadosIniciais.atendeu }">
@@ -229,7 +232,6 @@
                 </div>
             </template>
         </b-table>
-        {{atendimentos}}
     </div>
 </template>
 
