@@ -6,14 +6,24 @@ const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
-    schedule.scheduleJob('42 * * * * *', function () {
-        console.log('[autoSyncShedule] reset started');
-        resetUnidade('5f25877e18fbf01a789ed983');
-        syncUnidade('5f25877e18fbf01a789ed983');
+    schedule.scheduleJob('* 13 * * * *', async function () {
+        console.log('[autoSyncShedule] job started');
+        try {
+            const result = await unidadeService.findAll();
+            const unidadesToSync = result.filter(unidade => unidade.autoSync === true);
+            for(let i = 0; i < unidadesToSync.length; i++) {
+                await resetUnidade(unidadesToSync[i]._id);
+                await syncUnidade(unidadesToSync[i]._id);
+            }
+        } catch(err) {
+            console.error(err);
+        }
+        console.log('[autoSyncShedule] job ended');
     });
-
+    
     const resetUnidade = async (idUnidade) => {
         try {
+            console.log('[autoSyncShedule] reset started');
             const unidade = await unidadeService.findById(idUnidade);
             console.log(unidade)
 
