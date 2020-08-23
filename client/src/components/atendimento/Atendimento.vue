@@ -205,6 +205,10 @@
                             <b>Duração da chamada:</b> 
                              {{ atendimento.fichaVigilancia.duracaoChamada }}
                         </div>
+                        <div>
+                            <b>key:</b> 
+                             {{ atendimento.fichaVigilancia.row }}
+                        </div>
                     </b-card-text>
                 </b-card>
 
