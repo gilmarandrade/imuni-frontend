@@ -87,14 +87,14 @@
                         </div>
                         <div>
                             <b>Tem alguma medicação que toma todos os dias?</b> 
-                            <div v-if="!atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar">Não</div>
+                            <div>{{ atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar ? 'Sim' : 'Não' }}</div>
                             <ul>
                                 <li v-for="medicacao in atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.medicacoes" :key="medicacao">{{ medicacao }}</li>
                             </ul>
                         </div>
                         <div v-if="atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar">
                             <b>Se toma medicação diariamente, está conseguindo adquiri-las?</b> 
-                            <div>{{ !atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.acessoMedicacao ? 'Sim' : 'Não' }}</div>
+                            <div>{{ atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.acessoMedicacao ? 'Sim' : 'Não' }}</div>
                         </div>
                     </b-card-text>
                 </b-card>
@@ -157,8 +157,15 @@
                             <b>Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?</b> 
                             <div> {{ atendimento.fichaVigilancia.vulnerabilidades.violencia ? 'Sim' : 'Não' }}</div>
                         </div>
+                    </b-card-text>
+                </b-card>
+
+                <b-card
+                    title="Observações"
+                    class="mb-4"
+                >
+                    <b-card-text>
                         <div>
-                            <b>Observações e outras informações importantes</b> 
                             <div> {{ atendimento.fichaVigilancia.vulnerabilidades.observacoes || '-'}}</div>
                         </div>
                     </b-card-text>
@@ -193,15 +200,15 @@
                             <b>Tipo de atendimento:</b> 
                              {{ atendimento.fichaVigilancia.primeiroAtendimento ? 'Primeiro atendimento' : 'Acompanhamento'}}
                         </div>
-                        <div>
+                        <div v-if="atendimento.fichaVigilancia.fonte">
                             <b>Fonte das informações:</b> 
                              {{ atendimento.fichaVigilancia.fonte }}
                         </div>
-                        <div>
+                        <div v-if="atendimento.fichaVigilancia.idade">
                             <b>Idade:</b> 
                              {{ atendimento.fichaVigilancia.idade }} anos
                         </div>
-                        <div>
+                        <div v-if="atendimento.fichaVigilancia.duracaoChamada">
                             <b>Duração da chamada:</b> 
                              {{ atendimento.fichaVigilancia.duracaoChamada }}
                         </div>
@@ -251,9 +258,67 @@
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
+                    v-if="idoso && idoso.ultimaEscala"
                 >
                     <b-card-text>
-                        // TODO
+                        <div>
+                            <b>Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.higienizacaoMaos ? 'Sim' : 'Não' }}
+                            </div>
+                        </div>
+                        <div>
+                            <b>O idoso tem saído de casa?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa ? 'Sim' : 'Não' }}
+                            </div>
+                        </div>
+                        <div v-if="idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa">
+                            <b>Caso o idoso esteja saindo de casa, qual a frequência?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.isolamento.frequencia }}
+                            </div>
+                        </div>
+                        <div v-if="idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa">
+                            <b>Caso o idoso esteja saindo de casa, para onde?</b> 
+                            <ul>
+                                <li v-for="paraOnde in idoso.ultimaEscala.epidemiologia.isolamento.paraOnde" :key="paraOnde">{{ paraOnde }}</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <b>Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.recebeApoioFamiliarOuAmigo ? 'Sim' : 'Não' }}
+                            </div>
+                        </div>
+                        <div v-if="idoso.ultimaEscala.epidemiologia.visitas.recebeVisitas">
+                            <b>Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.visitas.tomamCuidadosPrevencao ? 'Sim' : 'Não' }}
+                            </div>
+                        </div>
+                        <div>
+                            <b>Qual número de cômodos a casa do idoso possui?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.qtdComodosCasa }}
+                            </div>
+                        </div>
+                        <div>
+                            <b>Dentro de casa, tem realizado alguma atividade prazerosa?</b> 
+                            <div>
+                                {{ idoso.ultimaEscala.epidemiologia.realizaAtividadePrazerosa ? 'Sim' : 'Não' }}
+                            </div>
+                        </div>
+                    </b-card-text>
+                </b-card>
+
+                <b-card
+                    title="Epidemiologia"
+                    class="mb-4"
+                    v-if="idoso && !idoso.ultimaEscala"
+                >
+                    <b-card-text>
+                        O idoso ainda não possui atendimentos efetuados
                     </b-card-text>
                 </b-card>
             </div>

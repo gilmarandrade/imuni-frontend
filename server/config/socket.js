@@ -217,6 +217,7 @@ module.exports = app => {
                     telefone2: item[3],
                     agenteSaude: item[4],
                     vigilante: item[0],
+                    // TODO deprecated?
                     stats: {
                         qtdAtendimentosEfetuados: 0,
                         qtdAtendimentosNaoEfetuados: 0,
@@ -259,7 +260,7 @@ module.exports = app => {
         // return rowsInserted;
     }
 
-        /**
+    /**
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
     const syncAtendimentos = async (unidade, limit, syncStatus) => {

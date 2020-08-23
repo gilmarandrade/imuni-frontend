@@ -299,7 +299,70 @@ const findById = async (collectionPrefix, id) => {
                     }
                 },
                 { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
-                { $project: { "ultimaEscala.epidemiologia": 0 } },
+                // { $project: { "ultimaEscala.epidemiologia": 0 } },
+                { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+                { $limit : 1 },
+            ]).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    // console.log(result);
+                    if(result.length == 0) resolve(null);
+                    else resolve(result[0]);
+                }
+            });
+
+
+            // idososCollection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            //     if(err) {
+            //         reject(err);
+            //     } else {
+            //         resolve(result);
+            //     }
+            // });
+        });
+
+    });
+
+    return promise;
+}
+
+
+//TODO todos os finds estão buscando na tabela errada, verificar se esses metodos são realmente utilizados
+const findByNome = async (collectionPrefix, nomeLower) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
+            const ultimosAtendimentosCollection = `${collectionPrefix}.ultimosAtendimentos`;
+            // TODO criar uma View com essa collection?
+            idososCollection.aggregate([
+                {
+                    $lookup:
+                    {
+                        from: ultimasEscalasCollection,
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimaEscala'
+                    }
+                },
+                { $match: { nomeLower: nomeLower } },
+                {
+                    $lookup:
+                    {
+                        from: ultimosAtendimentosCollection,
+                        localField: 'nome',
+                        foreignField: 'nome',
+                        as: 'ultimoAtendimento'
+                    }
+                },
+                { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+                // { $project: { "ultimaEscala.epidemiologia": 0 } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
                 { $limit : 1 },
             ]).toArray(function(err, result) {
@@ -527,28 +590,5 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort)
     return promise;
 }
 
-//TODO todos os finds estão buscando na tabela errada, verificar se esses metodos são realmente utilizados
-const findByNome = async (collectionPrefix, nomeLower) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            
-            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
-
-            collection.findOne({ nomeLower: nomeLower }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-
-    });
-
-    return promise;
-}
 
 module.exports = { findAll, deleteAll, insertAll, findAllByUser, findAllByVigilante, replaceOne, updateOne, findByNome, bulkUpdateOne, bulkReplaceOne, findById };
