@@ -23,14 +23,6 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.planilhas.get);
 
-    app.route('/api/sync/:limit')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.sync.sync);
-
-    app.route('/api/sync')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.sync.sync);
-
     app.route('/api/unidades/:unidadeId/usuarios/:usuarioId/idosos')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.idosos.idososByUser);
@@ -63,10 +55,6 @@ module.exports = app => {
     app.route('/api/unidades/:unidadeId/autosync/:status')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.unidades.toggleAutoSync, 'ADMINISTRADOR'));
-
-    app.route('/api/unidades/:unidadeId/sync')
-        .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.sync.syncUnidade, 'ADMINISTRADOR'));
 
     app.route('/api/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())

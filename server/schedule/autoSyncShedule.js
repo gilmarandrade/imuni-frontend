@@ -1,165 +1,92 @@
+const schedule = require('node-schedule');
 const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 const atendimentoService = require('../service/atendimentoService');
+const vigilanteService = require('../service/vigilanteService');
 const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
-    const init = async (server) => {
-        //protocolo wss (websocket)
-        const io = require('socket.io')(server, { origins: '*:*' });
-        // const io = require('socket.io')(server, { path: 'api/socket.io', origins: 'http://api.frenteprevencaocovidrn.com.br:80 http://api.frenteprevencaocovidrn.com.br:3000 http://localhost:8080' });
+    schedule.scheduleJob('42 * * * * *', function () {
+        console.log('[autoSyncShedule] reset started');
+        resetUnidade('5f25877e18fbf01a789ed983');
+        syncUnidade('5f25877e18fbf01a789ed983');
+    });
 
-        io.on('connection', socket => {
-            console.log('[socket] conectado', socket.id);
+    const resetUnidade = async (idUnidade) => {
+        try {
+            const unidade = await unidadeService.findById(idUnidade);
+            console.log(unidade)
 
-            socket.on('disconnect', () => {
-                console.log('[socket] desconectado', socket.id);
-            });
+            if (unidade) {
+                unidade.vigilantes = [];
+                // unidade.sync = [];
 
-            listenEvents(socket);
-        })
-    }
+                //TODO codigo duplicado em unidades.js save()
+                const sheetsToSync = [];
+                sheetsToSync.push({
+                    indexed: 0,//não utilizado por enquanto
+                    size: 1000,//não utilizado...
+                    sheetName: "Respostas",
+                });
+                try {
+                    const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
-    const listenEvents = (socket) => {
-
-        socket.on('syncEvent', async (data) => {
-
-            const syncStatus = {
-                socket: socket,
-                payload: {
-                    isSyncing: false,
-                    progress: 0,
-                    total: 0,
-                    current: 0,
-                    msg: '',
-                },
-                emit() {
-                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
-                    socket.emit('syncStatusEvent', this.payload);
-                },
-            }
-            
-            try {
-                syncStatus.payload.total = 8;
-                syncStatus.payload.current = 0;
-                syncStatus.payload.isSyncing = true;
-                syncStatus.emit();
-
-                console.log(data)
-                const unidade = await unidadeService.findById(data.idUnidade);
-                console.log(unidade)
-            
-                if(unidade) {
-                    console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
-                    const properties = await prepareDataToSync(unidade);// TODO devo atualizar a qtdVigilantes da unidade no db?
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
-
-                    for(let i = 1; i <= properties.qtdVigilantes; i++) {
-                        await syncIdososByVigilanteIndex(unidade, i);
-                        syncStatus.payload.current++;
-                        syncStatus.emit();
-                    }
-                    
-                    await syncAtendimentos(unidade, null, syncStatus);
-                } else {
-                    syncStatus.payload.isSyncing = false;
-                    syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
-                    syncStatus.emit();
-                }
-                    
-            } catch(err) {
-                syncStatus.payload.isSyncing = false;
-                // syncStatus.payload.progress = null;
-                syncStatus.payload.msg = err.toString();
-                syncStatus.emit();
-            }
-        });
-
-        // TODO ao resetar é preciso atualizar a data de sincronização?
-        socket.on('resetEvent', async (data) => {
-            const syncStatus = {
-                socket: socket,
-                payload: {
-                    isSyncing: false,
-                    progress: 0,
-                    total: 0,
-                    current: 0,
-                    msg: '',
-                },
-                emit() {
-                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
-                    socket.emit('syncStatusEvent', this.payload);
-                },
-            }
-
-            try {
-                syncStatus.payload.total = 3;
-                syncStatus.payload.current = 0;
-                syncStatus.payload.isSyncing = true;
-                syncStatus.emit();
-
-                console.log(data)
-                const unidade = await unidadeService.findById(data.idUnidade);
-                console.log(unidade)
-            
-                if(unidade) {
-                    unidade.vigilantes = [];
-                    // unidade.sync = [];
-
-                    //TODO codigo duplicado em unidades.js save()
-                    const sheetsToSync = [];
-                    sheetsToSync.push({
-                        indexed: 0,//não utilizado por enquanto
-                        size: 1000,//não utilizado...
-                        sheetName: "Respostas",
-                    });
-                    try {
-                        const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
-            
-                        for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
-                            const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                            if(sheetName.startsWith("Vigilante ")){
-                                sheetsToSync.push({
-                                    indexed: 0,//não utilizado por enquanto
-                                    size: 1000,//não utilizado...
-                                    sheetName,
-                                })
-                            }
+                    for (let i = 0; i < spreadSheetProperties.sheets.length; i++) {
+                        const sheetName = spreadSheetProperties.sheets[i].properties.title;
+                        if (sheetName.startsWith("Vigilante ")) {
+                            sheetsToSync.push({
+                                indexed: 0,//não utilizado por enquanto
+                                size: 1000,//não utilizado...
+                                sheetName,
+                            })
                         }
-            
-                        unidade.sync = sheetsToSync;
-                    } catch(err) {
-                        return console.log(err);
                     }
 
-                    await unidadeService.replaceOne(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
-
-                    await idosoService.deleteAll(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
-
-                    await atendimentoService.deleteAll(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.payload.isSyncing = false;
-                    syncStatus.emit();
-                } else {
-                    syncStatus.payload.isSyncing = false;
-                    syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
-                    syncStatus.emit();
+                    unidade.sync = sheetsToSync;
+                } catch (err) {
+                    return console.log(err);
                 }
-                    
-            } catch(err) {
-                syncStatus.payload.isSyncing = false;
-                // syncStatus.payload.progress = null;
-                syncStatus.payload.msg = err.toString();
-                syncStatus.emit();
+
+                await unidadeService.replaceOne(unidade);
+
+                await idosoService.deleteAll(unidade);
+
+                await atendimentoService.deleteAll(unidade);
+                console.log('[autoSyncShedule] reset ended');
+            } else {
+                console.log('[autoSyncShedule] erro: unidade não encontrada ou unidade id não existe ou erro de banco');
             }
-        });
+
+        } catch (err) {
+            console.log(err);
+        }
     }
+
+    const syncUnidade = async (idUnidade) => {
+        try {
+            const unidade = await unidadeService.findById(idUnidade);
+            console.log(unidade)
+
+            if (unidade) {
+                console.log(`[autoSyncShedule] ${unidade.nome} STARTING SYNC `);
+                const properties = await prepareDataToSync(unidade);// TODO devo atualizar a qtdVigilantes da unidade no db?
+
+                for (let i = 1; i <= properties.qtdVigilantes; i++) {
+                    await syncIdososByVigilanteIndex(unidade, i);
+                }
+
+                await syncAtendimentos(unidade, null);
+                console.log('[autoSyncShedule] sync ended');
+            } else {
+                console.log('[autoSyncShedule] erro: unidade não encontrada ou unidade id não existe ou erro de banco');
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
 
     /**
      * Faz uma estimativa da quantidade de linhas para ler nas planilhas (considerando todos os idosos dos vigilantes e todas as respostas da ficha de vigilancia)
@@ -172,11 +99,11 @@ module.exports = app => {
         try {
             const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
-            for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
+            for (let i = 0; i < spreadSheetProperties.sheets.length; i++) {
                 const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                if(sheetName.startsWith("Vigilante ") || sheetName.startsWith("Respostas")){
+                if (sheetName.startsWith("Vigilante ") || sheetName.startsWith("Respostas")) {
                     sheetsToSync.push({
-                        sheetName, 
+                        sheetName,
                         rowCount: spreadSheetProperties.sheets[i].properties.gridProperties.rowCount,
                     })
                 }
@@ -184,11 +111,11 @@ module.exports = app => {
             console.log(sheetsToSync);
 
             totalCount = sheetsToSync.reduce((acc, current) => { return acc + current.rowCount }, 0);
-        } catch(err) {
+        } catch (err) {
             console.log(err);
         }
-        
-        console.log(`[Sync] ${sheetsToSync.length} sheets found`);
+
+        console.log(`[autoSyncShedule] ${sheetsToSync.length} sheets found`);
         return { totalCount, qtdVigilantes: sheetsToSync.length - 1 };
     }
 
@@ -203,10 +130,10 @@ module.exports = app => {
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = limit ? lastIndexSynced + limit : '';//''
         let vigilanteNome = '';
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
+        console.log(`[autoSyncShedule] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
         rows.forEach((item, index) => {
-            if(item[1]) {//se o idoso tem nome
+            if (item[1]) {//se o idoso tem nome
                 vigilanteNome = item[0];
                 idososPorVigilantes.push({
                     row: `${unidade.collectionPrefix}-'Vigilante ${vigilanteIndex}'!A${firstIndex + index}:E${firstIndex + index}`,
@@ -231,8 +158,8 @@ module.exports = app => {
             }
         });
         indexIdosos = lastIndexSynced + idososPorVigilantes.length;
-        if(idososPorVigilantes.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${indexIdosos}`);
+        if (idososPorVigilantes.length) {
+            console.log('[autoSyncShedule] Readed spreadsheet ', unidade.idPlanilhaGerenciamento, ` 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${indexIdosos}`);
 
             //insere os idosos no banco
             // let j = 0;
@@ -241,14 +168,13 @@ module.exports = app => {
             // }
             await idosoService.bulkUpdateOne(unidade.collectionPrefix, idososPorVigilantes);
         } else {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
+            console.log('[autoSyncShedule] Readed spreadsheet ', unidade.idPlanilhaGerenciamento, ` 0 new rows found`);
         }
-                
-                
-        
+
+
         unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
         //atualiza lista de vigilantes da unidade
-        if(unidade.vigilantes[vigilanteIndex - 1]) {
+        if (unidade.vigilantes[vigilanteIndex - 1]) {
             unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
         } else {
             //atualmente, o campo usuarioId não está sendo utilizado
@@ -257,20 +183,21 @@ module.exports = app => {
         // console.log(unidade);
         const result = await unidadeService.replaceOne(unidade);
         // console.log(result.result.n)
-        console.log(`[Sync] idososCollection updated`)
+        console.log(`[autoSyncShedule] idososCollection updated`)
         // return rowsInserted;
     }
 
+    
     /**
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
-    const syncAtendimentos = async (unidade, limit, syncStatus) => {
+    const syncAtendimentos = async (unidade, limit) => {
         let indexRespostas = unidade.sync[0].indexed;
         const lastIndexSynced = limit ? indexRespostas : 1;
         const firstIndex = lastIndexSynced + 1;
         const lastIndex = limit ? lastIndexSynced + limit : '';
 
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
+        console.log(`[autoSyncShedule] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const respostasArray = [];
         rows.forEach((item, index) => {
@@ -354,35 +281,26 @@ module.exports = app => {
 
         indexRespostas = lastIndexSynced + atendimentosArray.length;
         if(atendimentosArray.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
+            console.log('[autoSyncShedule] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
             
             // let i = null;
             // for(; i < atendimentosArray.length; i++) {
             //     const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
             // }
             await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
-            console.log(`[Sync] atendimentosCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.emit();
+            console.log(`[autoSyncShedule] atendimentosCollection: updated`);
 
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
-            console.log(`[Sync] ultimasEscalasCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.emit();
+            console.log(`[autoSyncShedule] ultimasEscalasCollection: updated`);
 
             await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
-            console.log(`[Sync] ultimosAtendimentosCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.payload.isSyncing = false;
-            syncStatus.emit();
+            console.log(`[autoSyncShedule] ultimosAtendimentosCollection: updated`);
 
             unidade.sync[0].indexed = indexRespostas;
             unidade.lastSyncDate = new Date();
             await unidadeService.replaceOne(unidade);
         } else {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
+            console.log('[autoSyncShedule] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
         }
     }
-
-    return { init };
-}
+};
