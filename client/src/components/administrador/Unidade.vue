@@ -19,9 +19,24 @@
         </div>
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
-        <!--TODO ativar e desativar autosync  -->
-        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync" disabled>
+
+        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync">
           {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
+        <popper
+              trigger="hover"
+              :options="{
+                placement: 'right'
+              }">
+              <div class="popper">
+                A sincronização automática acontece diariamente as 22:00 
+              </div>
+
+              <span slot="reference">
+                <span class="text-muted">
+                  <font-awesome-icon :icon="['fas', 'info-circle']" />
+                </span>
+              </span>
+          </popper>
         </b-checkbox>
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
         <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.isSyncing">resetar</button>

@@ -2,7 +2,6 @@ const schedule = require('node-schedule');
 const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 const atendimentoService = require('../service/atendimentoService');
-const vigilanteService = require('../service/vigilanteService');
 const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 

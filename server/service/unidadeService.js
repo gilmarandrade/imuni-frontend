@@ -193,8 +193,6 @@ const findById = async (id) => {
     return promise;
 }
 
-
-//TODO falta implementar a sincronização automatica
 const setAutoSync = async (id, status) => {
     console.log(id, status, typeof status)
     const promise = new Promise( (resolve, reject) => {
@@ -206,7 +204,7 @@ const setAutoSync = async (id, status) => {
 
             collection.updateOne({ _id : ObjectId(id) } , {
                 $set: { 
-                    ativo: status,
+                    autoSync: status,
                 }
             }, function(err, result) {
                 if(err) {

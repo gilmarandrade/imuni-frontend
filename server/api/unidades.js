@@ -32,14 +32,15 @@ module.exports = app => {
             const status = req.params.status === 'true' ? true : false;
             const result = await unidadeService.setAutoSync(req.params.unidadeId, status);
             if(status) {
-                //TODO SINCRONIZAR
-                const resultSync = await app.server.api.sync.runSyncUnidade(req.params.unidadeId);//TODO totalmente errado, a sincronização agora é executada através do socket!
-                console.log(resultSync);
-                return res.json(resultSync);
+                //TODO sincronizar imediatamente caso o autosync seja ativado
+                // const resultSync = await app.sync.runSyncUnidade(req.params.unidadeId);//TODO totalmente errado, a sincronização agora é executada através do socket!
+                // console.log(resultSync);
+                // return res.json(resultSync);
             }
             return res.status(204).json();
         } catch(err) {
-            return res.status(500).send(err);
+            console.error(err);
+            return res.status(500).send(err.toString());
         }
     }
 
