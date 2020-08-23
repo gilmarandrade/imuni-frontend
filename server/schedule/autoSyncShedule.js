@@ -6,7 +6,7 @@ const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
-    schedule.scheduleJob('5 13 * * * *', async function () {
+    schedule.scheduleJob('20 13 * * * *', async function () {
         console.log('[autoSyncShedule] job started');
         try {
             const result = await unidadeService.findAll();
