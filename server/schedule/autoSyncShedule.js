@@ -6,26 +6,34 @@ const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
 
 module.exports = app => {
-    schedule.scheduleJob('20 13 * * * *', async function () {
-        console.log('[autoSyncShedule] job started');
+    // '42 * * * * *' no segundo 42
+    // '0 22 * * *' 22:00
+    // '0 * * * *' a cada hora (no minuto 0)
+    schedule.scheduleJob('0 * * * *', async function () {
+        const startDate = new Date();
+        console.log('[autoSyncShedule] JOB STARTED ', startDate.toLocaleString());
         try {
             const result = await unidadeService.findAll();
             const unidadesToSync = result.filter(unidade => unidade.autoSync === true);
             for(let i = 0; i < unidadesToSync.length; i++) {
+                console.log(`[autoSyncShedule] ${i+1}/${unidadesToSync.length} -------------------------`);
                 await resetUnidade(unidadesToSync[i]._id);
                 await syncUnidade(unidadesToSync[i]._id);
             }
         } catch(err) {
             console.error(err);
+        } finally {
+            const endDate = new Date();
+            console.log('[autoSyncShedule] JOB ENDED ', endDate.toLocaleString());
+            console.log('[autoSyncShedule] runtime ', (endDate - startDate) / 1000 / 60, 'min');
         }
-        console.log('[autoSyncShedule] job ended');
     });
     
     const resetUnidade = async (idUnidade) => {
         try {
-            console.log('[autoSyncShedule] reset started');
             const unidade = await unidadeService.findById(idUnidade);
-            console.log(unidade)
+            // console.log(`[autoSyncShedule] ${unidade._id} reset started`);
+            // console.log(unidade)
 
             if (unidade) {
                 unidade.vigilantes = [];
@@ -62,7 +70,7 @@ module.exports = app => {
                 await idosoService.deleteAll(unidade);
 
                 await atendimentoService.deleteAll(unidade);
-                console.log('[autoSyncShedule] reset ended');
+                // console.log('[autoSyncShedule] reset ended');
             } else {
                 console.log('[autoSyncShedule] erro: unidade não encontrada ou unidade id não existe ou erro de banco');
             }
@@ -75,7 +83,6 @@ module.exports = app => {
     const syncUnidade = async (idUnidade) => {
         try {
             const unidade = await unidadeService.findById(idUnidade);
-            console.log(unidade)
 
             if (unidade) {
                 console.log(`[autoSyncShedule] ${unidade.nome} STARTING SYNC `);
@@ -86,7 +93,6 @@ module.exports = app => {
                 }
 
                 await syncAtendimentos(unidade, null);
-                console.log('[autoSyncShedule] sync ended');
             } else {
                 console.log('[autoSyncShedule] erro: unidade não encontrada ou unidade id não existe ou erro de banco');
             }
@@ -124,7 +130,7 @@ module.exports = app => {
             console.log(err);
         }
 
-        console.log(`[autoSyncShedule] ${sheetsToSync.length} sheets found`);
+        // console.log(`[autoSyncShedule] ${sheetsToSync.length} sheets found`);
         return { totalCount, qtdVigilantes: sheetsToSync.length - 1 };
     }
 
@@ -297,13 +303,13 @@ module.exports = app => {
             //     const resultUpsert = await atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
             // }
             await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
-            console.log(`[autoSyncShedule] atendimentosCollection: updated`);
+            console.log(`[autoSyncShedule] atendimentosCollection updated`);
 
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
-            console.log(`[autoSyncShedule] ultimasEscalasCollection: updated`);
+            console.log(`[autoSyncShedule] ultimasEscalasCollection updated`);
 
             await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
-            console.log(`[autoSyncShedule] ultimosAtendimentosCollection: updated`);
+            console.log(`[autoSyncShedule] ultimosAtendimentosCollection updated`);
 
             unidade.sync[0].indexed = indexRespostas;
             unidade.lastSyncDate = new Date();

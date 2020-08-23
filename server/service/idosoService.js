@@ -174,7 +174,7 @@ const bulkUpdateOne = async (collectionPrefix, idososArray) => {
 
             // Execute the operations
             batch.execute(function(err, result) {
-                console.log(result)
+                // console.log(result)
                 if(err) {
                     reject(err);
                 } else {

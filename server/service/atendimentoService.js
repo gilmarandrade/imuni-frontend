@@ -133,7 +133,7 @@ const bulkReplaceOne = async (collectionPrefix, atendimentosArray) => {
 
             // Execute the operations
             batch.execute(function(err, result) {
-                console.log(result)
+                // console.log(result)
                 if(err) {
                     reject(err);
                 } else {
@@ -226,7 +226,7 @@ const aggregateEscalas = async (collectionPrefix) => {
                 if(err) {
                     reject(err);
                 } else {
-                    console.log(result);
+                    // console.log(result);
                     resolve(result);
                 }
             });
@@ -281,7 +281,7 @@ const aggregateUltimosAtendimentos = async (collectionPrefix) => {
                 if(err) {
                     reject(err);
                 } else {
-                    console.log(result);
+                    // console.log(result);
                     resolve(result);
                 }
             });
