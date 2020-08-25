@@ -1,5 +1,7 @@
 <template>
     <div class="idoso"  v-if="idoso">
+        <h6 v-if="user.role !== 'ADMINISTRADOR'"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link></h6>
+        <h6 v-if="user.role === 'ADMINISTRADOR'"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}}</h6>
         <h1>
             {{ idoso.nome }}
         </h1>
@@ -238,6 +240,7 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
@@ -245,6 +248,7 @@ import 'vue-popperjs/dist/vue-popper.css';
 export default {
     name: 'Idoso',
     components: { Badge, 'popper': Popper },
+    computed: mapState(['user']),
     data: function() {
         return {
             idoso: null,

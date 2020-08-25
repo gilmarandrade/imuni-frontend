@@ -1,5 +1,6 @@
 <template>
  <div class="administradores">
+        <h6><router-link :to="'/'">Home</router-link></h6>
         <h1>Administradores</h1>
         <div class="card mb-4">
          <div class="card-body">

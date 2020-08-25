@@ -1,6 +1,6 @@
 <template>
     <div class="idososPorVigilante">
-        <h6>{{ $route.params.unidadeNome }} / {{ $route.params.nome }}</h6>
+         <h6 v-if="unidade"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / <router-link :to="'/unidades/'+unidade._id">{{ $route.params.unidadeNome }}</router-link></h6>
 
         <div v-if="unidade">
             <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
@@ -23,7 +23,7 @@
             <p>Distrito {{ unidade.distrito }}</p> -->
         </div>
 
-        <h1>Meus Idosos</h1>
+        <h1>Meus Idosos ({{ $route.params.nome }})</h1>
         <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.isSyncing">sincronizar agora</button>
 
 

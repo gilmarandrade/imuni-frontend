@@ -1,5 +1,8 @@
 <template>
     <div class="atendimento" v-if="atendimento">
+        <h6 v-if="user.role !== 'ADMINISTRADOR' && idoso"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link> / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+ idoso._id">{{ idoso.nome }}</router-link></h6>
+        <h6 v-if="user.role === 'ADMINISTRADOR' && idoso"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}} / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+idoso._id">{{idoso.nome}}</router-link></h6>
+        
         <h1>Atendimento</h1>
         <h6 class="text-muted">{{ formatDate(atendimento.fichaVigilancia.data) }}</h6>
 
@@ -331,10 +334,12 @@
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import Badge from '@/components/template/Badge';
+import { mapState } from 'vuex';
 
 export default {
     name: 'Atendimento',
     components: { Badge },
+    computed: mapState(['user']),
     data: function() {
         return {
             atendimento: null,

@@ -1,5 +1,6 @@
 <template>
  <div class="unidades">
+        <h6><router-link :to="'/'">Home</router-link></h6>
         <h1>Unidades</h1>
         <ul class="grid-list row">
             <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.autoSync }" class="col-sm-6 col-md-4 col-lg-3">

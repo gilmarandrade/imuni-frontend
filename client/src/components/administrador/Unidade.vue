@@ -1,5 +1,6 @@
 <template>
  <div class="unidades" v-if="unidade">
+   <h6><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link></h6>
    <header class="header-page">
         <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
           <popper
