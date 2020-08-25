@@ -23,6 +23,7 @@ module.exports = app => {
 
     const listenEvents = (socket) => {
 
+        // sincronização completa da unidade
         socket.on('syncEvent', async (data) => {
 
             const syncStatus = {
@@ -41,14 +42,14 @@ module.exports = app => {
             }
             
             try {
-                syncStatus.payload.total = 8;
+                syncStatus.payload.total = 8;// FIXIT e se tiver mais de 4 vigilantes?
                 syncStatus.payload.current = 0;
                 syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
-                console.log(data)
+                console.log(data);
                 const unidade = await unidadeService.findById(data.idUnidade);
-                console.log(unidade)
+                console.log(unidade);
             
                 if(unidade) {
                     console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
@@ -77,6 +78,7 @@ module.exports = app => {
             }
         });
 
+        // apaga o banco de dados da unidade 
         // TODO ao resetar é preciso atualizar a data de sincronização?
         socket.on('resetEvent', async (data) => {
             const syncStatus = {
@@ -152,6 +154,49 @@ module.exports = app => {
                     syncStatus.emit();
                 }
                     
+            } catch(err) {
+                syncStatus.payload.isSyncing = false;
+                // syncStatus.payload.progress = null;
+                syncStatus.payload.msg = err.toString();
+                syncStatus.emit();
+            }
+        });
+
+        //sincronização parcial da unidade (apenas respostas)
+        socket.on('softSyncEvent', async (data) => {
+            const syncStatus = {
+                socket: socket,
+                payload: {
+                    isSyncing: false,
+                    progress: 0,
+                    total: 0,
+                    current: 0,
+                    msg: '',
+                },
+                emit() {
+                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
+                    socket.emit('syncStatusEvent', this.payload);
+                },
+            }
+
+            try {
+                syncStatus.payload.total = 3;
+                syncStatus.payload.current = 0;
+                syncStatus.payload.isSyncing = true;
+                syncStatus.emit();
+
+                console.log(data);
+                const unidade = await unidadeService.findById(data.idUnidade);
+                console.log(unidade);
+
+                if(unidade) {
+                    console.log(`[Sync] ${unidade.nome} STARTING SOFTSYNC `);
+                    await syncAtendimentos(unidade, 20, syncStatus);
+                } else {
+                    syncStatus.payload.isSyncing = false;
+                    syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
+                    syncStatus.emit();
+                }
             } catch(err) {
                 syncStatus.payload.isSyncing = false;
                 // syncStatus.payload.progress = null;
@@ -381,6 +426,12 @@ module.exports = app => {
             await unidadeService.replaceOne(unidade);
         } else {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
+            unidade.lastSyncDate = new Date();
+            await unidadeService.replaceOne(unidade);
+            
+            syncStatus.payload.current = 3;
+            syncStatus.payload.isSyncing = false;
+            syncStatus.emit();
         }
     }
 
