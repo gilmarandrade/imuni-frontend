@@ -1,7 +1,3 @@
-// const { calcularEscalas } = require('../config/helpers');
-
-//TODO usar configuração do banco
- 
 const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'unidades';
@@ -119,55 +115,57 @@ const replaceOne = async (unidade) => {
     return promise;
 }
 
-const updateSyncDate = async (unidade, log) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            const collection = db.collection(collectionName);
+//@deprecated
+// const updateSyncDate = async (unidade, log) => {
+//     const promise = new Promise( (resolve, reject) => {
+//         var MongoClient = require( 'mongodb' ).MongoClient;
+//         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+//             if(err) return reject(err);
+//             const db = client.db(dbName);
+//             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id : ObjectId(unidade._id) } , { $push: { log : log } }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+//             collection.updateOne({ _id : ObjectId(unidade._id) } , { $push: { log : log } }, function(err, result) {
+//                 if(err) {
+//                     reject(err);
+//                 } else {
+//                     resolve(result);
+//                 }
+//             });
+//         });
 
-    });
+//     });
 
-    return promise;
-}
+//     return promise;
+// }
 
-const resetSyncIndexes = async (unidade) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            const collection = db.collection(collectionName);
+//@deprecated
+// const resetSyncIndexes = async (unidade) => {
+//     const promise = new Promise( (resolve, reject) => {
+//         var MongoClient = require( 'mongodb' ).MongoClient;
+//         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+//             if(err) return reject(err);
+//             const db = client.db(dbName);
+//             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id : ObjectId(unidade._id) } , {
-                $set: { 
-                    //TODO generalizar para qualquer tamanho de array
-                    indexIdosos: [1,1,1,1],
-                    indexRespostas: 1,
-                }
-            }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+//             collection.updateOne({ _id : ObjectId(unidade._id) } , {
+//                 $set: { 
+//                     //TODO generalizar para qualquer tamanho de array
+//                     indexIdosos: [1,1,1,1],
+//                     indexRespostas: 1,
+//                 }
+//             }, function(err, result) {
+//                 if(err) {
+//                     reject(err);
+//                 } else {
+//                     resolve(result);
+//                 }
+//             });
+//         });
 
-    });
+//     });
 
-    return promise;
-}
+//     return promise;
+// }
 
 
 const findById = async (id) => {
@@ -220,4 +218,4 @@ const setAutoSync = async (id, status) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, insertOne, replaceOne, updateSyncDate, resetSyncIndexes, findById, setAutoSync };
+module.exports = {  findAll, deleteAll, insertAll, insertOne, replaceOne, /*updateSyncDate,*/ /*resetSyncIndexes,*/ findById, setAutoSync };

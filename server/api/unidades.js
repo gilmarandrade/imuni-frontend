@@ -44,6 +44,7 @@ module.exports = app => {
         }
     }
 
+    //TODO não permitir o cadastro duplicado de unidades
     const save = async (req, res) => {
         const getSpreadsheetId = (url) => {
             const myRegexp = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/g;
@@ -88,36 +89,32 @@ module.exports = app => {
         unidade.ativo = true;
         unidade.autoSync = false;
         unidade.lastSyncDate = null;
-        // unidade.log = [];
-        // unidade.qtdVigilantes = 0;
-        // unidade.indexIdosos = [];
-        // unidade.indexRespostas = 1;
         unidade.vigilantes = [];
 
-        const sheetsToSync = [];
-        sheetsToSync.push({
-            indexed: 0,//não utilizado por enquanto
-            size: 1000,//não utilizado...
-            sheetName: "Respostas",
-        });
-        try {
-            const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+        // const sheetsToSync = [];
+        // sheetsToSync.push({
+        //     indexed: 0,//não utilizado por enquanto
+        //     size: 1000,//não utilizado...
+        //     sheetName: "Respostas",
+        // });
+        // try {
+            // const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
-            for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
-                const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                if(sheetName.startsWith("Vigilante ")){
-                    sheetsToSync.push({
-                        indexed: 0,//não utilizado por enquanto
-                        size: 1000,//não utilizado...
-                        sheetName,
-                    })
-                }
-            }
+            // for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
+            //     const sheetName = spreadSheetProperties.sheets[i].properties.title;
+                // if(sheetName.startsWith("Vigilante ")){
+                //     sheetsToSync.push({
+                //         indexed: 0,//não utilizado por enquanto
+                //         size: 1000,//não utilizado...
+                //         sheetName,
+                //     })
+                // }
+            // }
 
-            unidade.sync = sheetsToSync;
-        } catch(err) {
-            return console.log(err);
-        }
+            // unidade.sync = sheetsToSync;
+        // } catch(err) {
+        //     return console.log(err);
+        // }
 
         console.log(unidade);
         try {

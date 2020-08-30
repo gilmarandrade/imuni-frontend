@@ -40,30 +40,30 @@ module.exports = app => {
                 // unidade.sync = [];
 
                 //TODO codigo duplicado em unidades.js save()
-                const sheetsToSync = [];
-                sheetsToSync.push({
-                    indexed: 0,//não utilizado por enquanto
-                    size: 1000,//não utilizado...
-                    sheetName: "Respostas",
-                });
-                try {
-                    const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+                // const sheetsToSync = [];
+                // sheetsToSync.push({
+                //     indexed: 0,//não utilizado por enquanto
+                //     size: 1000,//não utilizado...
+                //     sheetName: "Respostas",
+                // });
+                // try {
+                //     const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
-                    for (let i = 0; i < spreadSheetProperties.sheets.length; i++) {
-                        const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                        if (sheetName.startsWith("Vigilante ")) {
-                            sheetsToSync.push({
-                                indexed: 0,//não utilizado por enquanto
-                                size: 1000,//não utilizado...
-                                sheetName,
-                            })
-                        }
-                    }
+                //     for (let i = 0; i < spreadSheetProperties.sheets.length; i++) {
+                //         const sheetName = spreadSheetProperties.sheets[i].properties.title;
+                //         if (sheetName.startsWith("Vigilante ")) {
+                //             sheetsToSync.push({
+                //                 indexed: 0,//não utilizado por enquanto
+                //                 size: 1000,//não utilizado...
+                //                 sheetName,
+                //             })
+                //         }
+                //     }
 
-                    unidade.sync = sheetsToSync;
-                } catch (err) {
-                    return console.log(err);
-                }
+                //     unidade.sync = sheetsToSync;
+                // } catch (err) {
+                //     return console.log(err);
+                // }
 
                 await unidadeService.replaceOne(unidade);
 
@@ -86,7 +86,7 @@ module.exports = app => {
 
             if (unidade) {
                 console.log(`[autoSyncShedule] ${unidade.nome} STARTING SYNC `);
-                const properties = await prepareDataToSync(unidade);// TODO devo atualizar a qtdVigilantes da unidade no db?
+                const properties = await prepareDataToSync(unidade);
 
                 for (let i = 1; i <= properties.qtdVigilantes; i++) {
                     await syncIdososByVigilanteIndex(unidade, i);
@@ -109,8 +109,8 @@ module.exports = app => {
      * @param {*} unidade 
      */
     const prepareDataToSync = async (unidade) => {
-        let totalCount = 0;//@deprecated
-        const sheetsToSync = [];
+        // let totalCount = 0;//@deprecated
+        // const sheetsToSync = [];
         try {
             const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
@@ -123,15 +123,15 @@ module.exports = app => {
                     })
                 }
             }
-            console.log(sheetsToSync);
+            // console.log(sheetsToSync);
 
-            totalCount = sheetsToSync.reduce((acc, current) => { return acc + current.rowCount }, 0);
+            // totalCount = sheetsToSync.reduce((acc, current) => { return acc + current.rowCount }, 0);
         } catch (err) {
             console.log(err);
         }
 
         // console.log(`[autoSyncShedule] ${sheetsToSync.length} sheets found`);
-        return { totalCount, qtdVigilantes: sheetsToSync.length - 1 };
+        return { totalCount: '@deprecated', qtdVigilantes: sheetsToSync.length - 1 };
     }
 
     /**
