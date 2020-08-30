@@ -4,6 +4,10 @@ const atendimentoService = require('./atendimentoService');
 const idosoService = require('./idosoService');
 const unidadeService = require('./unidadeService');
 
+/**
+ * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
+ * @param {*} data 
+ */
 const fullSyncUnidade = async (data) => {
     const unidade = await unidadeService.findById(data.idUnidade);
     
@@ -14,7 +18,7 @@ const fullSyncUnidade = async (data) => {
         const qtdVigilantes = properties.reduce((count, sheet) => {
             return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
         }, 0);
-
+        
         for(let i = 1; i <= qtdVigilantes ; i++) {
             const rows = await syncIdososByVigilanteIndex(unidade, i);
             if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
@@ -23,8 +27,50 @@ const fullSyncUnidade = async (data) => {
         }
         
         await syncAtendimentos(unidade, null);
+        console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
     } else {
-        throw 'Unidade não encontrada';
+        throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
+    }
+}
+
+/**
+ * Sincronização parcial da unidade (apenas as ultimas respostas)
+ * @param {*} data 
+ */
+const partialSyncUnidade = async (data) => {
+    const unidade = await unidadeService.findById(data.idUnidade);
+    
+    if(unidade) {
+        console.log(`[Sync] ${unidade.nome} STARTING SOFTSYNC `);
+        console.log(unidade);
+        await syncAtendimentos(unidade, 20);
+        console.log(`[Sync] ${unidade.nome} ENDED SOFTSYNC `);
+    } else {
+        throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
+    }
+}
+
+/**
+ * Apaga os bancos de dados da unidade
+ * @param {*} data 
+ */
+const resetUnidade = async (data) => {
+    const unidade = await unidadeService.findById(data.idUnidade);
+    
+    if(unidade) {
+        console.log(`[Sync] ${unidade.nome} RESETING `);
+        console.log(unidade);
+
+        unidade.vigilantes = [];
+        unidade.lastSyncDate = null;
+
+        await unidadeService.replaceOne(unidade);
+
+        await idosoService.deleteAll(unidade);
+
+        await atendimentoService.deleteAll(unidade);
+    } else {
+        throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
     }
 }
 
@@ -246,4 +292,4 @@ const syncAtendimentos = async (unidade, limit) => {
     }
 }
 
-module.exports = { fullSyncUnidade }
+module.exports = { fullSyncUnidade, resetUnidade, partialSyncUnidade }
