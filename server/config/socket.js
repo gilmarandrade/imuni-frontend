@@ -30,7 +30,7 @@ module.exports = app => {
                 socket: socket,
                 payload: {
                     mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
-                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    status: 'LOADING', //null, LOADING, SUCCESS, ERROR
                     progress: null,
                     total: null,
                     current: 0,
@@ -43,9 +43,6 @@ module.exports = app => {
             }
             
             try {
-                // syncStatus.payload.total = 8;// FIXIT e se tiver mais de 4 vigilantes?
-                // syncStatus.payload.current = 0;
-                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data);
@@ -55,32 +52,25 @@ module.exports = app => {
                 if(unidade) {
                     console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
                     const properties = await prepareDataToSync(unidade);
-                    // syncStatus.payload.current++;
-                    // syncStatus.emit();
+                    const qtdVigilantes = properties.reduce((count, sheet) => {
+                        return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
+                    }, 0);
 
-                    for(let i = 1; i <= properties.qtdVigilantes; i++) {
-                        console.log(i)
+                    for(let i = 1; i <= qtdVigilantes ; i++) {
                         await syncIdososByVigilanteIndex(unidade, i);
-                        // syncStatus.payload.current++;
-                        // syncStatus.emit();
                     }
                     
                     await syncAtendimentos(unidade, null);
-                    // syncStatus.payload.current++;
                     syncStatus.payload.status = 'SUCCESS';
-                    // syncStatus.payload.isSyncing = false;
                     syncStatus.emit();
                 } else {
-                    // syncStatus.payload.isSyncing = false;
                     syncStatus.payload.status = 'ERROR';
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
                     
             } catch(err) {
-                // syncStatus.payload.isSyncing = false;
                 syncStatus.payload.status = 'ERROR';
-                // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
             }
@@ -92,7 +82,7 @@ module.exports = app => {
                 socket: socket,
                 payload: {
                     mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
-                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    status: 'LOADING', //null, LOADING, SUCCESS, ERROR
                     progress: null,
                     total: null,
                     current: 0,
@@ -105,9 +95,6 @@ module.exports = app => {
             }
 
             try {
-                // syncStatus.payload.total = 3;
-                // syncStatus.payload.current = 0;
-                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data)
@@ -117,58 +104,23 @@ module.exports = app => {
                 if(unidade) {
                     unidade.vigilantes = [];
                     unidade.lastSyncDate = null;
-                    // unidade.sync = [];
-
-                    //TODO codigo duplicado em unidades.js save()
-                    // const sheetsToSync = [];
-                    // sheetsToSync.push({
-                    //     indexed: 0,//não utilizado por enquanto
-                    //     size: 1000,//não utilizado...
-                    //     sheetName: "Respostas",
-                    // });
-                    // try {
-                    //     const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
-            
-                    //     for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
-                    //         const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                    //         if(sheetName.startsWith("Vigilante ")){
-                    //             sheetsToSync.push({
-                    //                 indexed: 0,//não utilizado por enquanto
-                    //                 size: 1000,//não utilizado...
-                    //                 sheetName,
-                    //             })
-                    //         }
-                    //     }
-            
-                    //     unidade.sync = sheetsToSync;
-                    // } catch(err) {
-                    //     return console.log(err);
-                    // }
 
                     await unidadeService.replaceOne(unidade);
-                    // syncStatus.payload.current++;
-                    // syncStatus.emit();
 
                     await idosoService.deleteAll(unidade);
-                    // syncStatus.payload.current++;
-                    // syncStatus.emit();
 
                     await atendimentoService.deleteAll(unidade);
-                    // syncStatus.payload.current++;
+
                     syncStatus.payload.status = 'SUCCESS';
-                    // syncStatus.payload.isSyncing = false;
                     syncStatus.emit();
                 } else {
                     syncStatus.payload.status = 'ERROR';
-                    // syncStatus.payload.isSyncing = false;
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
                     
             } catch(err) {
                 syncStatus.payload.status = 'ERROR';
-                // syncStatus.payload.isSyncing = false;
-                // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
             }
@@ -180,7 +132,7 @@ module.exports = app => {
                 socket: socket,
                 payload: {
                     mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
-                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    status: 'LOADING', //null, LOADING, SUCCESS, ERROR
                     progress: null,
                     total: null,
                     current: 0,
@@ -193,9 +145,6 @@ module.exports = app => {
             }
 
             try {
-                // syncStatus.payload.total = 3;
-                // syncStatus.payload.current = 0;
-                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data);
@@ -208,14 +157,12 @@ module.exports = app => {
                     syncStatus.payload.status = 'SUCCESS';
                     syncStatus.emit();
                 } else {
-                    // syncStatus.payload.isSyncing = false;
                     syncStatus.payload.status = 'ERROR';
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
             } catch(err) {
                 syncStatus.payload.status = 'ERROR';
-                // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
             }
@@ -228,8 +175,7 @@ module.exports = app => {
      * @param {*} unidade 
      */
     const prepareDataToSync = async (unidade) => {
-        // let totalCount = 0;//@deprecated
-        const sheetsToSync = [];//TODO verificar se esse objeto é utilizado em mais algum lugar
+        const sheetsToSync = [];
         try {
             const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
@@ -242,15 +188,14 @@ module.exports = app => {
                     })
                 }
             }
-            console.log(sheetsToSync);
-
-            // totalCount = sheetsToSync.reduce((acc, current) => { return acc + current.rowCount }, 0);
+            
         } catch(err) {
             console.log(err);
+        } finally {
+            console.log(sheetsToSync);
+            console.log(`[Sync] ${sheetsToSync.length} sheets found`);
+            return sheetsToSync;
         }
-        
-        console.log(`[Sync] ${sheetsToSync.length} sheets found`);
-        return { totalCount: '@deprecated', qtdVigilantes: sheetsToSync.length - 1 };
     }
 
     /**
