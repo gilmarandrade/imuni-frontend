@@ -15,14 +15,16 @@ const fullSyncUnidade = async (idUnidade) => {
         console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
         console.log(unidade);
         const properties = await prepareDataToSync(unidade);
-        const qtdVigilantes = properties.reduce((count, sheet) => {
-            return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
-        }, 0);
+        // const qtdVigilantes = properties.reduce((count, sheet) => {
+        //     return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
+        // }, 0);
         
-        for(let i = 1; i <= qtdVigilantes ; i++) {
-            const rows = await syncIdososByVigilanteIndex(unidade, i);
-            if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                await syncIdososByVigilanteIndex(unidade, i);
+        for(let i = 0; i < properties.length; i++) {
+            if(properties[i].sheetName.startsWith("Vigilante")) {
+                const rows = await syncIdososBySheetName(unidade, properties[i].sheetName);
+                if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
+                    await syncIdososBySheetName(unidade, properties[i].sheetName);
+                }
             }
         }
         
@@ -76,7 +78,7 @@ const resetUnidade = async (idUnidade) => {
 
 
 /**
- * Faz uma estimativa da quantidade de linhas para ler nas planilhas (considerando todos os idosos dos vigilantes e todas as respostas da ficha de vigilancia)
+ * Encontra o sheetName (nome das abas) que devem ser lidas na planilha
  * Procura essa informação da API do google Sheet (a api não conta o número de linhas preenchidas, e sim o numero máximo de linhas no grid, então é uma estimativa com folga)
  * @param {*} unidade 
  */
@@ -107,7 +109,7 @@ const prepareDataToSync = async (unidade) => {
 /**
  * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
  */
-const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
+const syncIdososBySheetName = async (unidade, sheetName, limit) => {
     const idososPorVigilantes = [];
     let indexIdosos = 1; //unidade.sync[vigilanteIndex].indexed;
     // let rowsInserted = null;//@deprecated
@@ -115,13 +117,13 @@ const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
     const firstIndex = lastIndexSynced + 1;//2
     const lastIndex = limit ? lastIndexSynced + limit : '';//''
     let vigilanteNome = '';
-    console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
-    const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
+    console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:E${lastIndex}`);
+    const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:E${lastIndex}`);
     rows.forEach((item, index) => {
         if(item[1]) {//se o idoso tem nome
             vigilanteNome = item[0];
             idososPorVigilantes.push({
-                row: `${unidade.collectionPrefix}-'Vigilante ${vigilanteIndex}'!A${firstIndex + index}:E${firstIndex + index}`,
+                row: `${unidade.collectionPrefix}-'${sheetName}'!A${firstIndex + index}:E${firstIndex + index}`,
                 unidade: unidade.nome,
                 dataNascimento: '',
                 nome: item[1],
@@ -144,7 +146,7 @@ const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
     });
     indexIdosos = lastIndexSynced + idososPorVigilantes.length;
     if(idososPorVigilantes.length) {
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${indexIdosos}`);
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:E${indexIdosos}`);
 
         //insere os idosos no banco
         // let j = 0;
@@ -160,11 +162,12 @@ const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
     
     // unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
     //atualiza lista de vigilantes da unidade
+    const vigilanteIndex = +sheetName.slice(-1);
     if(unidade.vigilantes[vigilanteIndex - 1]) {
         unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
     } else {
         //atualmente, o campo usuarioId não está sendo utilizado
-        unidade.vigilantes[vigilanteIndex - 1] = { sheetName: `Vigilante ${vigilanteIndex}`, nome: vigilanteNome };
+        unidade.vigilantes[vigilanteIndex - 1] = { sheetName: `${sheetName}`, nome: vigilanteNome };
     }
     // console.log(unidade);
     const result = await unidadeService.replaceOne(unidade);

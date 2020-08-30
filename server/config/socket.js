@@ -1,4 +1,5 @@
 const syncService = require('../service/syncService');
+const userService = require('../service/userService');
 
 module.exports = app => {
     const init = async (server) => {
@@ -86,6 +87,7 @@ module.exports = app => {
 
         //sincronização parcial da unidade (apenas respostas)
         socket.on('softSyncEvent', async (data) => {
+            console.log(data)
             const syncStatus = {
                 socket: socket,
                 payload: {
@@ -104,6 +106,14 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
+
+                const usuario = await userService.findById(data.idUsuario);
+                console.log(usuario);
+                if(usuario.role === 'VIGILANTE') {
+                    console.log('é vigilante')
+                } else {
+                    console.log('não é vigilante')
+                }
                 await syncService.partialSyncUnidade(data.idUnidade);
 
                 syncStatus.payload.status = 'SUCCESS';

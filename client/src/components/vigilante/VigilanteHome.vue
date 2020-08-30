@@ -79,7 +79,7 @@ export default {
         manualSync() {
           // $socket is socket.io-client instance
           console.log('emit softSyncEvent')
-          this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId });
+          this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId, idUsuario: this.user.id });
         },
     },
     mounted() {
