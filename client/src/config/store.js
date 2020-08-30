@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { showError } from '@/global';
 
 Vue.use(Vuex)
 
@@ -48,10 +49,12 @@ export default new Vuex.Store({
             // console.log( 'syncStatusEvent', data);
             state.syncStatus = data;
 
-            if(state.syncStatus.status === 'SUCCESS' || state.syncStatus.status === 'ERROR' ) {
+            if(state.syncStatus.status === 'SUCCESS') {
                 location.reload();
                 // this.$router.go()
-                // this.$toasted.global.defaultSuccess();
+            } else if (state.syncStatus.status === 'ERROR' ) {
+                showError(state.syncStatus.msg);
+
             }
         }
     },

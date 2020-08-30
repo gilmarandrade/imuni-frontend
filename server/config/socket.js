@@ -3,6 +3,7 @@ const sheetsApi = require('../config/sheetsApi');
 const atendimentoService = require('../service/atendimentoService');
 const idosoService = require('../service/idosoService');
 const unidadeService = require('../service/unidadeService');
+const syncService = require('../service/syncService');
 
 module.exports = app => {
     const init = async (server) => {
@@ -25,7 +26,7 @@ module.exports = app => {
 
         // sincronização completa da unidade
         socket.on('syncEvent', async (data) => {
-
+            
             const syncStatus = {
                 socket: socket,
                 payload: {
@@ -42,32 +43,13 @@ module.exports = app => {
                 },
             }
             
+            
             try {
                 syncStatus.emit();
+                await syncService.fullSyncUnidade(data);
 
-                console.log(data);
-                const unidade = await unidadeService.findById(data.idUnidade);
-                console.log(unidade);
-            
-                if(unidade) {
-                    console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
-                    const properties = await prepareDataToSync(unidade);
-                    const qtdVigilantes = properties.reduce((count, sheet) => {
-                        return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
-                    }, 0);
-
-                    for(let i = 1; i <= qtdVigilantes ; i++) {
-                        await syncIdososByVigilanteIndex(unidade, i);
-                    }
-                    
-                    await syncAtendimentos(unidade, null);
-                    syncStatus.payload.status = 'SUCCESS';
-                    syncStatus.emit();
-                } else {
-                    syncStatus.payload.status = 'ERROR';
-                    syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
-                    syncStatus.emit();
-                }
+                syncStatus.payload.status = 'SUCCESS';
+                syncStatus.emit();
                     
             } catch(err) {
                 syncStatus.payload.status = 'ERROR';
@@ -167,104 +149,6 @@ module.exports = app => {
                 syncStatus.emit();
             }
         });
-    }
-
-    /**
-     * Faz uma estimativa da quantidade de linhas para ler nas planilhas (considerando todos os idosos dos vigilantes e todas as respostas da ficha de vigilancia)
-     * Procura essa informação da API do google Sheet (a api não conta o número de linhas preenchidas, e sim o numero máximo de linhas no grid, então é uma estimativa com folga)
-     * @param {*} unidade 
-     */
-    const prepareDataToSync = async (unidade) => {
-        const sheetsToSync = [];
-        try {
-            const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
-
-            for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
-                const sheetName = spreadSheetProperties.sheets[i].properties.title;
-                if(sheetName.startsWith("Vigilante ") || sheetName.startsWith("Respostas")){
-                    sheetsToSync.push({
-                        sheetName, 
-                        rowCount: spreadSheetProperties.sheets[i].properties.gridProperties.rowCount,
-                    })
-                }
-            }
-            
-        } catch(err) {
-            console.log(err);
-        } finally {
-            console.log(sheetsToSync);
-            console.log(`[Sync] ${sheetsToSync.length} sheets found`);
-            return sheetsToSync;
-        }
-    }
-
-    /**
-     * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
-     */
-    const syncIdososByVigilanteIndex = async (unidade, vigilanteIndex, limit) => {
-        const idososPorVigilantes = [];
-        let indexIdosos = 1; //unidade.sync[vigilanteIndex].indexed;
-        // let rowsInserted = null;//@deprecated
-        const lastIndexSynced = limit ? indexIdosos : 1;
-        const firstIndex = lastIndexSynced + 1;//2
-        const lastIndex = limit ? lastIndexSynced + limit : '';//''
-        let vigilanteNome = '';
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
-        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${lastIndex}`);
-        rows.forEach((item, index) => {
-            if(item[1]) {//se o idoso tem nome
-                vigilanteNome = item[0];
-                idososPorVigilantes.push({
-                    row: `${unidade.collectionPrefix}-'Vigilante ${vigilanteIndex}'!A${firstIndex + index}:E${firstIndex + index}`,
-                    unidade: unidade.nome,
-                    dataNascimento: '',
-                    nome: item[1],
-                    nomeLower: item[1].toLowerCase(),
-                    telefone1: item[2],
-                    telefone2: item[3],
-                    agenteSaude: item[4],
-                    vigilante: item[0],
-                    // TODO deprecated?
-                    // stats: {
-                    //     qtdAtendimentosEfetuados: 0,
-                    //     qtdAtendimentosNaoEfetuados: 0,
-                    //     ultimoAtendimento: null,
-                    //     ultimaEscala: null,
-                    // },
-                    // score: 0,
-                    // epidemiologia: null,
-                });
-            }
-        });
-        indexIdosos = lastIndexSynced + idososPorVigilantes.length;
-        if(idososPorVigilantes.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Vigilante ${vigilanteIndex}'!A${firstIndex}:E${indexIdosos}`);
-
-            //insere os idosos no banco
-            // let j = 0;
-            // for(; j < idososPorVigilantes.length; j++) {
-            //     const resultInsertMany = await idosoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[j]);
-            // }
-            await idosoService.bulkUpdateOne(unidade.collectionPrefix, idososPorVigilantes);
-        } else {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
-        }
-                
-                
-        
-        // unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
-        //atualiza lista de vigilantes da unidade
-        if(unidade.vigilantes[vigilanteIndex - 1]) {
-            unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
-        } else {
-            //atualmente, o campo usuarioId não está sendo utilizado
-            unidade.vigilantes[vigilanteIndex - 1] = { usuarioId: '', nome: vigilanteNome };
-        }
-        // console.log(unidade);
-        const result = await unidadeService.replaceOne(unidade);
-        // console.log(result.result.n)
-        console.log(`[Sync] idososCollection updated`)
-        // return rowsInserted;
     }
 
     /**
