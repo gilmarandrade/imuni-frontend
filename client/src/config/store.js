@@ -10,8 +10,12 @@ export default new Vuex.Store({
         user: null,
         isLoadingApp: true,
         syncStatus: { 
-            isSyncing: false,
-            progress: 0,
+            mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+            status: null, //null, LOADING, SUCCESS, ERROR
+            progress: null,
+            total: null,
+            current: 0,
+            msg: '',
         },
     },
     mutations: {
@@ -44,7 +48,7 @@ export default new Vuex.Store({
             // console.log( 'syncStatusEvent', data);
             state.syncStatus = data;
 
-            if(state.syncStatus.isSyncing === false && state.syncStatus.progress === 100) {
+            if(state.syncStatus.status === 'SUCCESS' || state.syncStatus.status === 'ERROR' ) {
                 location.reload();
                 // this.$router.go()
                 // this.$toasted.global.defaultSuccess();

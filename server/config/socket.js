@@ -29,22 +29,23 @@ module.exports = app => {
             const syncStatus = {
                 socket: socket,
                 payload: {
-                    isSyncing: false,
-                    progress: 0,
-                    total: 0,
+                    mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    progress: null,
+                    total: null,
                     current: 0,
                     msg: '',
                 },
                 emit() {
-                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
+                    this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
                     socket.emit('syncStatusEvent', this.payload);
                 },
             }
             
             try {
-                syncStatus.payload.total = 8;// FIXIT e se tiver mais de 4 vigilantes?
-                syncStatus.payload.current = 0;
-                syncStatus.payload.isSyncing = true;
+                // syncStatus.payload.total = 8;// FIXIT e se tiver mais de 4 vigilantes?
+                // syncStatus.payload.current = 0;
+                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data);
@@ -54,53 +55,59 @@ module.exports = app => {
                 if(unidade) {
                     console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
                     const properties = await prepareDataToSync(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
+                    // syncStatus.payload.current++;
+                    // syncStatus.emit();
 
                     for(let i = 1; i <= properties.qtdVigilantes; i++) {
                         console.log(i)
                         await syncIdososByVigilanteIndex(unidade, i);
-                        syncStatus.payload.current++;
-                        syncStatus.emit();
+                        // syncStatus.payload.current++;
+                        // syncStatus.emit();
                     }
                     
-                    await syncAtendimentos(unidade, null, syncStatus);
+                    await syncAtendimentos(unidade, null);
+                    // syncStatus.payload.current++;
+                    syncStatus.payload.status = 'SUCCESS';
+                    // syncStatus.payload.isSyncing = false;
+                    syncStatus.emit();
                 } else {
-                    syncStatus.payload.isSyncing = false;
+                    // syncStatus.payload.isSyncing = false;
+                    syncStatus.payload.status = 'ERROR';
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
                     
             } catch(err) {
-                syncStatus.payload.isSyncing = false;
+                // syncStatus.payload.isSyncing = false;
+                syncStatus.payload.status = 'ERROR';
                 // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
             }
         });
 
-        // apaga o banco de dados da unidade 
-        // TODO ao resetar é preciso atualizar a data de sincronização?
+        // apaga o banco de dados da unidade
         socket.on('resetEvent', async (data) => {
             const syncStatus = {
                 socket: socket,
                 payload: {
-                    isSyncing: false,
-                    progress: 0,
-                    total: 0,
+                    mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    progress: null,
+                    total: null,
                     current: 0,
                     msg: '',
                 },
                 emit() {
-                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
+                    this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
                     socket.emit('syncStatusEvent', this.payload);
                 },
             }
 
             try {
-                syncStatus.payload.total = 3;
-                syncStatus.payload.current = 0;
-                syncStatus.payload.isSyncing = true;
+                // syncStatus.payload.total = 3;
+                // syncStatus.payload.current = 0;
+                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data)
@@ -139,25 +146,28 @@ module.exports = app => {
                     // }
 
                     await unidadeService.replaceOne(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
+                    // syncStatus.payload.current++;
+                    // syncStatus.emit();
 
                     await idosoService.deleteAll(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.emit();
+                    // syncStatus.payload.current++;
+                    // syncStatus.emit();
 
                     await atendimentoService.deleteAll(unidade);
-                    syncStatus.payload.current++;
-                    syncStatus.payload.isSyncing = false;
+                    // syncStatus.payload.current++;
+                    syncStatus.payload.status = 'SUCCESS';
+                    // syncStatus.payload.isSyncing = false;
                     syncStatus.emit();
                 } else {
-                    syncStatus.payload.isSyncing = false;
+                    syncStatus.payload.status = 'ERROR';
+                    // syncStatus.payload.isSyncing = false;
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
                     
             } catch(err) {
-                syncStatus.payload.isSyncing = false;
+                syncStatus.payload.status = 'ERROR';
+                // syncStatus.payload.isSyncing = false;
                 // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
@@ -169,22 +179,23 @@ module.exports = app => {
             const syncStatus = {
                 socket: socket,
                 payload: {
-                    isSyncing: false,
-                    progress: 0,
-                    total: 0,
+                    mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+                    status: 'LOADING', //LOADING, SUCCESS, ERROR
+                    progress: null,
+                    total: null,
                     current: 0,
                     msg: '',
                 },
                 emit() {
-                    this.payload.progress = Math.round(this.payload.current/this.payload.total * 100);
+                    this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
                     socket.emit('syncStatusEvent', this.payload);
                 },
             }
 
             try {
-                syncStatus.payload.total = 3;
-                syncStatus.payload.current = 0;
-                syncStatus.payload.isSyncing = true;
+                // syncStatus.payload.total = 3;
+                // syncStatus.payload.current = 0;
+                // syncStatus.payload.isSyncing = true;
                 syncStatus.emit();
 
                 console.log(data);
@@ -193,14 +204,17 @@ module.exports = app => {
 
                 if(unidade) {
                     console.log(`[Sync] ${unidade.nome} STARTING SOFTSYNC `);
-                    await syncAtendimentos(unidade, 20, syncStatus);
+                    await syncAtendimentos(unidade, 20);
+                    syncStatus.payload.status = 'SUCCESS';
+                    syncStatus.emit();
                 } else {
-                    syncStatus.payload.isSyncing = false;
+                    // syncStatus.payload.isSyncing = false;
+                    syncStatus.payload.status = 'ERROR';
                     syncStatus.payload.msg = 'erro: unidade não encontrada ou unidade id não existe ou erro de banco';
                     syncStatus.emit();
                 }
             } catch(err) {
-                syncStatus.payload.isSyncing = false;
+                syncStatus.payload.status = 'ERROR';
                 // syncStatus.payload.progress = null;
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();
@@ -311,7 +325,7 @@ module.exports = app => {
     /**
      * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
      */
-    const syncAtendimentos = async (unidade, limit, syncStatus) => {
+    const syncAtendimentos = async (unidade, limit) => {
         let indexRespostas = 1; // unidade.sync[0].indexed;
         const lastIndexSynced = limit ? indexRespostas : 1;
         const firstIndex = lastIndexSynced + 1;
@@ -409,19 +423,12 @@ module.exports = app => {
             // }
             await atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
             console.log(`[Sync] atendimentosCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.emit();
 
             await atendimentoService.aggregateEscalas(unidade.collectionPrefix);
             console.log(`[Sync] ultimasEscalasCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.emit();
 
             await atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
             console.log(`[Sync] ultimosAtendimentosCollection: updated`);
-            syncStatus.payload.current++;
-            syncStatus.payload.isSyncing = false;
-            syncStatus.emit();
 
             // unidade.sync[0].indexed = indexRespostas;
             unidade.lastSyncDate = new Date();
@@ -430,10 +437,6 @@ module.exports = app => {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
             unidade.lastSyncDate = new Date();
             await unidadeService.replaceOne(unidade);
-            
-            syncStatus.payload.current = 3;
-            syncStatus.payload.isSyncing = false;
-            syncStatus.emit();
         }
     }
 
