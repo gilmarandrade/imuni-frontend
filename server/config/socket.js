@@ -41,7 +41,7 @@ module.exports = app => {
             
             try {
                 syncStatus.emit();
-                await syncService.fullSyncUnidade(data);
+                await syncService.fullSyncUnidade(data.idUnidade);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
@@ -73,7 +73,7 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
-                await syncService.resetUnidade(data);
+                await syncService.resetUnidade(data.idUnidade);
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
                     
@@ -104,7 +104,7 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
-                await syncService.partialSyncUnidade(data);
+                await syncService.partialSyncUnidade(data.idUnidade);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();

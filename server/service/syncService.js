@@ -6,10 +6,10 @@ const unidadeService = require('./unidadeService');
 
 /**
  * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
- * @param {*} data 
+ * @param {*} idUnidade 
  */
-const fullSyncUnidade = async (data) => {
-    const unidade = await unidadeService.findById(data.idUnidade);
+const fullSyncUnidade = async (idUnidade) => {
+    const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
         console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
@@ -35,10 +35,10 @@ const fullSyncUnidade = async (data) => {
 
 /**
  * Sincronização parcial da unidade (apenas as ultimas respostas)
- * @param {*} data 
+ * @param {*} idUnidade 
  */
-const partialSyncUnidade = async (data) => {
-    const unidade = await unidadeService.findById(data.idUnidade);
+const partialSyncUnidade = async (idUnidade) => {
+    const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
         console.log(`[Sync] ${unidade.nome} STARTING SOFTSYNC `);
@@ -54,8 +54,8 @@ const partialSyncUnidade = async (data) => {
  * Apaga os bancos de dados da unidade
  * @param {*} data 
  */
-const resetUnidade = async (data) => {
-    const unidade = await unidadeService.findById(data.idUnidade);
+const resetUnidade = async (idUnidade) => {
+    const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
         console.log(`[Sync] ${unidade.nome} RESETING `);
