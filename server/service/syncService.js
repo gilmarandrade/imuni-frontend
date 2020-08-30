@@ -14,16 +14,13 @@ const fullSyncUnidade = async (idUnidade) => {
     if(unidade) {
         console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
         console.log(unidade);
-        const properties = await prepareDataToSync(unidade);
-        // const qtdVigilantes = properties.reduce((count, sheet) => {
-        //     return sheet.sheetName.startsWith("Vigilante") ? count + 1 : count;
-        // }, 0);
+        const sheets = await prepareDataToSync(unidade);
         
-        for(let i = 0; i < properties.length; i++) {
-            if(properties[i].sheetName.startsWith("Vigilante")) {
-                const rows = await syncIdososBySheetName(unidade, properties[i].sheetName);
+        for(let i = 0; i < sheets.length; i++) {
+            if(sheets[i].sheetName.startsWith("Vigilante")) {
+                const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName);
                 if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                    await syncIdososBySheetName(unidade, properties[i].sheetName);
+                    await syncIdososBySheetName(unidade, sheets[i].sheetName);
                 }
             }
         }
@@ -36,17 +33,49 @@ const fullSyncUnidade = async (idUnidade) => {
 }
 
 /**
- * Sincronização parcial da unidade (apenas as ultimas respostas)
+ * Sincronização parcial da unidade
  * @param {*} idUnidade 
+ * @param {*} nomeVigilante 
  */
-const partialSyncUnidade = async (idUnidade) => {
+const partialSyncUnidade = async (idUnidade, nomeVigilante) => {
     const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
-        console.log(`[Sync] ${unidade.nome} STARTING SOFTSYNC `);
+        console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
         console.log(unidade);
-        await syncAtendimentos(unidade, 20);
-        console.log(`[Sync] ${unidade.nome} ENDED SOFTSYNC `);
+
+        // const sheets = await prepareDataToSync(unidade);
+        const sheet = unidade.vigilantes.find(element => element.nome == nomeVigilante);//FIXIT  não funciona caso tenha mais de um vigilante chamado A Substituir...
+        if(sheet) {// se existe o node do vigilante, atualiza apenas os idosos do vigilante
+            const sheets = [];
+            sheets.push({ sheetName: sheet.sheetName });
+
+            //TODO sheet contem apenas um valor, não sendo necessario um loop
+            for(let i = 0; i < sheets.length; i++) {
+                if(sheets[i].sheetName.startsWith("Vigilante")) {
+                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
+                        await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    }
+                }
+            }
+        } else {//se o nome do vigilante não foi econtrado, atualiza os idosos de todos os vigilantes
+            console.log(`[Sync] vigilante ${nomeVigilante} não encontrado. Sincronizando todos os vigilantes...`)
+            const sheets = await prepareDataToSync(unidade);
+            
+            for(let i = 0; i < sheets.length; i++) {
+                if(sheets[i].sheetName.startsWith("Vigilante")) {
+                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
+                        await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    }
+                }
+            }
+            
+        }
+        await syncAtendimentos(unidade, null);
+
+        console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
     } else {
         throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
     }
@@ -92,7 +121,7 @@ const prepareDataToSync = async (unidade) => {
             if(sheetName.startsWith("Vigilante ") || sheetName.startsWith("Respostas")){
                 sheetsToSync.push({
                     sheetName, 
-                    rowCount: spreadSheetProperties.sheets[i].properties.gridProperties.rowCount,
+                    rowCount: spreadSheetProperties.sheets[i].properties.gridProperties.rowCount,// não utilizado
                 })
             }
         }

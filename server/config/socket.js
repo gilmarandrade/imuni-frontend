@@ -106,15 +106,7 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
-
-                const usuario = await userService.findById(data.idUsuario);
-                console.log(usuario);
-                if(usuario.role === 'VIGILANTE') {
-                    console.log('é vigilante')
-                } else {
-                    console.log('não é vigilante')
-                }
-                await syncService.partialSyncUnidade(data.idUnidade);
+                await syncService.partialSyncUnidade(data.idUnidade, data.nomeVigilante);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();

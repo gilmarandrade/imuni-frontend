@@ -39,8 +39,8 @@
               </span>
           </popper>
         </b-checkbox>
-        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
-        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.isSyncing">resetar</button>
+        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
+        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
         <div v-if="loading">carregando...</div>
         
    </header>

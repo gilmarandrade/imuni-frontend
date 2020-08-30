@@ -24,7 +24,7 @@
         </div>
 
         <h1>Meus Idosos ({{ $route.params.nome }})</h1>
-        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.isSyncing">sincronizar agora</button>
+        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
 
 
         <b-tabs content-class="mt-3">

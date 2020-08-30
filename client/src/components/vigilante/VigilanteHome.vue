@@ -25,7 +25,7 @@
 
         <h5>{{ user.nomeUnidade }}</h5>
         <h1>Meus Idosos</h1>
-        <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.isSyncing">sincronizar agora</button>
+        <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <a v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
 
 
@@ -79,7 +79,11 @@ export default {
         manualSync() {
           // $socket is socket.io-client instance
           console.log('emit softSyncEvent')
-          this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId, idUsuario: this.user.id });
+          if(this.user.role === 'VIGILANTE') {
+              this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId, nomeVigilante: this.user.name });
+          } else {
+              this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId });
+          }
         },
     },
     mounted() {
