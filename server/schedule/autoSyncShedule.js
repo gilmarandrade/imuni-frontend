@@ -6,7 +6,7 @@ module.exports = app => {
     // '42 * * * * *' no segundo 42
     // '0 22 * * *' 22:00
     // '0 * * * *' a cada hora (no minuto 0)
-    schedule.scheduleJob('0 * * * *', async function () {
+    schedule.scheduleJob('0 22 * * *', async function () {
         const startDate = new Date();
         console.log('[autoSyncShedule] JOB STARTED ', startDate.toLocaleString());
         try {
