@@ -171,6 +171,14 @@
                 </div>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col">
+                 <div>
+                    <strong>Anotações do vigilante:</strong>
+                    <p>{{ idoso.anotacoes ? idoso.anotacoes : '-' }}</p>
+                </div>
+            </div>
+        </div>
 
         <h2 class="my-5">Histórico de atendimentos</h2>
 

@@ -159,13 +159,13 @@ const syncIdososBySheetName = async (unidade, sheetName, total) => {
     const firstIndex = lastIndexSynced + 1;//2
     const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
     let vigilanteNome = '';
-    console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:E${lastIndex}`);
-    const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:E${lastIndex}`);
+    console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
+    const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
     rows.forEach((item, index) => {
         if(item[1]) {//se o idoso tem nome
             vigilanteNome = item[0];
             idososPorVigilantes.push({
-                row: `${unidade.collectionPrefix}-'${sheetName}'!A${firstIndex + index}:E${firstIndex + index}`,
+                row: `${unidade.collectionPrefix}-'${sheetName}'!A${firstIndex + index}:N${firstIndex + index}`,
                 unidade: unidade.nome,
                 dataNascimento: '',
                 nome: item[1],
@@ -174,6 +174,7 @@ const syncIdososBySheetName = async (unidade, sheetName, total) => {
                 telefone2: item[3],
                 agenteSaude: item[4],
                 vigilante: item[0],
+                anotacoes: item[13],
                 // TODO deprecated?
                 // stats: {
                 //     qtdAtendimentosEfetuados: 0,
@@ -187,7 +188,7 @@ const syncIdososBySheetName = async (unidade, sheetName, total) => {
         }
     });
     if(idososPorVigilantes.length) {
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:E${lastIndexSynced + idososPorVigilantes.length}`);
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`);
 
         //insere os idosos no banco
         // let j = 0;
