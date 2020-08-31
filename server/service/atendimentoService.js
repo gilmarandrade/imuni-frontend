@@ -316,4 +316,42 @@ const findById = async (collectionPrefix, id) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, findAllByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos, findById };
+/**
+ * Conta a quantidade de registros
+ * @param {*} collectionPrefix 
+ */
+const count = async (collectionPrefix) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+    
+            collection.aggregate([
+                // { $match: { vigilante: nomeVigilante } },
+                // {
+                //     $group: {
+                //        _id: null,
+                //        count: { $sum: 1 }
+                //     }
+                // }
+                {
+                    $count: "total"
+                }
+            ]).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result[0].total);
+                }
+            });
+        });
+
+    });
+
+    return promise; 
+}
+
+module.exports = {  findAll, deleteAll, insertAll, findAllByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos, findById, count };

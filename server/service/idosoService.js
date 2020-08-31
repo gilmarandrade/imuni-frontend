@@ -393,20 +393,20 @@ const findByNome = async (collectionPrefix, nomeLower) => {
 const findAllByUser = async (collectionPrefix, usuarioId, filter, sort) => {
 
     const user = await userService.findById(usuarioId);
-    console.log('find all by user')
+    // console.log('find all by user')
     if(user) {
-        console.log(user)
+        // console.log(user)
         switch(user.role) {
             case 'VIGILANTE':
-                console.log('role vigilante')
+                // console.log('role vigilante')
                 return findAllByVigilante(collectionPrefix, user.name, filter, sort);
             case 'PRECEPTOR':
                 return findAll(collectionPrefix, filter, sort);
             case 'ADMINISTRADOR':
-                console.log('eita...')
+                console.log('eita...')//TODO?
                 return [];
             default:
-                console.log('opa...')
+                console.log('opa...')//TODO?
                 return [];
         }
     }
@@ -496,12 +496,12 @@ const findAll = async (collectionPrefix, filter, sort) => {
 }
 
 const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort) => {
-    console.log('find all by vigilante')
-    if(filter) {
-        console.log(filter)
-    } else {
-        console.log('sem filtro')
-    }
+    // console.log('find all by vigilante')
+    // if(filter) {
+    //     console.log(filter)
+    // } else {
+    //     console.log('sem filtro')
+    // }
 
     let match;
     switch(filter) {
@@ -590,5 +590,43 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort)
     return promise;
 }
 
+/**
+ * Conta a quantidade de idosos por vigilante
+ * @param {*} collectionPrefix 
+ * @param {*} nomeVigilante 
+ */
+const countByVigilante = async (collectionPrefix, nomeVigilante) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const idososCollection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-module.exports = { findAll, deleteAll, insertAll, findAllByUser, findAllByVigilante, replaceOne, updateOne, findByNome, bulkUpdateOne, bulkReplaceOne, findById };
+    
+            idososCollection.aggregate([
+                { $match: { vigilante: nomeVigilante } },
+                // {
+                //     $group: {
+                //        _id: null,
+                //        count: { $sum: 1 }
+                //     }
+                // }
+                {
+                    $count: "total"
+                }
+            ]).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result[0].total);
+                }
+            });
+        });
+
+    });
+
+    return promise; 
+}
+
+module.exports = { findAll, deleteAll, insertAll, findAllByUser, findAllByVigilante, replaceOne, updateOne, findByNome, bulkUpdateOne, bulkReplaceOne, findById, countByVigilante };

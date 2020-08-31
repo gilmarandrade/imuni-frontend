@@ -25,7 +25,7 @@ const fullSyncUnidade = async (idUnidade) => {
             }
         }
         
-        await syncAtendimentos(unidade, null);
+        await syncAtendimentos(unidade);
         console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
     } else {
         throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
@@ -34,6 +34,13 @@ const fullSyncUnidade = async (idUnidade) => {
 
 /**
  * Sincronização parcial da unidade
+ * 
+ * Atualiza pelo menos os 10 ultimos idosos de um ou todos os vigilantes e pelo menos os 10 ultimos atendimentos,
+ * além de inserir no banco novos registros que por ventura tenham sido adicionados nas planilhas desde a sincronização anterior.
+ * 
+ * Obs: por se tratar de uma sincronização rápida, não apaga registros removidos, nem atualiza registros mais antigos que os 10 ultimos das planilhas.
+ * Por isso podem surgir inconsistencias no banco em relação as planilhas. 
+ * Por isso, o reset e resincronização completa do banco é efetuado uma vez por dia a partir das 22:00.
  * @param {*} idUnidade 
  * @param {*} nomeVigilante 
  */
@@ -53,9 +60,11 @@ const partialSyncUnidade = async (idUnidade, nomeVigilante) => {
             //TODO sheet contem apenas um valor, não sendo necessario um loop
             for(let i = 0; i < sheets.length; i++) {
                 if(sheets[i].sheetName.startsWith("Vigilante")) {
-                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    const countIdosos = await idosoService.countByVigilante(unidade.collectionPrefix, nomeVigilante);
+                    console.log('countIdosos ', countIdosos)
+                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, countIdosos);
                     if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                        await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                        await syncIdososBySheetName(unidade, sheets[i].sheetName, countIdosos);
                     }
                 }
             }
@@ -65,15 +74,19 @@ const partialSyncUnidade = async (idUnidade, nomeVigilante) => {
             
             for(let i = 0; i < sheets.length; i++) {
                 if(sheets[i].sheetName.startsWith("Vigilante")) {
-                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                    const sheet = unidade.vigilantes.find(element => element.sheetName == sheets[i].sheetName);
+                    const countIdosos = await idosoService.countByVigilante(unidade.collectionPrefix, sheet.nome);
+                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, countIdosos);
                     if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                        await syncIdososBySheetName(unidade, sheets[i].sheetName);
+                        await syncIdososBySheetName(unidade, sheets[i].sheetName, countIdosos);
                     }
                 }
             }
             
         }
-        await syncAtendimentos(unidade, null);
+
+        const countAtendimentos = await atendimentoService.count(unidade.collectionPrefix);
+        await syncAtendimentos(unidade, countAtendimentos);
 
         console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
     } else {
@@ -136,15 +149,15 @@ const prepareDataToSync = async (unidade) => {
 }
 
 /**
- * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
+ * Atualiza pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
  */
-const syncIdososBySheetName = async (unidade, sheetName, limit) => {
+const syncIdososBySheetName = async (unidade, sheetName, total) => {
     const idososPorVigilantes = [];
-    let indexIdosos = 1; //unidade.sync[vigilanteIndex].indexed;
+    // let indexIdosos = 1; //unidade.sync[vigilanteIndex].indexed;
     // let rowsInserted = null;//@deprecated
-    const lastIndexSynced = limit ? indexIdosos : 1;
+    const lastIndexSynced = total && (total - 10 >= 1) ? total - 10 : 1;// coloca uma margem de segurança, para atualizar os 10 ultimos 
     const firstIndex = lastIndexSynced + 1;//2
-    const lastIndex = limit ? lastIndexSynced + limit : '';//''
+    const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
     let vigilanteNome = '';
     console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:E${lastIndex}`);
     const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:E${lastIndex}`);
@@ -173,9 +186,8 @@ const syncIdososBySheetName = async (unidade, sheetName, limit) => {
             });
         }
     });
-    indexIdosos = lastIndexSynced + idososPorVigilantes.length;
     if(idososPorVigilantes.length) {
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:E${indexIdosos}`);
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:E${lastIndexSynced + idososPorVigilantes.length}`);
 
         //insere os idosos no banco
         // let j = 0;
@@ -207,13 +219,13 @@ const syncIdososBySheetName = async (unidade, sheetName, limit) => {
 }
 
 /**
- * atualiza até o limite de itens passados como parametro, caso o limite não seja definido, atualiza todos os itens da planilha
+ * Atualiza pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
  */
-const syncAtendimentos = async (unidade, limit) => {
-    let indexRespostas = 1; // unidade.sync[0].indexed;
-    const lastIndexSynced = limit ? indexRespostas : 1;
+const syncAtendimentos = async (unidade, total) => {
+    // let indexRespostas = 1; // unidade.sync[0].indexed;
+    const lastIndexSynced = total && (total - 10 >= 1) ? total - 10 : 1;// coloca uma margem de segurança, para atualizar os 10 ultimos 
     const firstIndex = lastIndexSynced + 1;
-    const lastIndex = limit ? lastIndexSynced + limit : '';
+    const lastIndex = '';//limit ? lastIndexSynced + limit : '';
 
     console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
     const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
@@ -297,9 +309,9 @@ const syncAtendimentos = async (unidade, limit) => {
         }
     });
 
-    indexRespostas = lastIndexSynced + atendimentosArray.length;
+    // indexRespostas = lastIndexSynced + atendimentosArray.length;
     if(atendimentosArray.length) {
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${indexRespostas}`);
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + atendimentosArray.length}`);
         
         // let i = null;
         // for(; i < atendimentosArray.length; i++) {
@@ -318,7 +330,7 @@ const syncAtendimentos = async (unidade, limit) => {
         unidade.lastSyncDate = new Date();
         await unidadeService.replaceOne(unidade);
     } else {
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 new rows found`);
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found`);
         unidade.lastSyncDate = new Date();
         await unidadeService.replaceOne(unidade);
     }
