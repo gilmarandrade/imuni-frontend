@@ -7,6 +7,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        packageVersion: process.env.PACKAGE_VERSION || '0.0.0',
         isMenuVisible: false,
         user: null,
         isLoadingApp: true,
@@ -56,6 +57,11 @@ export default new Vuex.Store({
                 showError(state.syncStatus.msg);
 
             }
+        }
+    },
+    getters: {
+        appVersion: (state) => {
+            return state.packageVersion;
         }
     },
     // actions: {

@@ -54,6 +54,7 @@ Vue.use(new VueSocketIO({
     // options: { path: '/api/socket.io' } //Optional options
 }))
 
+// console.log(process.env.PACKAGE_VERSION);
 
 new Vue({
     store,
