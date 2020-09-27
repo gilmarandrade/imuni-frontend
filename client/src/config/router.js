@@ -41,12 +41,12 @@ const routes = [
     },
     {
         name: 'meusIdosos',
-        path: '/meusIdosos',
+        path: '/meusIdosos/:tab',
         component: VigilanteHome,
     },
     {
         name: 'idososPorUsuario',
-        path: '/unidades/:unidadePrefix/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome',
+        path: '/unidades/:unidadePrefix/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome/:tab',
         component: IdososPorVigilante,
         meta: { requiresAdmin: true }
     },

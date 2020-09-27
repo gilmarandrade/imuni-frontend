@@ -29,8 +29,8 @@
         <a v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
 
 
-         <b-tabs content-class="mt-3">
-            <b-tab title="Com escalas" active lazy>
+         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
+            <b-tab title="Com escalas" lazy>
                 <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
@@ -61,6 +61,8 @@ export default {
         return {
             carregando: true,
             unidade: null,
+            tabIndex: 0,
+            tabs: ['com-escalas', 'sem-escalas', 'todos']
         }
     },
     methods: {
@@ -85,8 +87,15 @@ export default {
               this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId });
           }
         },
+        tabActivated(newTabIndex, oldTabIndex, event){
+            console.log('tab activated',newTabIndex,oldTabIndex, event)
+            this.$router.replace({name: 'meusIdosos', params: {
+                tab: this.tabs[newTabIndex]
+            }})
+        }
     },
     mounted() {
+        this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
         this.loadUnidade();
     }
 }

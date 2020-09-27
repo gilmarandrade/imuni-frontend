@@ -18,11 +18,11 @@
         </div>
         <div v-if="user.role === 'VIGILANTE'">
             <h2>Seja bem vindo vigilante</h2>
-            <router-link :to="'/meusIdosos/'">Meus idosos</router-link>
+            <router-link :to="'/meusIdosos/com-escalas'">Meus idosos</router-link>
         </div>
         <div v-if="user.role === 'PRECEPTOR'">
             <h2>Seja bem vindo preceptor</h2>
-            <router-link :to="'/meusIdosos/'">Meus idosos</router-link>
+            <router-link :to="'/meusIdosos/com-escalas'">Meus idosos</router-link>
         </div>
     </div>
 </template>

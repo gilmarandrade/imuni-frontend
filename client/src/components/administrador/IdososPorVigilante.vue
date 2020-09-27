@@ -26,9 +26,8 @@
         <h1>Meus Idosos ({{ $route.params.nome }})</h1>
         <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
 
-
-        <b-tabs content-class="mt-3">
-            <b-tab title="Com escalas" active lazy>
+        <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
+            <b-tab title="Com escalas" lazy>
                 <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="com-escalas" orderBy="score"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
@@ -57,6 +56,8 @@ export default {
         return {
             carregando: true,
             unidade: null,
+            tabIndex: 0,
+            tabs: ['com-escalas', 'sem-escalas', 'todos']
         }
     },
     methods: {
@@ -77,8 +78,20 @@ export default {
           console.log('emit syncEvent')
           this.$socket.emit('syncEvent', { idUnidade: this.$route.params.unidadeId });
         },
+        tabActivated(newTabIndex, oldTabIndex, event){
+            console.log('tab activated',newTabIndex,oldTabIndex, event)
+            this.$router.replace({name: 'idososPorUsuario', params: {
+                unidadePrefix: this.$route.params.unidadePrefix,
+                unidadeNome: this.$route.params.unidadeNome,
+                unidadeId: this.$route.params.unidadeId,
+                usuarioId: this.$route.params.usuarioId,
+                nome: this.$route.params.nome,
+                tab: this.tabs[newTabIndex]
+            }})
+        }
     },
     mounted() {
+        this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
         this.loadUnidade();
     }
 }

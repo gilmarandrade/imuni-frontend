@@ -65,7 +65,7 @@
             <h5 class="card-title">Vigilantes</h5>
             <ul>
                 <li v-for="vigilante in unidade.vigilantes" :key="vigilante.nome">
-                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/usuarios/undefined/' + vigilante.nome">{{ vigilante.nome }}</router-link>
+                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/usuarios/undefined/' + vigilante.nome + '/com-escalas'">{{ vigilante.nome }}</router-link>
                 </li>
             </ul>
          </div>
@@ -79,7 +79,7 @@
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.invitationToken">
