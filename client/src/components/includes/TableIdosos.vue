@@ -7,7 +7,7 @@
             </b-col>
             <b-col cols="2">
                 ordenar por 
-                <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos"></b-form-select>
+                <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos(0, 25)"></b-form-select>
             </b-col>
         </b-row>
         <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
@@ -220,6 +220,7 @@ export default {
     },
     methods: {
         loadIdosos(page = 0, rowsPerPage = 25) {
+            console.log(page, rowsPerPage)
             this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
