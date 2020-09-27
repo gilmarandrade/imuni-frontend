@@ -1,6 +1,5 @@
 <template>
     <div class="tableIdosos">
-        <div v-if="carregando">Carregando...</div>
 
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
@@ -8,10 +7,16 @@
             </b-col>
             <b-col cols="2">
                 ordenar por 
-                <b-form-select size="sm" v-model="orderBy" :options="sortOptions" @change="loadIdosos"></b-form-select>
+                <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos"></b-form-select>
             </b-col>
         </b-row>
-        <b-table :items="idosos" :fields="fields">
+        <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando">
+            <template v-slot:table-busy>
+                <div class="text-center text-primary my-2">
+                <b-spinner class="align-middle"></b-spinner>
+                <strong> Carregando...</strong>
+                </div>
+            </template>
             <template v-slot:cell(col-1)="data">
                 <div>
                     <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
@@ -175,6 +180,7 @@ export default {
         return {
             carregando: true,
             unidade: null,
+            order: this.orderBy,
             sortOptions: [ 
                 { value: 'nome', text: 'Nome' },
                 { value: 'proximo-atendimento', text: 'Próximo atendimento' },
@@ -191,14 +197,15 @@ export default {
     },
     methods: {
         loadIdosos() {
+            this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
                 console.log('user id', this.userId)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}`;
             } else if(this.vigilanteNome) {
                 console.log('vigilanteNome', this.vigilanteNome)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.orderBy}`;
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}`;
             }
             console.log(url);
             axios.get(url).then(res => {
