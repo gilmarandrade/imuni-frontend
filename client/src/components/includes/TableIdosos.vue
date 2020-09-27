@@ -10,12 +10,15 @@
                 <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos"></b-form-select>
             </b-col>
         </b-row>
-        <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando">
+        <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
             <template v-slot:table-busy>
                 <div class="text-center text-primary my-2">
-                <b-spinner class="align-middle"></b-spinner>
-                <strong> Carregando...</strong>
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong> Carregando...</strong>
                 </div>
+            </template>
+            <template v-slot:empty="">
+                <div class="text-center text-muted">Não há registros</div>
             </template>
             <template v-slot:cell(col-1)="data">
                 <div>
