@@ -392,7 +392,7 @@ const findByNome = async (collectionPrefix, nomeLower) => {
     return promise;
 }
 
-const findAllByUser = async (collectionPrefix, usuarioId, filter, sort) => {
+const findAllByUser = async (collectionPrefix, usuarioId, filter, sort, page, rowsPerPage) => {
 
     const user = await userService.findById(usuarioId);
     // console.log('find all by user')
@@ -401,9 +401,9 @@ const findAllByUser = async (collectionPrefix, usuarioId, filter, sort) => {
         switch(user.role) {
             case 'VIGILANTE':
                 // console.log('role vigilante')
-                return findAllByVigilante(collectionPrefix, user.name, filter, sort);
+                return findAllByVigilante(collectionPrefix, user.name, filter, sort, page, rowsPerPage);
             case 'PRECEPTOR':
-                return findAll(collectionPrefix, filter, sort);
+                return findAll(collectionPrefix, filter, sort, page, rowsPerPage);
             case 'ADMINISTRADOR':
                 console.log('eita...')//TODO?
                 return [];
@@ -415,7 +415,7 @@ const findAllByUser = async (collectionPrefix, usuarioId, filter, sort) => {
     return [];
 }
 
-const findAll = async (collectionPrefix, filter, sort) => {
+const findAll = async (collectionPrefix, filter, sort, page, rowsPerPage) => {
 
     let match;
     switch(filter) {
@@ -481,13 +481,32 @@ const findAll = async (collectionPrefix, filter, sort) => {
                 { $project: { "ultimaEscala.epidemiologia": 0 } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
                 match,
-                querySort,
+                
+                {
+                    $facet : {
+                        "data" : [
+                            querySort,
+                            { $skip : rowsPerPage * page },
+                            { $limit : rowsPerPage },
+                        ],
+                        "info": [
+                            { $group: { _id: null, totalRows: { $sum: 1 } } },
+                            { 
+                                $addFields: {
+                                    currentPage: page,
+                                    rowsPerPage: rowsPerPage,
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
             ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
                     // console.log(result);
-                    resolve(result);
+                    resolve(result[0]);
                 }
             });
         });
@@ -497,7 +516,7 @@ const findAll = async (collectionPrefix, filter, sort) => {
     return promise;
 }
 
-const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort) => {
+const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort, page, rowsPerPage) => {
     // console.log('find all by vigilante')
     // if(filter) {
     //     console.log(filter)
@@ -544,7 +563,7 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort)
   
             const ultimasEscalasCollection = `${collectionPrefix}.ultimasEscalas`;
             const ultimosAtendimentosCollection = `${collectionPrefix}.ultimosAtendimentos`;
-            // TODO criar uma View com essa collection?
+
             idososCollection.aggregate([
                 {
                     $lookup:
@@ -569,22 +588,34 @@ const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort)
                 { $project: { "ultimaEscala.epidemiologia": 0 } },
                 { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
                 match,
-                querySort,
+                
+                {
+                    $facet : {
+                        "data" : [
+                            querySort,
+                            { $skip : rowsPerPage * page },
+                            { $limit : rowsPerPage },
+                        ],
+                        "info": [
+                            { $group: { _id: null, totalRows: { $sum: 1 } } },
+                            { 
+                                $addFields: {
+                                    currentPage: page,
+                                    rowsPerPage: rowsPerPage,
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
             ]).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
                     // console.log(result);
-                    resolve(result);
+                    resolve(result[0]);
                 }
             });
-            // collection.find({ vigilante: nomeVigilante }).sort({"score":-1}).toArray(function(err, result) {
-            //     if(err) {
-            //         reject(err);
-            //     } else {
-            //         resolve(result);
-            //     }
-            // });
         });
 
     });

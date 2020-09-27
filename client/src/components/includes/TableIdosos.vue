@@ -3,7 +3,7 @@
 
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
-                {{ idosos.length }} resultados
+                {{ tableInfo.totalRows }} resultados
             </b-col>
             <b-col cols="2">
                 ordenar por 
@@ -165,6 +165,21 @@
                 </div>
           </template>
         </b-table>
+
+        <div class="pagination">
+            <b-button-group>
+                <button class="prev btn btn-light" 
+                    :disabled="tableInfo.currentPage == 0" 
+                    @click="loadIdosos(tableInfo.currentPage - 1, 25)">&lt;</button>
+                <button class="btn btn-light"
+                        :class="{ 'current' : n == tableInfo.currentPage + 1 }" 
+                        v-for="n in Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)" :key="n"
+                        @click="loadIdosos(n - 1, 25)">{{ n }} </button>
+                <button class="next btn btn-light" 
+                    :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
+                    @click="loadIdosos(tableInfo.currentPage + 1, 25)">&gt;</button>
+            </b-button-group>
+        </div>
     </div>
 </template>
 
@@ -190,6 +205,11 @@ export default {
                 { value: 'score', text: 'Score' },
                 { value: 'ultimo-atendimento', text: 'Último atendimento' },
             ],
+            tableInfo: {
+                totalRows: 0,
+                currentPage: 0,
+                rowsPerPage: 10,
+            },
             idosos: [],
             fields: [ 
                 { key: 'ultimaEscala.score', label: 'Score' },
@@ -199,21 +219,23 @@ export default {
         }
     },
     methods: {
-        loadIdosos() {
+        loadIdosos(page = 0, rowsPerPage = 25) {
             this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
                 console.log('user id', this.userId)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}`;
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${rowsPerPage}`;
             } else if(this.vigilanteNome) {
                 console.log('vigilanteNome', this.vigilanteNome)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}`;
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${rowsPerPage}`;
             }
             console.log(url);
             axios.get(url).then(res => {
-                this.idosos = res.data;
-                console.log(this.idosos)
+                this.tableInfo =  res.data.info;
+                console.log('table info', this.tableInfo)
+                this.idosos = res.data.data;
+                console.log(res.data)
                 this.carregando = false;
             }).catch(function(e) {console.error(e);showError(e)})
         },
@@ -279,4 +301,14 @@ export default {
         color: rgb(235, 87, 87);
     }
 
+    .tableIdosos .pagination {
+        display: flex;
+        justify-content: center;
+    }
+
+    .tableIdosos .pagination .current {
+        background: #49a7c1;
+        color: white;
+        pointer-events: none;
+    }
 </style>

@@ -14,7 +14,7 @@ module.exports = app => {
         const collectionPrefix = req.params.unidadeId;
 
         try {
-            const result = await idosoService.findAllByUser(collectionPrefix, usuarioId, req.query.filter, req.query.sort);
+            const result = await idosoService.findAllByUser(collectionPrefix, usuarioId, req.query.filter, req.query.sort, +req.query.page, +req.query.rowsPerPage);
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);
@@ -29,7 +29,7 @@ module.exports = app => {
         console.log(req.query)
 
         try {
-            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante, req.query.filter, req.query.sort);
+            const result = await idosoService.findAllByVigilante(collectionPrefix, nomeVigilante, req.query.filter, +req.query.page, +req.query.rowsPerPage);
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err);
