@@ -1,13 +1,20 @@
 <template>
     <div class="tableIdosos">
+    {{userId}}, default filter: {{filter}}, default order: {{orderBy}}, 
 
+    <ul id="example-1">
+        <li v-for="item in pageParamsMap" :key="item.userId">
+            {{ item }}
+        </li>
+    </ul>
+    
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
                 {{ tableInfo.totalRows }} resultados
             </b-col>
             <b-col cols="2">
                 ordenar por 
-                <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos(0, 25)"></b-form-select>
+                <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos(0)"></b-form-select>
             </b-col>
         </b-row>
         <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
@@ -170,14 +177,14 @@
             <b-button-group>
                 <button class="prev btn btn-light" 
                     :disabled="tableInfo.currentPage == 0" 
-                    @click="loadIdosos(tableInfo.currentPage - 1, 25)">&lt;</button>
+                    @click="loadIdosos(tableInfo.currentPage - 1)">&lt;</button>
                 <button class="btn btn-light"
                         :class="{ 'current' : n == tableInfo.currentPage + 1 }" 
                         v-for="n in Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)" :key="n"
-                        @click="loadIdosos(n - 1, 25)">{{ n }} </button>
+                        @click="loadIdosos(n - 1)">{{ n }} </button>
                 <button class="next btn btn-light" 
                     :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
-                    @click="loadIdosos(tableInfo.currentPage + 1, 25)">&gt;</button>
+                    @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
             </b-button-group>
         </div>
     </div>
@@ -189,16 +196,18 @@ import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
+import { mapState } from 'vuex';
 
 export default {
     name: 'TableIdosos',
     props: ['collectionPrefix', 'vigilanteNome', 'userId', 'filter', 'orderBy'],
     components: { Badge, 'popper': Popper },
+    computed: mapState(['pageParamsMap']),
     data: function() {
         return {
             carregando: true,
             unidade: null,
-            order: this.orderBy,
+            order: this.orderBy,//por padrão ele aplica a ordem recebida como parâmetro do componente
             sortOptions: [ 
                 { value: 'nome', text: 'Nome' },
                 { value: 'proximo-atendimento', text: 'Próximo atendimento' },
@@ -208,7 +217,7 @@ export default {
             tableInfo: {
                 totalRows: 0,
                 currentPage: 0,
-                rowsPerPage: 10,
+                rowsPerPage: 25,
             },
             idosos: [],
             fields: [ 
@@ -219,24 +228,43 @@ export default {
         }
     },
     methods: {
-        loadIdosos(page = 0, rowsPerPage = 25) {
-            console.log(page, rowsPerPage)
+        loadIdosos(page = 0) {
+            this.$store.commit('setPageParamsMap', 
+                {
+                    userId: this.userId,//fixit não funciona para o vigilante sem id
+                    filter: this.filter,
+                    order: this.order,
+                    page: page,
+                    rowsPerPage: this.tableInfo.rowsPerPage,
+                }
+            )
+            // console.log('query ', this.$route)
+            // const query = {...this.$route.query};
+            // query.sort = this.order;
+            // query.page = page;
+            // query.rowsPerPage = rowsPerPage;
+          
+            // console.log('?'+ arr.join('&'))
+            // history.replaceState({}, '', this.$route.path + '?' + arr.join('&'));
+            // location.replace('http://example.com/#wewe');
+            // this.$router.replace({name: this.$route.name, params: this.$route.params, query: query}).catch((e)=>{console.log(e)});
+
             this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
-                console.log('user id', this.userId)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${rowsPerPage}`;
+                // console.log('user id', this.userId)
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
             } else if(this.vigilanteNome) {
                 console.log('vigilanteNome', this.vigilanteNome)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${rowsPerPage}`;
+                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
             }
             console.log(url);
             axios.get(url).then(res => {
                 this.tableInfo =  res.data.info;
-                console.log('table info', this.tableInfo)
+                // console.log('table info', this.tableInfo)
                 this.idosos = res.data.data;
-                console.log(res.data)
+                // console.log(res.data)
                 this.carregando = false;
             }).catch(function(e) {console.error(e);showError(e)})
         },
@@ -245,7 +273,22 @@ export default {
         },
     },
     mounted() {
-        this.loadIdosos();
+        let page = 0;
+        const userParams = this.$store.state.pageParamsMap.get(this.userId);
+        if(userParams) {
+            console.log(userParams)
+            const tableParams = userParams.find(element => element.filter == this.filter);
+            console.log(tableParams)
+            if(tableParams) {
+                this.order = tableParams.order;
+                this.tableInfo.rowsPerPage = tableParams.rowsPerPage;
+                this.tableInfo.currentPage = tableParams.page;
+                page = tableParams.page;
+            }
+        } else {
+            console.log('else')
+        }
+        this.loadIdosos(page);
     }
 }
 </script>

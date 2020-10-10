@@ -19,6 +19,7 @@ export default new Vuex.Store({
             current: 0,
             msg: '',
         },
+        pageParamsMap: new Map(),
     },
     mutations: {
         toggleMenu(state, isVisible) {
@@ -57,12 +58,33 @@ export default new Vuex.Store({
                 showError(state.syncStatus.msg);
 
             }
-        }
+        },
+        setPageParamsMap(state, params){
+            const userParams = state.pageParamsMap.get(params.userId)
+            console.log(userParams)
+            if(userParams) {
+                const tableParams = userParams.find(element => element.filter == params.filter);
+
+                if(tableParams) {
+                    tableParams.filter = params.filter;
+                    tableParams.order = params.order;
+                    tableParams.page = params.page;
+                    tableParams.rowsPerPage = params.rowsPerPage;
+                } else {
+                    userParams.push({filter: params.filter, order: params.order, page: params.page, rowsPerPage: params.rowsPerPage})
+                }
+            } else {
+                state.pageParamsMap.set(params.userId, [{filter: params.filter, order: params.order, page: params.page, rowsPerPage: params.rowsPerPage}]);
+            }
+        },
     },
     getters: {
         appVersion: (state) => {
             return state.packageVersion;
-        }
+        },
+        getPageParamsMap: (state) => {
+            return state.pageParamsMap;
+        },
     },
     // actions: {
     //     SOCKET_syncStatusEvent: function (data) {
