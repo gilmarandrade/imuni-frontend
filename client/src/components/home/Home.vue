@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <PageTitle icon="fa fa-home" main="Home" sub="Bem vindo ao sistema de monitoramento" />
+        <PageTitle icon="" main="Home" sub="Bem vindo ao sistema de monitoramento" />
         <!-- <h2>Planilhas</h2>
         <ul>
             <li>
@@ -11,11 +11,18 @@
             </li>
         </ul> -->
         <div v-if="user.role === 'ADMINISTRADOR'">
-            <router-link to="/unidades">unidades</router-link>
+            <ul>
+                <li><router-link to="/unidades">unidades</router-link></li>
+                <li><router-link to="/administradores">administradores</router-link></li>
+            </ul>
         </div>
         <div v-if="user.role === 'VIGILANTE'">
             <h2>Seja bem vindo vigilante</h2>
-            <router-link :to="'/meusIdosos/'">Meus idosos</router-link>
+            <router-link :to="'/meusIdosos/com-escalas'">Meus idosos</router-link>
+        </div>
+        <div v-if="user.role === 'PRECEPTOR'">
+            <h2>Seja bem vindo preceptor</h2>
+            <router-link :to="'/meusIdosos/com-escalas'">Meus idosos</router-link>
         </div>
     </div>
 </template>

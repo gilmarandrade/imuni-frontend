@@ -1,6 +1,6 @@
 <template>
   <div class="loading">
-      <i class="fas fa-spinner fa-pulse fa-5x"></i>
+      <font-awesome-icon :icon="['fas', 'spinner']" size="5x" pulse />
   </div>
 </template>
 

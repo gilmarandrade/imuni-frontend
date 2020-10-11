@@ -1,12 +1,17 @@
 <template>
   <footer class="footer">
-      <span>Footer</span>
+      <span>Monitoramento de Idosos | Frente de Prevenção ao COVID-19 no RN | {{appVersion}} </span>
   </footer>
 </template>
 
 <script>
 export default {
-    name: 'Footer'
+    name: 'Footer',
+    computed: {
+        appVersion() {
+            return this.$store.getters.appVersion;
+        }
+    }
 }
 </script>
 

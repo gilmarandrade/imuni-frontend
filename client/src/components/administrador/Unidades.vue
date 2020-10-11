@@ -1,5 +1,6 @@
 <template>
  <div class="unidades">
+        <h6><router-link :to="'/'">Home</router-link></h6>
         <h1>Unidades</h1>
         <ul class="grid-list row">
             <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.autoSync }" class="col-sm-6 col-md-4 col-lg-3">
@@ -15,7 +16,7 @@
                       </div>
 
                       <span slot="reference">
-                          <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
+                          <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                       </span>
                   </popper>
                 </div>
@@ -25,7 +26,7 @@
             </li>
             <li class="col-sm-6 col-md-4 col-lg-3">
               <router-link to="/adicionarUnidade" class="item button">
-                <h2><i class="fas fa-plus"></i> Adicionar unidade</h2>
+                <h2><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar unidade</h2>
               </router-link>
             </li>
         </ul>

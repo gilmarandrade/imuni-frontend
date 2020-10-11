@@ -1,178 +1,111 @@
 <template>
     <div class="idososPorVigilante">
-        <h6>{{ $route.params.unidadeNome }} / {{ $route.params.vigilanteNome }}</h6>
-        <h1>Meus Idosos ({{idosos.length}})</h1> <span v-if="carregando">Carregando...</span>
-        <b-table :items="idosos" :fields="fields">
-            <template v-slot:cell(col-1)="data">
-                <div>
-                    <b>{{ data.item.nome }}</b>
+         <h6 v-if="unidade"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / <router-link :to="'/unidades/'+unidade._id">{{ $route.params.unidadeNome }}</router-link></h6>
+
+        <div v-if="unidade">
+            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
+            <popper
+                trigger="hover"
+                :options="{
+                    placement: 'top'
+                }">
+                <div class="popper">
+                    Última sincronização
                 </div>
-                <div class="badges" v-if="data.item.ultimaEscala">
-                     <popper v-if="data.item.ultimaEscala.vulnerabilidade"
-                        trigger="hover"
-                        :options="{
-                            placement: 'top'
-                        }">
-                        <div class="popper">
-                            Escala de Vulnerabilidade
-                        </div>
 
-                        <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.vulnerabilidade" />
-                        </span>
-                    </popper>
-                    <popper v-if="data.item.ultimaEscala.epidemiologica"
-                        trigger="hover"
-                        :options="{
-                            placement: 'top'
-                        }">
-                        <div class="popper">
-                            Escala Epidemiológica
-                        </div>
+                <span slot="reference">
+                    <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
+                    <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
+                </span>
+            </popper>
+            </div>
+            <!-- <h1>{{ unidade.nome }}</h1>
+            <p>Distrito {{ unidade.distrito }}</p> -->
+        </div>
 
-                        <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.epidemiologica" />
-                        </span>
-                    </popper>
-                    <popper v-if="data.item.ultimaEscala.riscoContagio"
-                        trigger="hover"
-                        :options="{
-                            placement: 'top'
-                        }">
-                        <div class="popper">
-                            Risco de Contágio por COVID-19
-                        </div>
+        <h1>Meus Idosos ({{ $route.params.nome }})</h1>
+        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
 
-                        <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.riscoContagio" />
-                        </span>
-                    </popper>
-                </div>
-            </template>
-            <template v-slot:cell(col-2)="data">
-                <div class="statusAtendimentos">
-                    <span>
-                        <popper
-                            trigger="hover"
-                            :options="{
-                             placement: 'top',
-                             modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                               Atendimentos efetuados / total de tentativas
-                            </div>
-
-                            <span slot="reference">
-                                <i class="fas fa-headset"></i> {{ data.item.ultimaEscala ? data.item.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.ultimoAtendimento ? data.item.ultimoAtendimento.qtdTentativas : 0) }}
-                            </span>
-                        </popper>
-                    </span>
-
-                    <span class="statusUltimoAtendimento" v-if="data.item.ultimoAtendimento" :class="{ 'atendido' : data.item.ultimoAtendimento.efetuado }">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                             placement: 'top',
-                             modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                               Último atendimento: 
-                               <span v-if="data.item.ultimoAtendimento.efetuado">Ligação atendida</span>
-                               <span v-if="!data.item.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
-                            </div>
-
-                            <span slot="reference">
-                                <i class="far fa-check-circle" v-show="data.item.ultimoAtendimento.efetuado"></i>
-                                <i class="far fa-times-circle" v-show="!data.item.ultimoAtendimento.efetuado"></i>
-                                {{ formatDate(data.item.ultimoAtendimento.data) }}
-                            </span>
-                        </popper>
-                    </span>
-
-                    <span class="statusUltimoAtendimento atencao" v-if="!data.item.ultimoAtendimento">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                             placement: 'top',
-                             modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                               Último atendimento: não há registros
-                            </div>
-
-                            <span slot="reference">
-                                <i class="fas fa-exclamation-circle"></i> pendente
-                            </span>
-                        </popper>
-                    </span>
-
-                    <span class="dataProximoAtendimento" v-if="data.item.ultimaEscala && data.item.ultimaEscala.dataProximoAtendimento">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                             placement: 'top',
-                             modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                               Sugestão de próximo atendimento
-                            </div>
-
-                            <span slot="reference">
-                                <i class="far fa-clock"></i> {{ formatDate(data.item.ultimaEscala.dataProximoAtendimento) }}
-                            </span>
-                        </popper>
-                    </span>
-                </div>
-                <div>
-                    Telefones: {{ data.item.telefone1 }} {{ data.item.telefone2 }}
-                </div>
-          </template>
-        </b-table>
+        <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
+            <b-tab title="Com escalas" lazy>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="com-escalas" orderBy="score"></TableIdosos>
+            </b-tab>
+            <b-tab title="Sem escalas" lazy>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="sem-escalas"  orderBy="score"></TableIdosos>
+            </b-tab>
+            <b-tab title="Todos" lazy>
+                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="all"  orderBy="score"></TableIdosos>
+            </b-tab>
+        </b-tabs>
     </div>
 </template>
 
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-import Badge from '@/components/template/Badge';
+import TableIdosos from '@/components/includes/TableIdosos';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
+import { mapState } from 'vuex';
 
 export default {
     name: 'IdososPorVigilante',
-    components: { Badge, 'popper': Popper },
+    components: { TableIdosos, 'popper': Popper },
+    computed: mapState(['syncStatus']),
     data: function() {
         return {
             carregando: true,
-            idosos: [],
-            fields: [ 
-                { key: 'ultimaEscala.score', label: 'Score' },
-                { key: 'col-1', label: 'Idoso' },
-                { key: 'col-2', label: ' ' },
-            ],
+            unidade: null,
+            tabIndex: 0,
+            tabs: ['com-escalas', 'sem-escalas', 'todos']
         }
     },
     methods: {
-        loadIdosos() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadePrefix}/vigilantes/${this.$route.params.vigilanteNome}/idosos`;
+        loadUnidade() {
+            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}`;
             console.log(url);
+
             axios.get(url).then(res => {
-                this.idosos = res.data;
-                console.log(this.idosos)
-                this.carregando = false;
+                this.unidade = res.data
+                console.log(this.unidade)
             }).catch(showError)
         },
         formatDate(date) {
             return new Date(date).toLocaleString();
         },
+        manualSync() {
+          // $socket is socket.io-client instance
+          console.log('emit syncEvent')
+          this.$socket.emit('syncEvent', { idUnidade: this.$route.params.unidadeId });
+        },
+        tabActivated(newTabIndex, oldTabIndex, event){
+            console.log('tab activated',newTabIndex,oldTabIndex, event)
+            console.log(location.search)
+            const params = this.$route.params;
+            params.tab = this.tabs[newTabIndex];
+            
+            this.$router.replace({name: this.$route.name, params: params })
+        }
     },
     mounted() {
-        this.loadIdosos();
+        this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
+        // this.tabIndex = +this.$route.params.tab || 0,
+        this.loadUnidade();
     }
 }
 </script>
 
 <style>
+  .idososPorVigilante .sync-state {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  .idososPorVigilante .sync-state.ativo {
+    color: #27AE60;
+  }
+
     /* table thead {
         display: none;
     } */

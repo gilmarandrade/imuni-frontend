@@ -3,11 +3,11 @@
 //TODO usar configuração do banco
  
 const ObjectId = require('mongodb').ObjectID;
-const dbName = 'covidrn_planilha';
+const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'atendimentos';
 
 
-const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
+const findAllByIdoso = async (collectionPrefix, nomeLower) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -16,7 +16,16 @@ const findAtendimentosByIdoso = async (collectionPrefix, idoso) => {
             const db = client.db(dbName);
             const collection = db.collection(`${collectionPrefix}.${collectionName}`);
 
-            collection.find({ "fichaVigilancia.dadosIniciais.nomeLower" : idoso.nomeLower }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
+            collection.find({ "fichaVigilancia.dadosIniciais.nomeLower" : nomeLower }, {
+                projection: {
+                    _id: 1,
+                    "fichaVigilancia.data": 1,
+                    "fichaVigilancia.dadosIniciais.atendeu": 1,
+                    "escalas": 1,
+                    "fichaVigilancia.vigilante": 1,
+                    "fichaVigilancia.duracaoChamada": 1,
+                }
+            }).sort({"fichaVigilancia.data":-1}).toArray(function(err, result) {
                 if (err) 
                     reject(err);
                 else
@@ -124,7 +133,7 @@ const bulkReplaceOne = async (collectionPrefix, atendimentosArray) => {
 
             // Execute the operations
             batch.execute(function(err, result) {
-                console.log(result)
+                // console.log(result)
                 if(err) {
                     reject(err);
                 } else {
@@ -217,7 +226,7 @@ const aggregateEscalas = async (collectionPrefix) => {
                 if(err) {
                     reject(err);
                 } else {
-                    console.log(result);
+                    // console.log(result);
                     resolve(result);
                 }
             });
@@ -272,7 +281,7 @@ const aggregateUltimosAtendimentos = async (collectionPrefix) => {
                 if(err) {
                     reject(err);
                 } else {
-                    console.log(result);
+                    // console.log(result);
                     resolve(result);
                 }
             });
@@ -283,4 +292,66 @@ const aggregateUltimosAtendimentos = async (collectionPrefix) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, findAtendimentosByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos };
+
+const findById = async (collectionPrefix, id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+/**
+ * Conta a quantidade de registros
+ * @param {*} collectionPrefix 
+ */
+const count = async (collectionPrefix) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(`${collectionPrefix}.${collectionName}`);
+
+    
+            collection.aggregate([
+                // { $match: { vigilante: nomeVigilante } },
+                // {
+                //     $group: {
+                //        _id: null,
+                //        count: { $sum: 1 }
+                //     }
+                // }
+                {
+                    $count: "total"
+                }
+            ]).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result[0].total);
+                }
+            });
+        });
+
+    });
+
+    return promise; 
+}
+
+module.exports = {  findAll, deleteAll, insertAll, findAllByIdoso, replaceOne, bulkReplaceOne, aggregateEscalas, aggregateUltimosAtendimentos, findById, count };

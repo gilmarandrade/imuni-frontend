@@ -3,7 +3,7 @@
 //TODO usar configuração do banco
  
 const ObjectId = require('mongodb').ObjectID;
-const dbName = 'covidrn_planilha';
+const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'usuarios';
 
 const findAll = async () => {
@@ -109,7 +109,7 @@ const insertOne = async (usuario) => {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.result.n);
+                    resolve(usuario._id);
                 }
             });
         });
@@ -189,6 +189,29 @@ const findByUnidade = async (unidadeId) => {
     return promise;
 }
 
+const findAdministradores = async () => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.find({ role: 'ADMINISTRADOR' }, { projection: { password: 0 } }).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
 const validateResetToken = async (id, token) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -212,4 +235,27 @@ const validateResetToken = async (id, token) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken };
+const validateInvitationToken = async (id, token) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id), invitationToken: token,  invitationExpires: { $gt: Date.now() } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken, validateInvitationToken, findAdministradores };

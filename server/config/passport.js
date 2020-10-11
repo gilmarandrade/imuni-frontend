@@ -11,7 +11,6 @@ module.exports = app => {
 
     const strategy = new Strategy(params, async (payload, done) => {
         try {
-            //TODO buscar um usuário no banco que seja igual a payload.id, se encontrar significa que o usuário está autorizado
             const user = await userService.findById(payload.id);
             console.log(user);
             done(null, user ? { ...payload } : false);

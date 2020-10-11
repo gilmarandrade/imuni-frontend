@@ -1,5 +1,6 @@
 <template>
  <div class="unidades" v-if="unidade">
+   <h6><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link></h6>
    <header class="header-page">
         <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
           <popper
@@ -13,18 +14,33 @@
 
               <span slot="reference">
                 <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
-                  <i class="fas fa-sync"></i> {{ formatDate(unidade.lastSyncDate) }}
+                  <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
               </span>
           </popper>
         </div>
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
-        <!--TODO ativar e desativar autosync  -->
-        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync" disabled>
+
+        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync">
           {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
+        <popper
+              trigger="hover"
+              :options="{
+                placement: 'right'
+              }">
+              <div class="popper">
+                A sincronização automática acontece diariamente as 22:00 
+              </div>
+
+              <span slot="reference">
+                <span class="text-muted">
+                  <font-awesome-icon :icon="['fas', 'info-circle']" />
+                </span>
+              </span>
+          </popper>
         </b-checkbox>
-        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.isSyncing">sincronizar agora</button>
-        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.isSyncing">resetar</button>
+        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
+        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
         <div v-if="loading">carregando...</div>
         
    </header>
@@ -49,7 +65,7 @@
             <h5 class="card-title">Vigilantes</h5>
             <ul>
                 <li v-for="vigilante in unidade.vigilantes" :key="vigilante.nome">
-                    <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/vigilantes/'+vigilante.nome">{{ vigilante.nome }}</router-link>
+                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/usuarios/undefined/' + vigilante.nome + '/com-escalas'">{{ vigilante.nome }}</router-link>
                 </li>
             </ul>
          </div>
@@ -58,12 +74,20 @@
          <div class="card-body">
             <h5 class="card-title">
               Usuários
-              <router-link :to="'/unidades/'+unidade._id+'/'+unidade.nome+'/addUsuario'" class="btn btn-primary float-right mb-3">add</router-link>
+              <router-link :to="'/unidades/'+unidade._id+'/'+unidade.nome+'/addUsuario'" class="btn btn-primary float-right mb-3">convidar</router-link>
             </h5>
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/vigilantes/'+data.item.name">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
+              </template>
+              <template v-slot:cell(status)="data">
+                <span v-if="data.item.invitationToken">
+                  convite enviado
+                </span>
+                <span v-else>
+                  ativo
+                </span>
               </template>
             </b-table>
          </div>
@@ -93,6 +117,7 @@ export default {
                 // { key: 'name', label: 'nome' },
                 { key: 'email', label: 'email' },
                 { key: 'role', label: 'tipo' },
+                { key: 'status', label: 'status' },
             ],
         }
     },

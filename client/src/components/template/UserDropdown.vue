@@ -5,7 +5,7 @@
           <div class="user-dropdown-img">
               <Gravatar :email="user.email" alt="User" />
           </div>
-          <i class="fa fa-angle-down"></i>
+          <font-awesome-icon :icon="['fas', 'angle-down']" />
       </div>
       <div class="user-dropdown-content">
           <div>
@@ -14,11 +14,8 @@
           <div>
               {{ user.email }}
           </div>
-          <!-- <router-link to="/admin">
-              <i class="fa fa-cogs"></i> Administração
-          </router-link> -->
           <a href @click.prevent="logout">
-              <i class="fa fa-sign-out-alt"></i> Sair
+            Sair
           </a>
       </div>
   </div>

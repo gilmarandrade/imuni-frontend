@@ -17,39 +17,36 @@ module.exports = app => {
     app.post('/api/forgotPassword', app.server.api.auth.forgotPassword);
     app.post('/api/validateResetToken', app.server.api.auth.validateResetToken);
     app.post('/api/resetPassword', app.server.api.auth.resetPassword);
+    app.post('/api/acceptInvite', app.server.api.auth.acceptInvite);
 
     app.route('/api/docs/:id/sheets/:sheetName/range/:range')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.planilhas.get);
 
-    app.route('/api/sync/:limit')
+    app.route('/api/unidades/:unidadeId/usuarios/:usuarioId/idosos')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.sync.sync);
-
-    app.route('/api/sync')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.sync.sync);
+        .get(app.server.api.idosos.idososByUser);
 
     app.route('/api/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.idososByVigilante);
+        .get(app.server.api.idosos.idososByVigilante);
 
-    app.route('/api/idosos/:id')
+    app.route('/api/unidades/:unidadeId/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.idoso);
+        .get(app.server.api.idosos.idoso);
 
-    app.route('/api/idosos/:id/atendimentos')
+    app.route('/api/unidades/:unidadeId/idosos/:idosoId/atendimentos')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.atendimentosByIdoso);
+        .get(app.server.api.atendimentos.atendimentosByIdoso);
 
-    app.route('/api/atendimentos/:id')
+    app.route('/api/unidades/:unidadeId/atendimentos/:id')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.atendimento);
+        .get(app.server.api.atendimentos.atendimento);
 
     app.route('/api/unidades/:unidadeId/usuarios')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.user.getByUnidadeId, 'ADMINISTRADOR'))
-        .post(role(app.server.api.user.insert, 'ADMINISTRADOR'));
+        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/unidades/:unidadeId/vigilantes')
         .all(app.server.config.passport.authenticate())
@@ -59,10 +56,6 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.unidades.toggleAutoSync, 'ADMINISTRADOR'));
 
-    app.route('/api/unidades/:unidadeId/sync')
-        .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.sync.syncUnidade, 'ADMINISTRADOR'));
-
     app.route('/api/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.unidades.getById);
@@ -71,6 +64,11 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.unidades.save, 'ADMINISTRADOR'));
+
+    app.route('/api/administradores')
+        .all(app.server.config.passport.authenticate())
+        .get(role(app.server.api.user.getAdministradores, 'ADMINISTRADOR'))
+        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/stats')
         .all(app.server.config.passport.authenticate())

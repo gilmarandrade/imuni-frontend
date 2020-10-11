@@ -10,11 +10,16 @@ import VigilanteHome from '@/components/vigilante/VigilanteHome'
 import Unidades from '@/components/administrador/Unidades'
 import Unidade from '@/components/administrador/Unidade'
 import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
-import AdicionarUsuario from '@/components/administrador/AdicionarUsuario'
+import ConvidarUsuario from '@/components/administrador/ConvidarUsuario'
 import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
 import Auth from '@/components/auth/Auth'
 import ForgotPassword from '@/components/auth/ForgotPassword'
 import ResetPassword from '@/components/auth/ResetPassword'
+import AcceptInvitation from '@/components/auth/AcceptInvitation'
+import Administradores from '@/components/administrador/Administradores'
+import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
+import Idoso from '@/components/idoso/Idoso'
+import Atendimento from '@/components/atendimento/Atendimento'
 
 Vue.use(VueRouter);
 
@@ -36,12 +41,12 @@ const routes = [
     },
     {
         name: 'meusIdosos',
-        path: '/meusIdosos',
+        path: '/meusIdosos/:tab',
         component: VigilanteHome,
     },
     {
-        name: 'idososPorVigilante',
-        path: '/unidades/:unidadePrefix/:unidadeNome/vigilantes/:vigilanteNome',
+        name: 'idososPorUsuario',
+        path: '/unidades/:unidadePrefix/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome/:tab',
         component: IdososPorVigilante,
         meta: { requiresAdmin: true }
     },
@@ -61,10 +66,31 @@ const routes = [
         component: ResetPassword,
     },
     {
-        name: 'adicionarUsuarioDaUnidade',
+        name: 'convidarUsuarioDaUnidade',
         path: '/unidades/:id/:unidadeNome/addUsuario',
-        component: AdicionarUsuario,
+        component: ConvidarUsuario,
         meta: { requiresAdmin: true }
+    },
+    {
+        name: 'convidarAdministrador',
+        path: '/administradores/addUsuario',
+        component: ConvidarAdministrador,
+        meta: { requiresAdmin: true }
+    },
+    {
+        name: 'acceptInvitation',
+        path: '/acceptInvitation/:id/:token',
+        component: AcceptInvitation,
+    },
+    {
+        name: 'atendimento',
+        path: '/unidades/:unidadeId/atendimentos/:atendimentoId',
+        component: Atendimento,
+    },
+    {
+        name: 'idoso',
+        path: '/unidades/:unidadeId/idosos/:idosoId',
+        component: Idoso,
     },
     {
         name: 'unidade',
@@ -82,6 +108,12 @@ const routes = [
         name: 'adicionarUnidade',
         path: '/adicionarUnidade',
         component: AdicionarUnidade,
+        meta: { requiresAdmin: true }
+    },
+    {
+        name: 'administradores',
+        path: '/administradores',
+        component: Administradores,
         meta: { requiresAdmin: true }
     },
 ]

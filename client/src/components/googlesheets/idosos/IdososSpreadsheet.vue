@@ -1,6 +1,6 @@
 <template>
     <div>
-       <PageTitle icon="fa fa-home" main="Planilha Idosos" sub="unidade xxxx" />
+       <PageTitle icon="" main="Planilha Idosos" sub="unidade xxxx" />
        <b-card no-body>
           <b-tabs card>
             <b-tab title="Idosos" active>
