@@ -89,9 +89,11 @@ export default {
         },
         tabActivated(newTabIndex, oldTabIndex, event){
             console.log('tab activated',newTabIndex,oldTabIndex, event)
-            this.$router.replace({name: 'meusIdosos', params: {
-                tab: this.tabs[newTabIndex]
-            }})
+            console.log(location.search)
+            const params = this.$route.params;
+            params.tab = this.tabs[newTabIndex];
+            
+            this.$router.replace({name: this.$route.name, params: params })
         }
     },
     mounted() {

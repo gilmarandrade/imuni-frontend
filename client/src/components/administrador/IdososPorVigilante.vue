@@ -83,34 +83,8 @@ export default {
             console.log(location.search)
             const params = this.$route.params;
             params.tab = this.tabs[newTabIndex];
-            // history.replaceState({}, '', this.$route.path + location.search);
-            const query = {...this.$route.query};//<<isso aqui ta vazio, usar location.search?
-            // query.tab = newTabIndex;
-            // console.log(query)
-            // this.$router.replace({name: this.$route.name, params: params, query: query})
+            
             this.$router.replace({name: this.$route.name, params: params })
-
-            // let query = {};
-            // if(location.search) {
-            //     const substrings = location.search.split('?')[1].split('&');
-            //     const q = [];
-            //     substrings.forEach((el) => {
-            //         q.push(el.split('='))
-            //     });
-            //     query = Object.fromEntries(q);
-            // }
-            // console.log('idoso query ', query)
-            // // query.sort = this.order;
-            // // query.page = page;
-            // // query.rowsPerPage = rowsPerPage;
-
-
-            const arr = [];
-            Object.keys(query).forEach(key => {
-                arr.push(`${key}=${query[key]}`);
-            });
-            console.log('?'+ arr.join('&'))
-            // history.replaceState({}, '', this.$route.path + '?' + arr.join('&'));
         }
     },
     mounted() {

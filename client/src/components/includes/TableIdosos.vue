@@ -1,6 +1,5 @@
 <template>
     <div class="tableIdosos">
-    
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
                 {{ tableInfo.totalRows }} resultados
