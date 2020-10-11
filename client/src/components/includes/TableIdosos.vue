@@ -221,6 +221,8 @@ export default {
     },
     methods: {
         loadIdosos(page) {
+            this.carregando = true;
+            
             this.$store.commit('setPageParamsMap', 
                 {
                     userId: this.userId == 'undefined' ? this.vigilanteNome : this.userId,
@@ -231,7 +233,6 @@ export default {
                 }
             )
           
-            this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
