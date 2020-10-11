@@ -61,7 +61,7 @@ export default new Vuex.Store({
         },
         setPageParamsMap(state, params){
             const userParams = state.pageParamsMap.get(params.userId)
-            console.log(userParams)
+            // console.log(userParams)
             if(userParams) {
                 const tableParams = userParams.find(element => element.filter == params.filter);
 

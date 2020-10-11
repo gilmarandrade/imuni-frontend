@@ -182,7 +182,16 @@
 
         <h2 class="my-5">Histórico de atendimentos</h2>
 
-        <b-table :items="atendimentos" :fields="fields">
+        <b-table :items="atendimentos" :fields="fields" primary-key="_id" :busy="carregandoAtendimentos" show-empty>
+            <template v-slot:table-busy>
+                <div class="text-center text-primary my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong> Carregando...</strong>
+                </div>
+            </template>
+            <template v-slot:empty="">
+                <div class="text-center text-muted">Não há registros</div>
+            </template>
             <template v-slot:cell(col-data)="data">
                 <router-link :to="'/unidades/'+$route.params.unidadeId+'/atendimentos/'+ data.item._id">
                     {{ formatDate(data.item.fichaVigilancia.data) }}
@@ -267,7 +276,7 @@ export default {
                 { key: 'col-escalas', label: 'Escalas' },
                 { key: 'fichaVigilancia.vigilante', label: 'Vigilante' },
             ],
-            loading: false,
+            carregandoAtendimentos: false,
         }
     },
     methods: {
@@ -282,13 +291,15 @@ export default {
             }).catch(showError)
         },
         loadAtendimentos() {
+            this.carregandoAtendimentos = true;
             const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.idoso.nomeLower}/atendimentos`;
             console.log(url);
 
             axios.get(url).then(res => {
                 this.atendimentos = res.data
+                this.carregandoAtendimentos = false;
                 console.log(this.atendimentos)
-            }).catch(showError)
+            }).catch(function(e) {console.error(e);showError(e)})
         },
         formatDate(date) {
             return new Date(date).toLocaleString();
