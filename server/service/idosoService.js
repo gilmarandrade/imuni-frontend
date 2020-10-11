@@ -517,7 +517,6 @@ const findAll = async (collectionPrefix, filter, sort, page, rowsPerPage) => {
 }
 
 const findAllByVigilante = async (collectionPrefix, nomeVigilante, filter, sort, page, rowsPerPage) => {
-    // console.log('find all by vigilante')
     // if(filter) {
     //     console.log(filter)
     // } else {

@@ -1,12 +1,5 @@
 <template>
     <div class="tableIdosos">
-    {{userId}}, default filter: {{filter}}, default order: {{orderBy}}, 
-
-    <ul id="example-1">
-        <li v-for="item in pageParamsMap" :key="item.userId">
-            {{ item }}
-        </li>
-    </ul>
     
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
@@ -207,7 +200,7 @@ export default {
         return {
             carregando: true,
             unidade: null,
-            order: this.orderBy,//por padrão ele aplica a ordem recebida como parâmetro do componente
+            order: this.orderBy,// por padrão ele aplica a ordem recebida como parâmetro do componente
             sortOptions: [ 
                 { value: 'nome', text: 'Nome' },
                 { value: 'proximo-atendimento', text: 'Próximo atendimento' },
@@ -216,8 +209,8 @@ export default {
             ],
             tableInfo: {
                 totalRows: 0,
-                currentPage: 0,
-                rowsPerPage: 25,
+                currentPage: 0,// por padrão é 0
+                rowsPerPage: 25,// por padrao é 25
             },
             idosos: [],
             fields: [ 
@@ -228,32 +221,21 @@ export default {
         }
     },
     methods: {
-        loadIdosos(page = 0) {
+        loadIdosos(page) {
             this.$store.commit('setPageParamsMap', 
                 {
-                    userId: this.userId,//fixit não funciona para o vigilante sem id
+                    userId: this.userId == 'undefined' ? this.vigilanteNome : this.userId,
                     filter: this.filter,
                     order: this.order,
                     page: page,
                     rowsPerPage: this.tableInfo.rowsPerPage,
                 }
             )
-            // console.log('query ', this.$route)
-            // const query = {...this.$route.query};
-            // query.sort = this.order;
-            // query.page = page;
-            // query.rowsPerPage = rowsPerPage;
           
-            // console.log('?'+ arr.join('&'))
-            // history.replaceState({}, '', this.$route.path + '?' + arr.join('&'));
-            // location.replace('http://example.com/#wewe');
-            // this.$router.replace({name: this.$route.name, params: this.$route.params, query: query}).catch((e)=>{console.log(e)});
-
             this.carregando = true;
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
-                // console.log('user id', this.userId)
                 url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
             } else if(this.vigilanteNome) {
                 console.log('vigilanteNome', this.vigilanteNome)
@@ -262,9 +244,7 @@ export default {
             console.log(url);
             axios.get(url).then(res => {
                 this.tableInfo =  res.data.info;
-                // console.log('table info', this.tableInfo)
                 this.idosos = res.data.data;
-                // console.log(res.data)
                 this.carregando = false;
             }).catch(function(e) {console.error(e);showError(e)})
         },
@@ -274,19 +254,15 @@ export default {
     },
     mounted() {
         let page = 0;
-        const userParams = this.$store.state.pageParamsMap.get(this.userId);
+        const userParams = this.$store.state.pageParamsMap.get(this.userId == 'undefined' ? this.vigilanteNome : this.userId);
         if(userParams) {
-            console.log(userParams)
             const tableParams = userParams.find(element => element.filter == this.filter);
-            console.log(tableParams)
             if(tableParams) {
                 this.order = tableParams.order;
                 this.tableInfo.rowsPerPage = tableParams.rowsPerPage;
                 this.tableInfo.currentPage = tableParams.page;
                 page = tableParams.page;
             }
-        } else {
-            console.log('else')
         }
         this.loadIdosos(page);
     }
