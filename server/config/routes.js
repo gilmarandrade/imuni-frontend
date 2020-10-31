@@ -78,6 +78,11 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.googlesheets.stats);
 
+    app.route('/api/v2/unidades/:unidadeId/idosos')
+        .all(app.server.config.passport.authenticate())
+        .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
+        .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
+
         
     //Handle Production routes
     if(process.env.NODE_ENV === 'production') {

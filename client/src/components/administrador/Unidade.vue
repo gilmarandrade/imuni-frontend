@@ -93,6 +93,17 @@
             </b-table>
          </div>
        </div>
+       <div class="card mb-4">
+         <div class="card-body">
+            <h5 class="card-title">
+              Idosos
+              <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right mb-3">cadastrar</router-link>
+            </h5>
+            
+            <b-table :items="idosos" :fields="fieldsIdosos">
+            </b-table>
+         </div>
+       </div>
    </div>
 
  </div>
@@ -120,6 +131,16 @@ export default {
                 { key: 'role', label: 'tipo' },
                 { key: 'status', label: 'status' },
             ],
+            idosos: [],
+            fieldsIdosos: [ 
+                { key: 'nome', label: 'nome' },
+                { key: 'dataNascimento', label: 'data de nascimento' },
+                { key: 'telefone1', label: 'telefone 1' },
+                { key: 'telefone2', label: 'telefone 2' },
+                { key: 'agenteSaude', label: 'agente de saúde' },
+                { key: 'vigilanteId', label: 'vigilante' },
+                { key: 'anotacoes', label: 'anotações' },
+            ],
         }
     },
     computed: mapState(['syncStatus']),
@@ -140,6 +161,15 @@ export default {
             axios.get(url).then(res => {
                 this.usuarios = res.data
                 console.log(this.usuarios)
+            }).catch(showError)
+        },
+        loadIdosos() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/idosos`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.idosos = res.data
+                // console.log(this.idosos)
             }).catch(showError)
         },
         formatDate(date) {
@@ -191,6 +221,7 @@ export default {
     mounted() {
       this.loadUnidade();
       this.loadUsuarios();
+      this.loadIdosos();
     }
 }
 </script>

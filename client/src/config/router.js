@@ -18,6 +18,7 @@ import ResetPassword from '@/components/auth/ResetPassword'
 import AcceptInvitation from '@/components/auth/AcceptInvitation'
 import Administradores from '@/components/administrador/Administradores'
 import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
+import CadastrarIdoso from '@/components/administrador/CadastrarIdoso'
 import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
 
@@ -116,6 +117,12 @@ const routes = [
         component: Administradores,
         meta: { requiresAdmin: true }
     },
+    {
+        name: 'cadastrarIdoso',
+        path: '/unidades/:unidadeId/cadastrarIdoso',
+        component: CadastrarIdoso,
+        meta: { requiresPreceptor: true }
+    },
 ]
 
 const router = new VueRouter({
@@ -129,6 +136,9 @@ router.beforeEach((to, from, next) => {
     if(to.matched.some(record => record.meta.requiresAdmin)) {
         const user = JSON.parse(json);
         user && user.role === 'ADMINISTRADOR' ? next() : next({ path: '/' })
+    } else if(to.matched.some(record => record.meta.requiresPreceptor)) {
+        const user = JSON.parse(json);
+        user && (user.role === 'ADMINISTRADOR' || user.role === 'PRECEPTOR') ? next() : next({ path: '/' })
     } else {
         next()
     }
