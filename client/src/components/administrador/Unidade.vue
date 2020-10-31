@@ -83,7 +83,8 @@
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.invitationToken">
-                  convite enviado
+                  convite enviado 
+                  <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
                 <span v-else>
                   ativo
@@ -171,6 +172,15 @@ export default {
           // $socket is socket.io-client instance
           console.log('emit resetEvent')
           this.$socket.emit('resetEvent', { idUnidade: this.unidade._id });
+        },
+        resendInvite(userId) {
+            const url = `${baseApiUrl}/users/resendInvitation/${userId}`;
+            console.log(url);
+
+            axios.post(url).then( (res) => {
+                console.log(res)
+                this.$toasted.global.defaultSuccess({msg: res.data});
+            }).catch(showError)
         },
     },
     sockets: {
