@@ -42,8 +42,10 @@
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary ml-2">
-          Editar
+          editar
         </router-link>
+        <b-button @click="confirmDeletion(unidade._id)" class="btn btn-danger ml-2">excluir</b-button>
+
         <div v-if="loading">carregando...</div>
         
    </header>
@@ -218,6 +220,30 @@ export default {
                 console.log(res)
                 this.$toasted.global.defaultSuccess({msg: res.data});
             }).catch(showError)
+        },
+        confirmDeletion(id) {
+          this.$bvModal.msgBoxConfirm('Deseja realmente excluir a unidade? Todos os dados serão perdidos!', {
+            okVariant: 'danger',
+            okTitle: 'excluir',
+            cancelTitle: 'cancelar',
+          })
+            .then(value => {
+              console.log(value);
+              if(value === true) {
+                  const url = `${baseApiUrl}/v2/unidades/${id}`;
+                  console.log(url);
+
+                  axios.delete(url).then(res => {
+                      console.log(res)
+                      this.$router.push({ name: 'unidades' })
+                      this.$toasted.global.defaultSuccess({ msg: 'Unidade removida com sucesso'});
+                  }).catch(showError)
+              }
+            })
+            .catch(err => {
+              // An error occurred
+              console.error(err.toString())
+            })
         },
     },
     sockets: {

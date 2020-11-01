@@ -90,6 +90,7 @@ module.exports = app => {
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.unidades.getById, 'ADMINISTRADOR'))
+        .delete(role(app.server.api.v2.unidades.remove, 'ADMINISTRADOR'))
 
     app.route('/api/v2/unidades')
         .all(app.server.config.passport.authenticate())

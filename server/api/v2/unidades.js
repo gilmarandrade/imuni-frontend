@@ -99,5 +99,15 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades, getById };
+    const remove = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.unidadeService.softDeleteOne(req.params.unidadeId);
+            return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { get, save, adequarUnidades, getById, remove };
 };
