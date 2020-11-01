@@ -41,6 +41,9 @@
         </b-checkbox>
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
+        <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary ml-2">
+          Editar
+        </router-link>
         <div v-if="loading">carregando...</div>
         
    </header>

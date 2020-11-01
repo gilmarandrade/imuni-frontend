@@ -2,7 +2,11 @@ const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'idosos';
 
-const updateOne = async (idoso) => {
+/**
+ * Insere ou atualiza um idoso
+ * @param {*} idoso 
+ */
+const upsertOne = async (idoso) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -10,7 +14,6 @@ const updateOne = async (idoso) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            //TODO o upsert deveria passar somente os campos que deveriam ser atualizados?
             collection.updateOne({ _id: ObjectId(idoso._id) }, {
                 $set: { 
                     nome: idoso.nome,
@@ -27,7 +30,7 @@ const updateOne = async (idoso) => {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.result.n);
+                    resolve(result.upsertedId === null ? idoso._id : result.upsertedId._id);
                 }
             });
         });
@@ -37,6 +40,10 @@ const updateOne = async (idoso) => {
     return promise;
 }
 
+/**
+ * Lista todos os idosos de uma unidade
+ * @param {*} unidadeId 
+ */
 const getByUnidadeId = async (unidadeId) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -60,6 +67,10 @@ const getByUnidadeId = async (unidadeId) => {
     return promise;
 }
 
+/**
+ * Encontra um idoso pelo id
+ * @param {*} id 
+ */
 const getById = async (id) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -83,4 +94,4 @@ const getById = async (id) => {
     return promise;
 }
 
-module.exports = { updateOne, getByUnidadeId, getById };
+module.exports = { upsertOne, getByUnidadeId, getById };

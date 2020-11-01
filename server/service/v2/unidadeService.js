@@ -28,6 +28,9 @@ const findAll = async () => {
     return promise;
 }
 
+/**
+ * Encontra apenas os registros da collection que estão _isDeleted false
+ */
 const findAtivos = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -51,8 +54,11 @@ const findAtivos = async () => {
     return promise;
 }
 
-
-const updateOne = async (unidade) => {
+/**
+ * Insere ou atualiza uma unidade
+ * @param {*} unidade 
+ */
+const upsertOne = async (unidade) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -60,7 +66,6 @@ const updateOne = async (unidade) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            //TODO o upsert deveria passar somente os campos que deveriam ser atualizados?
             collection.updateOne({ _id: ObjectId(unidade._id) }, {
                 $set: { 
                     nome: unidade.nome,
@@ -83,7 +88,7 @@ const updateOne = async (unidade) => {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.result.n);
+                    resolve(result.upsertedId === null ? unidade._id : result.upsertedId._id);
                 }
             });
         });
@@ -93,6 +98,10 @@ const updateOne = async (unidade) => {
     return promise;
 }
 
+/**
+ * Insere ou atualiza um array de unidades
+ * @param {*} array 
+ */
 const bulkUpdateOne = async (array) => {
 
     const addToBatch = (batch, item) => {
@@ -146,6 +155,31 @@ const bulkUpdateOne = async (array) => {
     return promise;
 }
 
+/**
+ * Encontra uma unidade pelo id 
+ * @param {*} id 
+ */
+const getById = async (id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
 
+            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
 
-module.exports = { findAll, findAtivos, updateOne, bulkUpdateOne };
+    });
+
+    return promise;
+}
+
+module.exports = { findAll, findAtivos, upsertOne, bulkUpdateOne, getById };

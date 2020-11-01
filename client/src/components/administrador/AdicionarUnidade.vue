@@ -115,6 +115,16 @@ export default {
             }).catch(showError)
         },
     },
+    mounted() {
+        //TODO deveria ter um spining loading 
+        // modo de edição
+        if(this.$route.query.id) {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.query.id}`;
+            axios.get(url).then(res => {
+                this.form = res.data;
+            }).catch(showError)
+        }
+    }
 }
 </script>
 

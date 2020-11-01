@@ -11,6 +11,16 @@ module.exports = app => {
         }
     }
 
+    const getById = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.unidadeService.getById(req.params.unidadeId);
+            return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
     //TODO não permitir o cadastro duplicado de unidades
     const save = async (req, res) => {
         const getSpreadsheetId = (url) => {
@@ -57,7 +67,7 @@ module.exports = app => {
 
         console.log(unidade);
         try {
-            const result = await app.server.service.v2.unidadeService.updateOne(unidade);
+            const result = await app.server.service.v2.unidadeService.upsertOne(unidade);
             return res.status(200).json(result);
         } catch(err) {
             console.log(err);
@@ -89,5 +99,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades };
+    return { get, save, adequarUnidades, getById };
 };

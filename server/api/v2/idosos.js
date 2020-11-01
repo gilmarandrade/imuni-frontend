@@ -9,14 +9,14 @@ module.exports = app => {
         try {
             app.server.api.validation.existsOrError(idoso.nome, 'Nome: campo obrigatório')
             app.server.api.validation.existsOrError(idoso.unidadeId, 'Unidade: campo obrigatório')
-        } catch(msg) {
-            //TODO retornar o msg.toString() em todos os catchs da api
-            return res.status(400).send(msg.toString());
+        } catch(err) {
+            console.log(err);
+            return res.status(400).send(err.toString());
         }
 
         console.log(idoso);
         try {
-            const result = await app.server.service.v2.idosoService.updateOne(idoso);
+            const result = await app.server.service.v2.idosoService.upsertOne(idoso);
             return res.status(200).json(result);
         } catch(err) {
             console.log(err);
