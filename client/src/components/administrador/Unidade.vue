@@ -108,6 +108,7 @@
             <b-table :items="idosos" :fields="fieldsIdosos">
               <template v-slot:cell(acoes)="data">
                   <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso?id='+data.item._id" class="btn btn-outline-primary">editar</router-link>           
+                  <b-button @click="deleteIdoso(data.item._id)" class="btn btn-danger ml-2">excluir</b-button>
               </template>
             </b-table>
          </div>
@@ -237,6 +238,30 @@ export default {
                       console.log(res)
                       this.$router.push({ name: 'unidades' })
                       this.$toasted.global.defaultSuccess({ msg: 'Unidade removida com sucesso'});
+                  }).catch(showError)
+              }
+            })
+            .catch(err => {
+              // An error occurred
+              console.error(err.toString())
+            })
+        },
+        deleteIdoso(id) {
+          this.$bvModal.msgBoxConfirm('Deseja realmente excluir o idoso? Todos os dados serão perdidos!', {
+            okVariant: 'danger',
+            okTitle: 'excluir',
+            cancelTitle: 'cancelar',
+          })
+            .then(value => {
+              console.log(value);
+              if(value === true) {
+                  const url = `${baseApiUrl}/v2/unidades/${this.unidade._id}/idosos/${id}`;
+                  console.log(url);
+
+                  axios.delete(url).then(res => {
+                      console.log(res)
+                      this.$toasted.global.defaultSuccess({ msg: 'Idoso removido com sucesso'});
+                      this.loadIdosos();
                   }).catch(showError)
               }
             })

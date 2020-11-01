@@ -1,7 +1,7 @@
 
 module.exports = app => {
 
-    //TODO não permitir o cadastro duplicado
+    //TODO não permitir o cadastro duplicado?
     const save = async (req, res) => {
 
         const idoso = req.body;
@@ -26,7 +26,7 @@ module.exports = app => {
 
     const getByUnidadeId = async (req, res) => {
         try {
-            const result = await app.server.service.v2.idosoService.getByUnidadeId(req.params.unidadeId);
+            const result = await app.server.service.v2.idosoService.findAtivosByUnidadeId(req.params.unidadeId);
             return res.status(200).json(result);
         } catch(err) {
             console.log(err);
@@ -44,5 +44,16 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById };
+    
+    const remove = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.idosoService.softDeleteOne(req.params.idosoId);
+            return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById, remove };
 };

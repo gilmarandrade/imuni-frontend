@@ -1,6 +1,6 @@
 <template>
   <div class="adicionarUnidade">
-    <h1>Adicionar Unidade</h1>
+    <h1>Adicionar/Editar Unidade</h1>
     <p>Atenção: Não se esqueça de compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.</p>
 
     <b-form @submit="onSubmit">

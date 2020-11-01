@@ -80,7 +80,8 @@ module.exports = app => {
 
     app.route('/api/v2/unidades/:unidadeId/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())
-        .get(app.server.api.v2.idosos.getById);
+        .get(app.server.api.v2.idosos.getById)
+        .delete(role(app.server.api.v2.idosos.remove, 'ADMINISTRADOR'));
 
     app.route('/api/v2/unidades/:unidadeId/idosos')
         .all(app.server.config.passport.authenticate())
@@ -90,7 +91,7 @@ module.exports = app => {
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.unidades.getById, 'ADMINISTRADOR'))
-        .delete(role(app.server.api.v2.unidades.remove, 'ADMINISTRADOR'))
+        .delete(role(app.server.api.v2.unidades.remove, 'ADMINISTRADOR'));
 
     app.route('/api/v2/unidades')
         .all(app.server.config.passport.authenticate())

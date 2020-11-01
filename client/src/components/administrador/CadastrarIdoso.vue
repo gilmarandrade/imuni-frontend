@@ -122,6 +122,7 @@ export default {
                 unidadeId: this.$route.params.unidadeId,
                 vigilanteId: '',
                 row: '',
+                _isDeleted: false,
             },
             //TODO preencher a lista de unidades com a lista vinda do bd
             unidades: [ { text: this.$route.params.unidadeId, value: this.$route.params.unidadeId } ],
@@ -137,7 +138,7 @@ export default {
 
             axios.post(url, this.form).then( () => {
                 this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
-                this.$toasted.global.defaultSuccess({ msg: 'Idoso salvo com sucesso'});
+                this.$toasted.global.defaultSuccess({ msg: 'Registro salvo com sucesso'});
             }).catch(showError)
         },
     },
