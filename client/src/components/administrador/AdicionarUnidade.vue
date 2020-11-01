@@ -85,9 +85,19 @@ export default {
             form: {
                 nome: '',
                 distrito: null,
+                _isDeleted: false,
+                /* TODO DEPRECATED ATTRIBUTES*/
                 planilhaIdosos: '',
                 planilhaGerenciamento: '',
                 fichaVigilancia: '',
+                idPlanilhaIdosos: '',
+                idPlanilhaGerenciamento: '',
+                idFichaVigilancia: '',
+                collectionPrefix: '',
+                ativo: true,
+                autoSync: false,
+                lastSyncDate: null,
+                vigilantes: [],
             },
             distritos: [ { text: 'Selecione...', value: null }, 'Norte I', 'Norte II', 'Sul', 'Leste', 'Oeste' ],
         }
@@ -96,7 +106,7 @@ export default {
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
-            const url = `${baseApiUrl}/unidades`;
+            const url = `${baseApiUrl}/v2/unidades`;
             console.log(url);
 
             axios.post(url, this.form).then(res => {

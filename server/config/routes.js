@@ -87,6 +87,17 @@ module.exports = app => {
         .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
 
+    app.route('/api/v2/unidades')
+        .all(app.server.config.passport.authenticate())
+        .get(role(app.server.api.v2.unidades.get, 'ADMINISTRADOR'))
+        .post(role(app.server.api.v2.unidades.save, 'ADMINISTRADOR'));
+
+    
+    
+    app.route('/api/v2/migracao/adequarUnidades')
+        // .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.unidades.adequarUnidades);
+
         
     //Handle Production routes
     if(process.env.NODE_ENV === 'production') {

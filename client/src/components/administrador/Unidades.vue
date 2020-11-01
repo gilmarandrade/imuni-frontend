@@ -49,7 +49,7 @@ export default {
     },
     methods: {
         loadUnidades() {
-            const url = `${baseApiUrl}/unidades`;
+            const url = `${baseApiUrl}/v2/unidades`;
             console.log(url);
 
             axios.get(url).then(res => {
