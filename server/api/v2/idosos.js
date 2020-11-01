@@ -34,5 +34,15 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId };
+    const getById = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.idosoService.getById(req.params.idosoId);
+            return res.status(200).json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById };
 };

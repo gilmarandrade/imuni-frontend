@@ -101,6 +101,9 @@
             </h5>
             
             <b-table :items="idosos" :fields="fieldsIdosos">
+              <template v-slot:cell(acoes)="data">
+                  <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso?id='+data.item._id" class="btn btn-outline-primary">editar</router-link>           
+              </template>
             </b-table>
          </div>
        </div>
@@ -140,6 +143,7 @@ export default {
                 { key: 'agenteSaude', label: 'agente de saúde' },
                 { key: 'vigilanteId', label: 'vigilante' },
                 { key: 'anotacoes', label: 'anotações' },
+                { key: 'acoes', label: 'ações' },
             ],
         }
     },
