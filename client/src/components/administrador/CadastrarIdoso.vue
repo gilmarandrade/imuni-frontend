@@ -124,12 +124,22 @@ export default {
                 row: '',
                 _isDeleted: false,
             },
-            //TODO preencher a lista de unidades com a lista vinda do bd
-            unidades: [ { text: this.$route.params.unidadeId, value: this.$route.params.unidadeId } ],
+            unidades: [ { text: 'Selecione...', value: '' } ],
             vigilantes: [ { text: '', value: '' }, { text: 'Carlos', value: '5f9dc89e0a136c35bc73b0a8' } ],//TODO 
         }
     },
      methods: {
+        loadUnidades() {
+            const url = `${baseApiUrl}/v2/unidades`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidades = [ 
+                    { text: 'Selecione...', value: '' }, 
+                    ...res.data.map(item => { return { text: item.nome, value: item._id } } ) 
+                ];
+            }).catch(showError)
+        },
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
@@ -143,6 +153,7 @@ export default {
         },
     },
     mounted() {
+        this.loadUnidades();
         //TODO deveria ter um spining loading 
         // modo de edição
         if(this.$route.query.id) {

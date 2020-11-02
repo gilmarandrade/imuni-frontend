@@ -156,7 +156,7 @@ export default {
     computed: mapState(['syncStatus']),
     methods: {
         loadUnidade() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}`;
             console.log(url);
 
             axios.get(url).then(res => {
