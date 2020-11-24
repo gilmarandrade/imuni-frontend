@@ -2,7 +2,7 @@
   <div class="adicionarUsuario">
     <h1>Convidar Usuário</h1>
 
-    obs: caso o usuario seja um vigilante, seu nome deve ser informado da mesma forma que foi usado nas planilhas (incluido letras maiúsculas, acentos e abreviações). 
+    <!-- obs: caso o usuario seja um vigilante, seu nome deve ser informado da mesma forma que foi usado nas planilhas (incluido letras maiúsculas, acentos e abreviações).  -->
     <b-form @submit="onSubmit">
         <b-form-group
             id="input-group-nome"
@@ -106,7 +106,7 @@ export default {
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/usuarios`;
             console.log(url);
 
             axios.post(url, this.form).then( () => {
