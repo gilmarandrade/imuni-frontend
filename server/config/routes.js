@@ -45,8 +45,8 @@ module.exports = app => {
 
     app.route('/api/unidades/:unidadeId/usuarios')
         .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.user.getByUnidadeId, 'ADMINISTRADOR'))
-        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
+        .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
+        .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/unidades/:unidadeId/vigilantes')
         .all(app.server.config.passport.authenticate())
@@ -67,12 +67,12 @@ module.exports = app => {
 
     app.route('/api/administradores')
         .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.user.getAdministradores, 'ADMINISTRADOR'))
-        .post(role(app.server.api.user.sendInvitation, 'ADMINISTRADOR'));
+        .get(role(app.server.api.v2.usuarios.getAdministradores, 'ADMINISTRADOR'))
+        .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/users/resendInvitation/:userId')
         .all(app.server.config.passport.authenticate())
-        .post(role(app.server.api.user.resendInvitation, 'ADMINISTRADOR'));
+        .post(role(app.server.api.v2.usuarios.resendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/stats')
         .all(app.server.config.passport.authenticate())

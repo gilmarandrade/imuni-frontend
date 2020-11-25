@@ -96,6 +96,7 @@ export default {
                 email: '',
                 role: 'VIGILANTE',
                 unidadeId: this.$route.params.id,
+                _isDeleted: false,
             },
             permissoes: [ { text: 'Preceptor', value: 'PRECEPTOR' }, { text: 'Vigilante', value: 'VIGILANTE' } ],
             //TODO preencher a lista de unidades com a lista vinda do bd

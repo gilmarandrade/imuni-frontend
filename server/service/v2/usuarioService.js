@@ -6,7 +6,7 @@ const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'usuarios';
 
-const findByUnidade = async (unidadeId) => {
+const findById = async (id) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -15,7 +15,7 @@ const findByUnidade = async (unidadeId) => {
             
             const collection = db.collection(collectionName);
 
-            collection.find({ unidadeId: unidadeId }, { projection: { password: 0 } }).toArray(function(err, result) {
+            collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -29,6 +29,35 @@ const findByUnidade = async (unidadeId) => {
     return promise;
 }
 
+/**
+ * Encontra apenas os registros da collection que estão _isDeleted false
+ */
+const findByUnidade = async (unidadeId) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.find({ unidadeId: unidadeId, _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+/**
+ * Encontra apenas os registros da collection que estão _isDeleted false
+ */
 const findByEmail = async (email) => {//TODO VERIFICAR SE OS METODOS QUE RETORNAM USUARIOS ESTÃO TRAZENDO A SENHA (FALHA DE SEGURANÇA)
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
@@ -38,7 +67,7 @@ const findByEmail = async (email) => {//TODO VERIFICAR SE OS METODOS QUE RETORNA
             
             const collection = db.collection(collectionName);
 
-            collection.findOne({ email: email }, function(err, result) {
+            collection.findOne({ email: email, _isDeleted: false }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -75,4 +104,99 @@ const insertOne = async (usuario) => {
     return promise;
 }
 
-module.exports = { findByUnidade, findByEmail, insertOne };
+/**
+ * Encontra apenas os registros da collection que estão _isDeleted false
+ */
+const findAdministradores = async () => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.find({ role: 'ADMINISTRADOR', _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+const replaceOne = async (usuario) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.replaceOne({ _id : ObjectId(usuario._id) } , usuario, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+const validateResetToken = async (id, token) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id), _isDeleted: false, resetPasswordToken: token,  resetPasswordExpires: { $gt: Date.now() } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+
+const validateInvitationToken = async (id, token) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(id), _isDeleted: false, invitationToken: token,  invitationExpires: { $gt: Date.now() } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken };

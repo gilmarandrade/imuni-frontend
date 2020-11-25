@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const userService = require('../service/userService');
@@ -194,5 +197,5 @@ module.exports = app => {
         }
     }
 
-    return { insert, getByUnidadeId, sendInvitation, resendInvitation, getAdministradores }
+    return { insert }
 }

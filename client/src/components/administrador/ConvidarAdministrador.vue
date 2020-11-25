@@ -94,6 +94,7 @@ export default {
                 name: '',
                 email: '',
                 role: 'ADMINISTRADOR',
+                _isDeleted: false,
             },
         }
     },

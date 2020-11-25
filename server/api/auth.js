@@ -2,8 +2,6 @@
 const jwt = require('jwt-simple');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
- 
-const userService = require('../service/userService');
 
 module.exports = app => {
     const { existsOrError, notExistsOrError, equalsOrError } = app.server.api.validation;
@@ -18,7 +16,7 @@ module.exports = app => {
             return res.status(400).send('Informe email e senha');
         }
         
-        const user = await userService.findByEmail(req.body.email);
+        const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
         
         if(!user) return res.status(400).send('usuário não encontrado');
         
@@ -71,14 +69,14 @@ module.exports = app => {
 
     const forgotPassword = async (req, res) => {
         try {
-            const user = await userService.findByEmail(req.body.email);
+            const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
             console.log(user)
 
             const token = crypto.randomBytes(20).toString('hex');
             user.resetPasswordToken = token;
             user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-            await userService.replaceOne(user);
+            await app.server.service.v2.usuarioService.replaceOne(user);
 
             app.server.config.mail.send(
                 `
@@ -111,7 +109,7 @@ module.exports = app => {
 
     const validateResetToken = async (req, res) => {
         try {
-            const user = await userService.validateResetToken(req.body._id, req.body.token);
+            const user = await app.server.service.v2.usuarioService.validateResetToken(req.body._id, req.body.token);
             console.log(user)
             if(user) {
                 return res.send(true);
@@ -125,7 +123,7 @@ module.exports = app => {
 
     const resetPassword = async (req, res) => {
         try {
-            const user = await userService.validateResetToken(req.body._id, req.body.resetPasswordToken);
+            const user = await app.server.service.v2.usuarioService.validateResetToken(req.body._id, req.body.resetPasswordToken);
             if(user) {
                 delete user.resetPasswordToken;
                 delete user.resetPasswordExpires;
@@ -136,7 +134,7 @@ module.exports = app => {
 
                 user.password = encryptPassword(req.body.password);
 
-                const result = await userService.replaceOne(user);
+                const result = await app.server.service.v2.usuarioService.replaceOne(user);
                 app.server.config.mail.send(
                     `
                     <div>
@@ -167,7 +165,7 @@ module.exports = app => {
 
     const acceptInvite = async (req, res) => {
         try {
-            const user = await userService.validateInvitationToken(req.body._id, req.body.invitationToken);
+            const user = await app.server.service.v2.usuarioService.validateInvitationToken(req.body._id, req.body.invitationToken);
             if(user) {
                 delete user.invitationToken;
                 delete user.invitationExpires;
@@ -178,7 +176,7 @@ module.exports = app => {
 
                 user.password = encryptPassword(req.body.password);
 
-                const result = await userService.replaceOne(user);
+                const result = await app.server.service.v2.usuarioService.replaceOne(user);
                 app.server.config.mail.send(
                     `
                     <div>

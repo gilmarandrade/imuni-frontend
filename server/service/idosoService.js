@@ -1,6 +1,4 @@
  
-const userService = require('../service/userService');
-
 const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'idosos';
@@ -394,7 +392,7 @@ const findByNome = async (collectionPrefix, nomeLower) => {
 
 const findAllByUser = async (collectionPrefix, usuarioId, filter, sort, page, rowsPerPage) => {
 
-    const user = await userService.findById(usuarioId);
+    const user = await app.server.service.v2.usuarioService.findById(usuarioId);
     // console.log('find all by user')
     if(user) {
         // console.log(user)

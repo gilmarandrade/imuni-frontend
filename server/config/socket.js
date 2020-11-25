@@ -1,5 +1,7 @@
+/**
+ * @deprecated
+ */
 const syncService = require('../service/syncService');
-const userService = require('../service/userService');
 
 module.exports = app => {
     const init = async (server) => {

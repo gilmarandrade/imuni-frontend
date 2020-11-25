@@ -72,6 +72,60 @@ module.exports = app => {
 
     }
 
+    const resendInvitation = async (req, res) => {
 
-    return { getByUnidadeId, sendInvitation }
+        const user = await app.server.service.v2.usuarioService.findById(req.params.userId);
+        
+        // validações
+        try {
+            //checar se o status do usuario está convite enviado
+            existsOrError(user.invitationToken, 'Este usuário não tem convite pendente');
+        } catch(msg) {
+            return res.status(400).send(msg);
+        }
+        
+        const token = crypto.randomBytes(20).toString('hex');
+        user.invitationToken = token;
+        user.invitationExpires = Date.now() + 3600000 * 48; // 48 hour
+
+        try {
+            await app.server.service.v2.usuarioService.replaceOne(user);
+            app.server.config.mail.send(
+                `
+                <div>
+                  <header style="text-align: center;">
+                    <h1 style="padding:34px 65px; font-family: 'Open Sans', verdana, sans-serif; font-size: 2.1875rem; font-weight:normal; line-height: 2.9rem;background-color:#BED1D2; color:#206164; text-align: center;">Valide seu acesso</h1>
+                  </header>
+                  <section style="padding:34px 65px;font-family: Open Sans, verdana, sans-serif; font-size: 1rem;line-height: 1.375rem; color: rgba(0, 0, 0, 0.87);">
+                    <p>Prezado(a) ${user.name},</p>
+                    <p>
+                    Para acessar o Sistema de Monitoramento de Idosos, conclua seu cadastro:
+                    <a href="${process.env.CLIENT_URL}/acceptInvitation/${user._id}/${user.invitationToken}">${process.env.CLIENT_URL}/acceptInvitation/${user._id}/${user.invitationToken}</a>
+                    </p>
+                  </section>
+                </div>
+                `,
+                "Monitoramento de Idosos",
+                user.email
+              ).catch(console.error);
+            return res.status(200).send('Convite reenviado');
+        } catch(err) {
+            console.log(err)
+            return res.status(500).send(err.toString());
+        }
+
+    }
+
+    
+    const getAdministradores = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.findAdministradores();
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores }
 }
