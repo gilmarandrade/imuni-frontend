@@ -103,7 +103,7 @@ export default {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
             //TODO unificar o cadastro de admin e vigilante na mesma url
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/administradores`;
             console.log(url);
 
             axios.post(url, this.form).then( () => {

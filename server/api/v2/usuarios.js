@@ -127,5 +127,15 @@ module.exports = app => {
         }
     }
 
-    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores }
+    const remove = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.softDeleteOne(req.params.usuarioId);
+            return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove }
 }

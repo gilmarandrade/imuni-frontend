@@ -65,7 +65,11 @@ module.exports = app => {
         .get(role(app.server.api.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.unidades.save, 'ADMINISTRADOR'));
 
-    app.route('/api/administradores')
+    app.route('/api/v2/administradores/:usuarioId')
+        .all(app.server.config.passport.authenticate())
+        .delete(role(app.server.api.v2.usuarios.remove, 'ADMINISTRADOR'));
+
+    app.route('/api/v2/administradores')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.usuarios.getAdministradores, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));

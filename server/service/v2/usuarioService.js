@@ -199,4 +199,37 @@ const validateInvitationToken = async (id, token) => {
     return promise;
 }
 
-module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken };
+
+/**
+ * Exclusão lógica de registro
+ * 
+ * Seta _isDeleted para true
+ * @param {*} id
+ */
+const softDeleteOne = async (id) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.updateOne({ _id: ObjectId(id) }, {
+                $set: {
+                    _isDeleted: true
+                }
+            }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(id);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne };
