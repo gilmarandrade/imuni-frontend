@@ -16,7 +16,7 @@
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
                 <span v-else>
-                  ativo
+                  {{data.item.ativo}}
                 </span>
               </template>
                 <template v-slot:cell(acoes)="data">

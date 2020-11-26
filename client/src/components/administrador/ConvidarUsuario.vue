@@ -96,6 +96,7 @@ export default {
                 email: '',
                 role: 'VIGILANTE',
                 unidadeId: this.$route.params.id,
+                ativo: true,
                 _isDeleted: false,
             },
             permissoes: [ { text: 'Preceptor', value: 'PRECEPTOR' }, { text: 'Vigilante', value: 'VIGILANTE' } ],

@@ -18,7 +18,9 @@ module.exports = app => {
         
         const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
         
-        if(!user) return res.status(400).send('usuário não encontrado');
+        if(!user) return res.status(400).send('Usuário não encontrado');
+
+        if(!user.ativo) return res.status(400).send('Usuário bloquado pelo administrador');
         
         try {
             const isMatch = bcrypt.compareSync(req.body.password, user.password);
@@ -28,7 +30,6 @@ module.exports = app => {
         }
         
         const now = Math.floor(Date.now() / 1000);
-        console.log('chegou até aqui?')
 
         // obs: quando o token expira, o usuário precisa fazer login novamente
         const payload = {
