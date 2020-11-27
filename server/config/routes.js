@@ -12,12 +12,12 @@ module.exports = app => {
     app.route('/api/teste')
     .get(app.server.api.unidades.get);
     
-    app.post('/api/login', app.server.api.auth.login);
-    app.post('/api/validateToken', app.server.api.auth.validateToken);
-    app.post('/api/forgotPassword', app.server.api.auth.forgotPassword);
-    app.post('/api/validateResetToken', app.server.api.auth.validateResetToken);
-    app.post('/api/resetPassword', app.server.api.auth.resetPassword);
-    app.post('/api/acceptInvite', app.server.api.auth.acceptInvite);
+    app.post('/api/v2/login', app.server.api.auth.login);
+    app.post('/api/v2/validateToken', app.server.api.auth.validateToken);
+    app.post('/api/v2/forgotPassword', app.server.api.auth.forgotPassword);
+    app.post('/api/v2/validateResetToken', app.server.api.auth.validateResetToken);
+    app.post('/api/v2/resetPassword', app.server.api.auth.resetPassword);
+    app.post('/api/v2/acceptInvite', app.server.api.auth.acceptInvite);
 
     app.route('/api/docs/:id/sheets/:sheetName/range/:range')
         .all(app.server.config.passport.authenticate())

@@ -24,14 +24,14 @@ export default {
     },
     methods: {
         async validateResetToken() {
-            const res = await axios.post(`${baseApiUrl}/validateResetToken`, { _id: this.$route.params.id, token: this.$route.params.token } );
+            const res = await axios.post(`${baseApiUrl}/v2/validateResetToken`, { _id: this.$route.params.id, token: this.$route.params.token } );
             if(res.data === false) {
                 showError('token expirado')
                 // window.location.href = window.location.origin;
             }
         },
         salvar() {
-            axios.post(`${baseApiUrl}/resetPassword`, this.user)
+            axios.post(`${baseApiUrl}/v2/resetPassword`, this.user)
                 .then(res => {
                     console.log(res.data)
                     // this.$toasted.global.defaultSuccess({msg: res.data});

@@ -49,7 +49,7 @@ export default {
         return;
       }
 
-      const res = await axios.post(`${baseApiUrl}/validateToken`, userData);
+      const res = await axios.post(`${baseApiUrl}/v2/validateToken`, userData);
 
       if(res.data) {
         this.$store.commit('setUser', userData);
