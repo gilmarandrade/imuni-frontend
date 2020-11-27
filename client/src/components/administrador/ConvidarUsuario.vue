@@ -95,24 +95,24 @@ export default {
                 name: '',
                 email: '',
                 role: 'VIGILANTE',
-                unidadeId: this.$route.params.id,
-                ativo: true,
+                unidadeId: this.$route.params.unidadeId,
+                status: 'CONVIDADO',
                 _isDeleted: false,
             },
             permissoes: [ { text: 'Preceptor', value: 'PRECEPTOR' }, { text: 'Vigilante', value: 'VIGILANTE' } ],
             //TODO preencher a lista de unidades com a lista vinda do bd
-            unidades: [ { text: this.$route.params.unidadeNome, value: this.$route.params.id } ],
+            unidades: [ { text: this.$route.params.unidadeId, value: this.$route.params.unidadeId } ],
         }
     },
      methods: {
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
-            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/usuarios`;
             console.log(url);
 
             axios.post(url, this.form).then( () => {
-                this.$router.push({ name: 'unidade', params: { id: this.$route.params.id } })
+                this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
                 this.$toasted.global.defaultSuccess();
             }).catch(showError)
         },

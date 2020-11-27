@@ -19,6 +19,20 @@ module.exports = app => {
     app.post('/api/v2/resetPassword', app.server.api.auth.resetPassword);
     app.post('/api/v2/acceptInvite', app.server.api.auth.acceptInvite);
 
+    app.route('/api/v2/usuarios/resendInvitation/:userId')
+    .all(app.server.config.passport.authenticate())
+    .post(role(app.server.api.v2.usuarios.resendInvitation, 'ADMINISTRADOR'));
+
+    app.route('/api/v2/usuarios/:usuarioId/status/:status')
+    .all(app.server.config.passport.authenticate())
+    .post(role(app.server.api.v2.usuarios.updateStatus, 'ADMINISTRADOR'));
+
+    app.route('/api/v2/usuarios/:usuarioId')
+    .all(app.server.config.passport.authenticate())
+    .delete(role(app.server.api.v2.usuarios.remove, 'ADMINISTRADOR'));
+
+
+
     app.route('/api/docs/:id/sheets/:sheetName/range/:range')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.planilhas.get);
@@ -43,10 +57,10 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.atendimentos.atendimento);
 
-    app.route('/api/unidades/:unidadeId/usuarios')
-        .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
-        .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
+    // app.route('/api/unidades/:unidadeId/usuarios')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
+    //     .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/unidades/:unidadeId/vigilantes')
         .all(app.server.config.passport.authenticate())
@@ -65,22 +79,10 @@ module.exports = app => {
         .get(role(app.server.api.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.unidades.save, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/administradores/:usuarioId/status/:status')
-        .all(app.server.config.passport.authenticate())
-        .post(role(app.server.api.v2.usuarios.updateStatus, 'ADMINISTRADOR'));
-
-    app.route('/api/v2/administradores/:usuarioId')
-        .all(app.server.config.passport.authenticate())
-        .delete(role(app.server.api.v2.usuarios.remove, 'ADMINISTRADOR'));
-
     app.route('/api/v2/administradores')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.usuarios.getAdministradores, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
-
-    app.route('/api/users/resendInvitation/:userId')
-        .all(app.server.config.passport.authenticate())
-        .post(role(app.server.api.v2.usuarios.resendInvitation, 'ADMINISTRADOR'));
 
     app.route('/api/stats')
         .all(app.server.config.passport.authenticate())

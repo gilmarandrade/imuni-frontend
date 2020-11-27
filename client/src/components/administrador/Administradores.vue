@@ -62,7 +62,7 @@ export default {
             }).catch(showError)
         },
         resendInvite(userId) {
-            const url = `${baseApiUrl}/users/resendInvitation/${userId}`;
+            const url = `${baseApiUrl}/v2/usuarios/resendInvitation/${userId}`;
             console.log(url);
 
             axios.post(url).then( (res) => {
@@ -71,7 +71,7 @@ export default {
             }).catch(showError)
         },
         toggleAtivo(user) {
-            const url = `${baseApiUrl}/v2/administradores/${user._id}/status/${user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)}`;
+            const url = `${baseApiUrl}/v2/usuarios/${user._id}/status/${user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)}`;
             console.log(url);
 
             axios.post(url).then( (res) => {
@@ -90,7 +90,7 @@ export default {
             .then(value => {
               console.log(value);
               if(value === true) {
-                  const url = `${baseApiUrl}/v2/administradores/${id}`;
+                  const url = `${baseApiUrl}/v2/usuarios/${id}`;
                   console.log(url);
 
                   axios.delete(url).then(res => {

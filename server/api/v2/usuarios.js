@@ -29,8 +29,9 @@ module.exports = app => {
             if(user.role === 'VIGILANTE' || user.role === 'PRECEPTOR') {//TODO deveria permitir o cadastro de usuarios de outros tipos: preceptor, tutor?
                 existsOrError(user.unidadeId, 'Unidade de Saúde não informada');
                 const unidade = await app.server.service.v2.unidadeService.getById(user.unidadeId);
-                user.collectionPrefix = unidade.collectionPrefix;
-                user.nomeUnidade = unidade.nome;
+                // TODO deprecated
+                // user.collectionPrefix = unidade.collectionPrefix;
+                // user.nomeUnidade = unidade.nome;
                 //TODO deveria verificar se a unidade existe?
             }
             //verifica se já existe um usuario com esse email

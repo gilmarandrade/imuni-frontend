@@ -68,7 +68,7 @@ const routes = [
     },
     {
         name: 'convidarUsuarioDaUnidade',
-        path: '/unidades/:id/:unidadeNome/addUsuario',
+        path: '/unidades/:unidadeId/addUsuario',
         component: ConvidarUsuario,
         meta: { requiresAdmin: true }
     },

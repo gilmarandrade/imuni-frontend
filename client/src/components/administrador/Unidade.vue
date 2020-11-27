@@ -79,7 +79,7 @@
          <div class="card-body">
             <h5 class="card-title">
               Usuários
-              <router-link :to="'/unidades/'+unidade._id+'/'+unidade.nome+'/addUsuario'" class="btn btn-primary float-right mb-3">convidar</router-link>
+              <router-link :to="'/unidades/'+unidade._id+'/addUsuario'" class="btn btn-primary float-right mb-3">convidar</router-link>
             </h5>
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
@@ -87,13 +87,20 @@
                 <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
               </template>
               <template v-slot:cell(status)="data">
-                <span v-if="data.item.invitationToken">
-                  convite enviado 
+                <span v-if="data.item.status == 'INCOMPLETO'">
+                  INCOMPLETO
+                </span>
+                <span v-if="data.item.status == 'CONVIDADO'">
+                   CONVITE ENVIADO 
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
                 <span v-else>
-                  ativo
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id">
+                  </b-form-checkbox>
                 </span>
+              </template>
+              <template v-slot:cell(acoes)="data">
+                <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button>
               </template>
             </b-table>
          </div>
@@ -134,11 +141,12 @@ export default {
             loading: false,
             usuarios: [],
             fieldsUsuarios: [ 
-                { key: 'link', label: '' },
+                { key: 'link', label: 'nome' },
                 // { key: 'name', label: 'nome' },
                 { key: 'email', label: 'email' },
                 { key: 'role', label: 'tipo' },
                 { key: 'status', label: 'status' },
+                { key: 'acoes', label: 'ações' },
             ],
             idosos: [],
             fieldsIdosos: [ 
@@ -153,7 +161,7 @@ export default {
             ],
         }
     },
-    computed: mapState(['syncStatus']),
+    computed: mapState(['syncStatus', 'user']),
     methods: {
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}`;
@@ -165,7 +173,7 @@ export default {
             }).catch(showError)
         },
         loadUsuarios() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/usuarios`;
             console.log(url);
 
             axios.get(url).then(res => {
@@ -214,13 +222,48 @@ export default {
           this.$socket.emit('resetEvent', { idUnidade: this.unidade._id });
         },
         resendInvite(userId) {
-            const url = `${baseApiUrl}/users/resendInvitation/${userId}`;
+            const url = `${baseApiUrl}/v2/usuarios/resendInvitation/${userId}`;
             console.log(url);
 
             axios.post(url).then( (res) => {
                 console.log(res)
                 this.$toasted.global.defaultSuccess({msg: res.data});
             }).catch(showError)
+        },
+        toggleAtivo(user) {
+            const url = `${baseApiUrl}/v2/usuarios/${user._id}/status/${user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)}`;
+            console.log(url);
+
+            axios.post(url).then( (res) => {
+                this.$toasted.global.defaultSuccess({msg: res.data});
+            }).catch(e => {
+              user.status = user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)
+              showError(e)
+            })
+        },
+        deleteUsuario(id) {
+          this.$bvModal.msgBoxConfirm('Deseja realmente excluir o usuário? Todos os dados serão perdidos!', {
+            okVariant: 'danger',
+            okTitle: 'excluir',
+            cancelTitle: 'cancelar',
+          })
+            .then(value => {
+              console.log(value);
+              if(value === true) {
+                  const url = `${baseApiUrl}/v2/usuarios/${id}`;
+                  console.log(url);
+
+                  axios.delete(url).then(res => {
+                      console.log(res)
+                      this.$toasted.global.defaultSuccess({ msg: 'Usuário removido com sucesso'});
+                      this.loadUsuarios();
+                  }).catch(showError)
+              }
+            })
+            .catch(err => {
+              // An error occurred
+              console.error(err.toString())
+            })
         },
         confirmDeletion(id) {
           this.$bvModal.msgBoxConfirm('Deseja realmente excluir a unidade? Todos os dados serão perdidos!', {

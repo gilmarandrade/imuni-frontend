@@ -235,7 +235,7 @@ const softDeleteOne = async (id) => {
 
 /**
  * Ativa ou inativa (bloqueia acesso) de um usuário
- * @param {*} idoso 
+ * @param {*}  
  */
 const updateStatus = async (usuarioId, status) => {
     const promise = new Promise( (resolve, reject) => {
