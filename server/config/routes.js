@@ -26,6 +26,10 @@ module.exports = app => {
     app.route('/api/v2/usuarios/:usuarioId/status/:status')
     .all(app.server.config.passport.authenticate())
     .post(role(app.server.api.v2.usuarios.updateStatus, 'ADMINISTRADOR'));
+    
+    app.route('/api/v2/usuarios/:usuarioId/completar')
+    .all(app.server.config.passport.authenticate())
+    .post(role(app.server.api.v2.usuarios.completarCadastro, 'ADMINISTRADOR'));
 
     app.route('/api/v2/usuarios/:usuarioId')
     .all(app.server.config.passport.authenticate())

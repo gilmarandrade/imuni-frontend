@@ -14,7 +14,7 @@
                 <span v-if="data.item.status == 'INCOMPLETO'">
                   INCOMPLETO
                 </span>
-                <span v-if="data.item.status == 'CONVIDADO'">
+                <span v-else-if="data.item.status == 'CONVIDADO'">
                   CONVITE ENVIADO 
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>

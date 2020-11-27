@@ -89,8 +89,9 @@
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">
                   INCOMPLETO
+                  <button @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
                 </span>
-                <span v-if="data.item.status == 'CONVIDADO'">
+                <span v-else-if="data.item.status == 'CONVIDADO'">
                    CONVITE ENVIADO 
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
@@ -122,6 +123,43 @@
        </div>
    </div>
 
+  <!-- The modal -->
+  <b-modal 
+    id="modal-completar-cadastro-usuario"
+    title="Completar cadastro"
+    @hidden="modalCompletarCadastroUsuarioReset"
+    @ok="modalCompletarCadastroUsuarioHandleOk">
+
+    <form ref="form" @submit.stop.prevent=" modalCompletarCadastroUsuarioHandleSubmit">
+      {{completarCadastroUsuario.id}}
+      <b-form-group
+        label="Nome"
+        label-for="nome-input"
+      >
+        <b-form-input
+          id="nome-input"
+          v-model="completarCadastroUsuario.nome"
+          disabled
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group
+        label="E-mail"
+        label-for="email-input"
+        :state="completarCadastroUsuario.emailState"
+        :invalid-feedback="completarCadastroUsuario.emailInvalidFeedback || 'Email inválido'"
+      >
+        <b-form-input
+          id="email-input"
+          type="email"
+          v-model="completarCadastroUsuario.email"
+          required
+          :state="completarCadastroUsuario.emailState"
+        ></b-form-input>
+      </b-form-group>
+    </form>
+
+  </b-modal>
  </div>
 </template>
 
@@ -159,6 +197,13 @@ export default {
                 { key: 'anotacoes', label: 'anotações' },
                 { key: 'acoes', label: 'ações' },
             ],
+            completarCadastroUsuario: {
+              nome: '',
+              id: '',
+              email: '',
+              emailState: null,
+              emailInvalidFeedback: '',
+            },
         }
     },
     computed: mapState(['syncStatus', 'user']),
@@ -229,6 +274,54 @@ export default {
                 console.log(res)
                 this.$toasted.global.defaultSuccess({msg: res.data});
             }).catch(showError)
+        },
+        modalCompletarCadastroUsuarioReset() {
+          this.completarCadastroUsuario.id = '';
+          this.completarCadastroUsuario.nome = '';
+          this.completarCadastroUsuario.email = '';
+          this.completarCadastroUsuario.emailState = null;
+        },
+        openModalCompletarCadastroUsuario(user) {
+            this.completarCadastroUsuario.id = user._id;
+            this.completarCadastroUsuario.nome = user.name;
+            this.completarCadastroUsuario.email = user.email;
+            this.$bvModal.show('modal-completar-cadastro-usuario');
+        },
+        modalCompletarCadastroUsuarioHandleSubmit() {
+          // Exit when the form isn't valid
+          this.completarCadastroUsuario.emailState = this.$refs.form.checkValidity();
+          if (!this.completarCadastroUsuario.emailState) {
+            return
+          }
+
+          //requisição para API
+          const url = `${baseApiUrl}/v2/usuarios/${this.completarCadastroUsuario.id}/completar`;
+          console.log(url);
+
+          axios.post(url, { email: this.completarCadastroUsuario.email }).then( (res) => {
+              // console.log(res)
+              this.$toasted.global.defaultSuccess({msg: res.data});
+
+              this.loadUsuarios();
+
+              // Hide the modal manually
+              this.$nextTick(() => {
+                this.$bvModal.hide('modal-completar-cadastro-usuario');
+              })
+          }).catch(e => {
+            if(e && e.response && e.response.data) {
+              this.completarCadastroUsuario.emailState = false;
+              this.completarCadastroUsuario.emailInvalidFeedback = e.response.data;
+            } else {
+              showError(e);
+            }
+          })
+        },
+        modalCompletarCadastroUsuarioHandleOk(bvModalEvt) {
+          // // Prevent modal from closing
+          bvModalEvt.preventDefault();
+          // // Trigger submit handler
+          this.modalCompletarCadastroUsuarioHandleSubmit();
         },
         toggleAtivo(user) {
             const url = `${baseApiUrl}/v2/usuarios/${user._id}/status/${user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)}`;
