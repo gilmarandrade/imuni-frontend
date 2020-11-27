@@ -11,12 +11,15 @@
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(status)="data">
-                <span v-if="data.item.invitationToken">
-                  convite enviado
+                <span v-if="data.item.status == 'INCOMPLETO'">
+                  INCOMPLETO
+                </span>
+                <span v-if="data.item.status == 'CONVIDADO'">
+                  CONVITE ENVIADO 
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
                 <span v-else>
-                  <b-form-checkbox v-model="data.item.ativo" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id">
                   </b-form-checkbox>
                 </span>
               </template>
@@ -68,13 +71,13 @@ export default {
             }).catch(showError)
         },
         toggleAtivo(user) {
-            const url = `${baseApiUrl}/v2/administradores/${user._id}/ativo/${!user.ativo}`;
+            const url = `${baseApiUrl}/v2/administradores/${user._id}/status/${user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)}`;
             console.log(url);
 
             axios.post(url).then( (res) => {
                 this.$toasted.global.defaultSuccess({msg: res.data});
             }).catch(e => {
-              user.ativo = !user.ativo;
+              user.status = user.status == 'ATIVO' ? 'INATIVO' : (user.status == 'INATIVO' ? 'ATIVO' : user.status)
               showError(e)
             })
         },

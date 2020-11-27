@@ -137,15 +137,15 @@ module.exports = app => {
         }
     }
 
-    const updateAtivo = async (req, res) => {
+    const updateStatus = async (req, res) => {
         try {
-            const result = await app.server.service.v2.usuarioService.updateAtivo(req.params.usuarioId, (req.params.isAtivo.toLowerCase() === 'true'));
+            const result = await app.server.service.v2.usuarioService.updateStatus(req.params.usuarioId, req.params.status);
             console.log(result)
-            return res.json(`Usuário ${(req.params.isAtivo.toLowerCase() === 'true') ? 'ativado' : 'desativado'} com sucesso`);
+            return res.json(`Usuário ${(req.params.status == 'ATIVO') ? 'ativado' : 'desativado'} com sucesso`);
         } catch(err) {
             return res.status(500).send(err);
         }
     }
 
-    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateAtivo }
+    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus }
 }

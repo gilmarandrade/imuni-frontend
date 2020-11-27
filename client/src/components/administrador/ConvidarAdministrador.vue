@@ -94,7 +94,7 @@ export default {
                 name: '',
                 email: '',
                 role: 'ADMINISTRADOR',
-                ativo: true,
+                status: 'CONVIDADO',
                 _isDeleted: false,
             },
         }

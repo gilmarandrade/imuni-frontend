@@ -16,7 +16,7 @@ module.exports = app => {
         try {
             const user = await app.server.service.v2.usuarioService.findById(payload.id);
             console.log(user);
-            done(null, user && user.ativo == true ? { ...payload } : false);
+            done(null, user && user.status == 'ATIVO' ? { ...payload } : false);
         } catch(err) {
             done(err, false);// não autorizado
         }

@@ -20,8 +20,12 @@ module.exports = app => {
         
         if(!user) return res.status(400).send('Usuário não encontrado');
 
-        if(!user.ativo) return res.status(400).send('Usuário bloquado pelo administrador');
-        
+        if(user.status == 'CONVIDADO') {
+            return res.status(400).send('E-mail não validado');
+        } else if(user.status != 'ATIVO') {
+            return res.status(400).send('Usuário bloqueado');
+        }
+
         try {
             const isMatch = bcrypt.compareSync(req.body.password, user.password);
             if(!isMatch) return res.status(400).send('E-mail/Senha inválidos');
@@ -34,7 +38,7 @@ module.exports = app => {
         // obs: quando o token expira, o usuário precisa fazer login novamente
         const payload = {
             id: user._id,
-            ativo: user.ativo,
+            status: user.status,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -58,9 +62,9 @@ module.exports = app => {
             if(userData) {
                 //checa se o usuário não está com acesso bloqueado
                 const user = await app.server.service.v2.usuarioService.findById(userData.id);
-                console.log('USER ATIVO', user.ativo)
+                console.log('USER STATUS', user.status)
 
-                if(user.ativo) {
+                if(user.status == 'ATIVO') {
                     //checa se o token está dentro da validade
                     const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
                     if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
@@ -178,6 +182,7 @@ module.exports = app => {
         try {
             const user = await app.server.service.v2.usuarioService.validateInvitationToken(req.body._id, req.body.invitationToken);
             if(user) {
+                user.status = 'ATIVO';
                 delete user.invitationToken;
                 delete user.invitationExpires;
 

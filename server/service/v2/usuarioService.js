@@ -237,7 +237,7 @@ const softDeleteOne = async (id) => {
  * Ativa ou inativa (bloqueia acesso) de um usuário
  * @param {*} idoso 
  */
-const updateAtivo = async (usuarioId, isAtivo) => {
+const updateStatus = async (usuarioId, status) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -247,7 +247,7 @@ const updateAtivo = async (usuarioId, isAtivo) => {
 
             collection.updateOne({ _id: ObjectId(usuarioId) }, {
                 $set: { 
-                    ativo: isAtivo
+                    status: status
                 }
             }, function(err, result) {
                 if(err) {
@@ -263,4 +263,4 @@ const updateAtivo = async (usuarioId, isAtivo) => {
     return promise;
 }
 
-module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateAtivo };
+module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus };

@@ -65,9 +65,9 @@ module.exports = app => {
         .get(role(app.server.api.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.unidades.save, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/administradores/:usuarioId/ativo/:isAtivo')
+    app.route('/api/v2/administradores/:usuarioId/status/:status')
         .all(app.server.config.passport.authenticate())
-        .post(role(app.server.api.v2.usuarios.updateAtivo, 'ADMINISTRADOR'));
+        .post(role(app.server.api.v2.usuarios.updateStatus, 'ADMINISTRADOR'));
 
     app.route('/api/v2/administradores/:usuarioId')
         .all(app.server.config.passport.authenticate())
