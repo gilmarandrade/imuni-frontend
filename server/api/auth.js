@@ -34,6 +34,7 @@ module.exports = app => {
         // obs: quando o token expira, o usuário precisa fazer login novamente
         const payload = {
             id: user._id,
+            ativo: user.ativo,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -55,14 +56,23 @@ module.exports = app => {
         const userData = req.body || null;
         try {
             if(userData) {
-                const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
-                if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
-                    return res.send(true);
-                    // Em vez de mndar true, pode-se mandar um novo token (renovar o token de forma transparente para o usuário)
+                //checa se o usuário não está com acesso bloqueado
+                const user = await app.server.service.v2.usuarioService.findById(userData.id);
+                console.log('USER ATIVO', user.ativo)
+
+                if(user.ativo) {
+                    //checa se o token está dentro da validade
+                    const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
+                    if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
+                        return res.send(true);
+                        // Em vez de mndar true, pode-se mandar um novo token (renovar o token de forma transparente para o usuário)
+                    }
                 }
+
             }
         } catch (e) {
             // algum tipo de problema no token
+            return res.send(false);
         }
 
         return res.send(false); // token não válido

@@ -36,21 +36,22 @@ export default {
         this.$store.commit('setIsLoadingApp', false);
         return;
       }
+console.log('validating token')
 
       this.$store.commit('setIsLoadingApp', true);
 
       const json = localStorage.getItem(userKey);
       const userData = JSON.parse(json);
       this.$store.commit('setUser', null);
+console.log(userData)
 
       if(!userData) {
         this.$store.commit('setIsLoadingApp', false);
         this.$router.push({ name: 'auth' });//TODO se o usuario acessa a pagina /auth diretamente ocorre erro Avoided redundant navigation to current location: "/auth"
         return;
       }
-
       const res = await axios.post(`${baseApiUrl}/v2/validateToken`, userData);
-
+console.log(res)
       if(res.data) {
         this.$store.commit('setUser', userData);
         //TODO esse seria o local de redirecionar o usuario para uma página dependendo da permissao
