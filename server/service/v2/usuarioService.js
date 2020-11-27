@@ -232,4 +232,35 @@ const softDeleteOne = async (id) => {
     return promise;
 }
 
-module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne };
+
+/**
+ * Ativa ou inativa (bloqueia acesso) de um usuário
+ * @param {*} idoso 
+ */
+const updateAtivo = async (usuarioId, isAtivo) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.updateOne({ _id: ObjectId(usuarioId) }, {
+                $set: { 
+                    ativo: isAtivo
+                }
+            }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(usuarioId);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateAtivo };

@@ -137,5 +137,15 @@ module.exports = app => {
         }
     }
 
-    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove }
+    const updateAtivo = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.updateAtivo(req.params.usuarioId, (req.params.isAtivo.toLowerCase() === 'true'));
+            console.log(result)
+            return res.json(`Usuário ${(req.params.isAtivo.toLowerCase() === 'true') ? 'ativado' : 'desativado'} com sucesso`);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateAtivo }
 }

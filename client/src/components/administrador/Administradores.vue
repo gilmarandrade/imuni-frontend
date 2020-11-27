@@ -16,7 +16,8 @@
                   <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 </span>
                 <span v-else>
-                  {{data.item.ativo}}
+                  <b-form-checkbox v-model="data.item.ativo" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id">
+                  </b-form-checkbox>
                 </span>
               </template>
                 <template v-slot:cell(acoes)="data">
@@ -65,6 +66,17 @@ export default {
                 console.log(res)
                 this.$toasted.global.defaultSuccess({msg: res.data});
             }).catch(showError)
+        },
+        toggleAtivo(user) {
+            const url = `${baseApiUrl}/v2/administradores/${user._id}/ativo/${!user.ativo}`;
+            console.log(url);
+
+            axios.post(url).then( (res) => {
+                this.$toasted.global.defaultSuccess({msg: res.data});
+            }).catch(e => {
+              user.ativo = !user.ativo;
+              showError(e)
+            })
         },
         deleteUsuario(id) {
           this.$bvModal.msgBoxConfirm('Deseja realmente excluir o usuário? Todos os dados serão perdidos!', {
