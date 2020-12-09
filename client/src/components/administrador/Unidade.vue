@@ -2,7 +2,7 @@
  <div class="unidades" v-if="unidade">
    <h6><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link></h6>
    <header class="header-page">
-        <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
+        <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
           <popper
               trigger="hover"
               :options="{
@@ -13,15 +13,14 @@
               </div>
 
               <span slot="reference">
-                <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
                   <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
               </span>
           </popper>
-        </div>
+        </div> -->
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
 
-        <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync">
+        <!-- <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync">
           {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
         <popper
               trigger="hover"
@@ -41,7 +40,8 @@
         </b-checkbox>
         <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
-        <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary ml-2">
+         -->
+        <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar
         </router-link>
         <b-button @click="confirmDeletion(unidade._id)" class="btn btn-danger ml-2">excluir</b-button>
@@ -166,13 +166,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'Unidade',
-    components: { 'popper': Popper },
     data: function() {
         return {
             unidade: null,

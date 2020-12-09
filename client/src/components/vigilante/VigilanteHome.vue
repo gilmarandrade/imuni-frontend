@@ -3,7 +3,7 @@
         <h6><router-link :to="'/'">Home</router-link></h6>
 
         <div v-if="unidade">
-            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
+            <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
                 trigger="hover"
                 :options="{
@@ -14,19 +14,18 @@
                 </div>
 
                 <span slot="reference">
-                    <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
                     <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                 </span>
             </popper>
-            </div>
+            </div> -->
             <!-- <h1>{{ unidade.nome }}</h1>
             <p>Distrito {{ unidade.distrito }}</p> -->
         </div>
 
         <h5>{{ user.nomeUnidade }}</h5>
         <h1>Meus Idosos</h1>
-        <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
-        <a v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
+        <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
+        <a disabled v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
 
 
          <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
@@ -48,14 +47,12 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import TableIdosos from '@/components/includes/TableIdosos';
-import Popper from 'vue-popperjs';
-import 'vue-popperjs/dist/vue-popper.css';
 // import { userKey } from '@/global';
 import { mapState } from 'vuex';
 
 export default {
     name: 'VigilanteHome',
-    components: { TableIdosos, 'popper': Popper },
+    components: { TableIdosos },
     computed: mapState(['user', 'syncStatus']),
     data: function() {
         return {

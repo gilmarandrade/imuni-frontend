@@ -20,9 +20,9 @@
         </div>
 
         <ul class="grid-list row">
-            <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.autoSync }" class="col-sm-6 col-md-4 col-lg-3">
+            <li v-for="unidade in unidades" :key="unidade._id" class="col-sm-6 col-md-4 col-lg-3">
               <router-link :to="'/unidades/'+unidade._id" class="item" title="clique para ver detalhes">
-                <div v-if="unidade.lastSyncDate" class="sync-state">
+                <!-- <div v-if="unidade.lastSyncDate" class="sync-state">
                   <popper
                       trigger="hover"
                       :options="{
@@ -36,7 +36,7 @@
                           <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                       </span>
                   </popper>
-                </div>
+                </div> -->
                 <h2>{{ unidade.nome }}</h2>
                 <p>Distrito {{ unidade.distrito }}</p>
               </router-link>
@@ -48,12 +48,9 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-import Popper from 'vue-popperjs';
-import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'Unidades',
-    components: { 'popper': Popper },
     data: function() {
         return {
             unidades: [],

@@ -8,9 +8,6 @@ module.exports = app => {
     // app.get('/', function (req, res) {
     //     res.send('Hello World from api-frenteprevencaocovidrn-org-br!');
     // });
-
-    app.route('/api/teste')
-    .get(app.server.api.unidades.get);
     
     app.post('/api/v2/login', app.server.api.auth.login);
     app.post('/api/v2/validateToken', app.server.api.auth.validateToken);
@@ -41,42 +38,42 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.planilhas.get);
 
-    app.route('/api/unidades/:unidadeId/usuarios/:usuarioId/idosos')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.idosos.idososByUser);
+    // app.route('/api/unidades/:unidadeId/usuarios/:usuarioId/idosos')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.idosos.idososByUser);
 
-    app.route('/api/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.idosos.idososByVigilante);
+    // app.route('/api/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.idosos.idososByVigilante);
 
-    app.route('/api/unidades/:unidadeId/idosos/:idosoId')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.idosos.idoso);
+    // app.route('/api/unidades/:unidadeId/idosos/:idosoId')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.idosos.idoso);
 
-    app.route('/api/unidades/:unidadeId/idosos/:idosoId/atendimentos')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.atendimentos.atendimentosByIdoso);
+    // app.route('/api/unidades/:unidadeId/idosos/:idosoId/atendimentos')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.atendimentos.atendimentosByIdoso);
 
-    app.route('/api/unidades/:unidadeId/atendimentos/:id')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.atendimentos.atendimento);
+    // app.route('/api/unidades/:unidadeId/atendimentos/:id')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.atendimentos.atendimento);
 
     // app.route('/api/unidades/:unidadeId/usuarios')
     //     .all(app.server.config.passport.authenticate())
     //     .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
     //     .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
-    app.route('/api/unidades/:unidadeId/vigilantes')
-        .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.googlesheets.vigilantes, 'ADMINISTRADOR'));
+    // app.route('/api/unidades/:unidadeId/vigilantes')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(role(app.server.api.googlesheets.vigilantes, 'ADMINISTRADOR'));
 
-    app.route('/api/unidades/:unidadeId/autosync/:status')
-        .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.unidades.toggleAutoSync, 'ADMINISTRADOR'));
+    // app.route('/api/unidades/:unidadeId/autosync/:status')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(role(app.server.api.unidades.toggleAutoSync, 'ADMINISTRADOR'));
 
-    app.route('/api/unidades/:unidadeId')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.unidades.getById);
+    // app.route('/api/unidades/:unidadeId')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.unidades.getById);
 
     // app.route('/api/unidades')
     //     .all(app.server.config.passport.authenticate())
