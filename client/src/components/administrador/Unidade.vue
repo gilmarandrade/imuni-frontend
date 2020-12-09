@@ -225,6 +225,7 @@ export default {
             }).catch(showError)
         },
         loadIdosos() {
+          //TODO mostrar o nome do vigilante ao invés do id
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/idosos`;
             console.log(url);
 

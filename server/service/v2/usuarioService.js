@@ -30,6 +30,32 @@ const findById = async (id) => {
 }
 
 /**
+ * Encontra apenas os registros da collection que estão status ATIVO e _isDeleted false
+ */
+const findVigilantesAtivosByUnidade = async (unidadeId) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.find({ unidadeId: unidadeId, role: "VIGILANTE", status: "ATIVO", _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+/**
  * Encontra apenas os registros da collection que estão _isDeleted false
  */
 const findByUnidade = async (unidadeId) => {
@@ -298,4 +324,4 @@ const updateEmail = async (usuarioId, email) => {
     return promise;
 }
 
-module.exports = { findById, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail };
+module.exports = { findById, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail };

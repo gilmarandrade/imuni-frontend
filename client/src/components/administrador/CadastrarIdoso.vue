@@ -88,6 +88,7 @@
             v-model="form.unidadeId"
             :options="unidades"
             required
+            @change="onChangeUnidadeSelect"
             ></b-form-select>
         </b-form-group>
 
@@ -125,7 +126,7 @@ export default {
                 _isDeleted: false,
             },
             unidades: [ { text: 'Selecione...', value: '' } ],
-            vigilantes: [ { text: '', value: '' }, { text: 'Carlos', value: '5f9dc89e0a136c35bc73b0a8' } ],//TODO 
+            vigilantes: [ { text: 'Selecione', value: '' } ],
         }
     },
      methods: {
@@ -140,7 +141,19 @@ export default {
                 ];
             }).catch(showError)
         },
+        loadVigilantes(unidadeId) {
+            const url = `${baseApiUrl}/v2/unidades/${unidadeId}/vigilantes`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.vigilantes = [ 
+                    { text: 'Selecione...', value: '' }, 
+                    ...res.data.map(item => { return { text: item.name, value: item._id } } ) 
+                ];
+            }).catch(showError)
+        },
         onSubmit(evt) {
+            //TODO validação: a data de nascimento deve ter formato xx/xx/xxxx, usar um componente de calendário
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/idosos`;
@@ -151,9 +164,15 @@ export default {
                 this.$toasted.global.defaultSuccess({ msg: 'Registro salvo com sucesso'});
             }).catch(showError)
         },
+        onChangeUnidadeSelect(unidadeId) {
+            this.form.vigilanteId = '';
+            this.loadVigilantes(unidadeId);
+        }
     },
     mounted() {
         this.loadUnidades();
+        this.loadVigilantes(this.$route.params.unidadeId);
+
         //TODO deveria ter um spining loading 
         // modo de edição
         if(this.$route.query.id) {
@@ -161,6 +180,7 @@ export default {
             axios.get(url).then(res => {
                 this.form = res.data;
             }).catch(showError)
+
         }
     }
 }

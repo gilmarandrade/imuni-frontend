@@ -3,6 +3,16 @@ const crypto = require('crypto');
 module.exports = app => {
     const { existsOrError, notExistsOrError, equalsOrError } = app.server.api.validation;
 
+    const getVigilantesAtivosByUnidadeId = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.findVigilantesAtivosByUnidade(req.params.unidadeId);
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
     const getByUnidadeId = async (req, res) => {
         try {
             const result = await app.server.service.v2.usuarioService.findByUnidade(req.params.unidadeId);
@@ -211,5 +221,5 @@ module.exports = app => {
         }
     }
 
-    return { getByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro }
+    return { getByUnidadeId, getVigilantesAtivosByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro }
 }

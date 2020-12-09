@@ -31,6 +31,7 @@ const findAll = async () => {
 /**
  * Encontra apenas os registros da collection que estão _isDeleted false
  */
+//TODO esse nome de método é ambiguo. Dá a entender que está buscando unidades com status ATIVOS, quando na verdade esta buscando todas as unidades não deletadas
 const findAtivos = async () => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
