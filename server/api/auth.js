@@ -82,6 +82,7 @@ module.exports = app => {
         return res.send(false); // token não válido
     };
 
+    // TODO verificar falha de segurança: é possivel alterar a senha caso o usuário esteja bloqueado?
     const forgotPassword = async (req, res) => {
         try {
             const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
