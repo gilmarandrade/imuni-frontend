@@ -1,7 +1,8 @@
 <template>
   <div class="adicionarUnidade">
-    <h1>Adicionar/Editar Unidade</h1>
-  
+    <h1>Importar unidade a partir de planilhas</h1>
+    <p>Atenção: Não se esqueça de compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.</p>
+
     <b-form @submit="onSubmit">
         <b-form-group
             id="input-group-nome"
@@ -26,7 +27,7 @@
             ></b-form-select>
         </b-form-group>
 
-        <!-- <b-form-group
+        <b-form-group
             id="input-group-planilhaIdosos"
             label="Planilha de idosos:"
             label-for="planilhaIdosos"
@@ -66,7 +67,7 @@
             required
             placeholder="Link para ficha de vigilância"
             ></b-form-input>
-        </b-form-group> -->
+        </b-form-group>
 
         <b-button type="submit" variant="primary">Salvar</b-button>
     </b-form>
@@ -78,14 +79,25 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 
 export default {
-    name: 'AdicionarUnidade',
+    name: 'MigrarUnidade',
     data: function() {
         return {
             form: {
                 nome: '',
                 distrito: null,
-                status: 'ATIVO',
                 _isDeleted: false,
+                /* TODO DEPRECATED ATTRIBUTES*/
+                planilhaIdosos: '',
+                planilhaGerenciamento: '',
+                fichaVigilancia: '',
+                idPlanilhaIdosos: '',
+                idPlanilhaGerenciamento: '',
+                idFichaVigilancia: '',
+                collectionPrefix: '',
+                ativo: true,
+                autoSync: false,
+                lastSyncDate: null,
+                vigilantes: [],
             },
             distritos: [ { text: 'Selecione...', value: null }, 'Norte I', 'Norte II', 'Sul', 'Leste', 'Oeste' ],
         }
@@ -94,7 +106,7 @@ export default {
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
-            const url = `${baseApiUrl}/v2/unidades`;
+            const url = `${baseApiUrl}/v2/migracao/unidades`;
             console.log(url);
 
             axios.post(url, this.form).then(res => {
@@ -104,14 +116,13 @@ export default {
         },
     },
     mounted() {
-        //TODO deveria ter um spining loading 
         // modo de edição
-        if(this.$route.query.id) {
-            const url = `${baseApiUrl}/v2/unidades/${this.$route.query.id}`;
-            axios.get(url).then(res => {
-                this.form = res.data;
-            }).catch(showError)
-        }
+        // if(this.$route.query.id) {
+        //     const url = `${baseApiUrl}/v2/unidades/${this.$route.query.id}`;
+        //     axios.get(url).then(res => {
+        //         this.form = res.data;
+        //     }).catch(showError)
+        // }
     }
 }
 </script>

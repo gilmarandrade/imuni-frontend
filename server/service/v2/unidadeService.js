@@ -70,19 +70,20 @@ const upsertOne = async (unidade) => {
                 $set: { 
                     nome: unidade.nome,
                     distrito: unidade.distrito,
+                    status: unidade.status,
                     _isDeleted: unidade._isDeleted,
                     /* TODO DEPRECATED ATTRIBUTES*/
-                    planilhaIdosos: unidade.planilhaIdosos,
-                    planilhaGerenciamento: unidade.planilhaGerenciamento,
-                    fichaVigilancia: unidade.fichaVigilancia,
-                    idPlanilhaIdosos: unidade.idPlanilhaIdosos,
-                    idPlanilhaGerenciamento: unidade.idPlanilhaGerenciamento,
-                    idFichaVigilancia: unidade.idFichaVigilancia,
-                    collectionPrefix: unidade.collectionPrefix,
-                    ativo: unidade.ativo,
-                    autoSync: unidade.autoSync,
-                    lastSyncDate: unidade.lastSyncDate,
-                    vigilantes: unidade.vigilantes,
+                    // planilhaIdosos: unidade.planilhaIdosos,
+                    // planilhaGerenciamento: unidade.planilhaGerenciamento,
+                    // fichaVigilancia: unidade.fichaVigilancia,
+                    // idPlanilhaIdosos: unidade.idPlanilhaIdosos,
+                    // idPlanilhaGerenciamento: unidade.idPlanilhaGerenciamento,
+                    // idFichaVigilancia: unidade.idFichaVigilancia,
+                    // collectionPrefix: unidade.collectionPrefix,
+                    // ativo: unidade.ativo,
+                    // autoSync: unidade.autoSync,
+                    // lastSyncDate: unidade.lastSyncDate,
+                    // vigilantes: unidade.vigilantes,
                 }
             }, { upsert: true }, function(err, result) {
                 if(err) {

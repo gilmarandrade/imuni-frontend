@@ -21,8 +21,31 @@ module.exports = app => {
         }
     }
 
-    //TODO não permitir o cadastro duplicado de unidades
+    //TODO não permitir o cadastro duplicado de unidades?
     const save = async (req, res) => {
+        const unidade = req.body;
+
+        try {
+            //TODO a unidade não pode ter um nome que já existe
+            app.server.api.validation.existsOrError(unidade.nome, 'Nome: campo obrigatório')
+            app.server.api.validation.existsOrError(unidade.distrito, 'Distrito: campo obrigatório')
+        } catch(err) {
+            console.log(err);
+            return res.status(400).send(err.toString());
+        }
+
+        console.log(unidade);
+        try {
+            const result = await app.server.service.v2.unidadeService.upsertOne(unidade);
+            return res.status(200).json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    //TODO migrar unidade a partir de planilha
+    const migrate = async (req, res) => {
         const getSpreadsheetId = (url) => {
             const myRegexp = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/g;
             const match = myRegexp.exec(url);

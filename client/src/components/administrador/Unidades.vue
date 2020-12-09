@@ -1,7 +1,24 @@
 <template>
  <div class="unidades">
         <h6><router-link :to="'/'">Home</router-link></h6>
-        <h1>Unidades</h1>
+        <div class="row mb-3">
+          <div class="col">
+            <h1>Unidades</h1>
+          </div>
+          <div class="col text-right">
+            <b-dropdown id="dropdown-1" text="Adicionar" variant="primary" class="pull-right" right>
+              <b-dropdown-item href="/adicionarUnidade">
+                <strong>Adicionar unidade</strong>
+                <p>Crie uma nova unidade do zero</p>
+              </b-dropdown-item>
+              <b-dropdown-item href="/migrarUnidade" disabled>
+                <strong>Importar unidade (em breve)</strong>
+                <p>Importe uma unidade a partir de uma planilha do google sheets</p>
+              </b-dropdown-item>
+            </b-dropdown>
+          </div>
+        </div>
+
         <ul class="grid-list row">
             <li v-for="unidade in unidades" :key="unidade._id" :class="{ 'ativo' : unidade.autoSync }" class="col-sm-6 col-md-4 col-lg-3">
               <router-link :to="'/unidades/'+unidade._id" class="item" title="clique para ver detalhes">
@@ -22,11 +39,6 @@
                 </div>
                 <h2>{{ unidade.nome }}</h2>
                 <p>Distrito {{ unidade.distrito }}</p>
-              </router-link>
-            </li>
-            <li class="col-sm-6 col-md-4 col-lg-3">
-              <router-link to="/adicionarUnidade" class="item button">
-                <h2><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar unidade</h2>
               </router-link>
             </li>
         </ul>

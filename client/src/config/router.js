@@ -10,6 +10,7 @@ import VigilanteHome from '@/components/vigilante/VigilanteHome'
 import Unidades from '@/components/administrador/Unidades'
 import Unidade from '@/components/administrador/Unidade'
 import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
+import MigrarUnidade from '@/components/administrador/MigrarUnidade'
 import ConvidarUsuario from '@/components/administrador/ConvidarUsuario'
 import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
 import Auth from '@/components/auth/Auth'
@@ -109,6 +110,12 @@ const routes = [
         name: 'adicionarUnidade',
         path: '/adicionarUnidade',
         component: AdicionarUnidade,
+        meta: { requiresAdmin: true }
+    },
+    {
+        name: 'migrarUnidade',
+        path: '/migrarUnidade',
+        component: MigrarUnidade,
         meta: { requiresAdmin: true }
     },
     {

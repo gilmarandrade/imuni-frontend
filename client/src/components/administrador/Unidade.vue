@@ -50,7 +50,7 @@
         
    </header>
    <div class="container">
-       <div class="card mb-4">
+       <!-- <div class="card mb-4">
         <div class="card-body">
           <h5 class="card-title">Planilhas</h5>
           <div>
@@ -63,8 +63,8 @@
             <b>Ficha de vigilância:</b> <a :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">{{ unidade.idFichaVigilancia }}</a>
           </div>
         </div>
-       </div>
-
+       </div> -->
+<!-- 
        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">Vigilantes</h5>
@@ -74,7 +74,7 @@
                 </li>
             </ul>
          </div>
-       </div>
+       </div> -->
        <div class="card mb-4">
          <div class="card-body">
             <h5 class="card-title">
