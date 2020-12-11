@@ -22,6 +22,7 @@ import ConvidarAdministrador from '@/components/administrador/ConvidarAdministra
 import CadastrarIdoso from '@/components/administrador/CadastrarIdoso'
 import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
+import CadastrarAtendimento from '@/components/atendimento/CadastrarAtendimento'
 
 Vue.use(VueRouter);
 
@@ -88,6 +89,11 @@ const routes = [
         name: 'atendimento',
         path: '/unidades/:unidadeId/atendimentos/:atendimentoId',
         component: Atendimento,
+    },
+    {
+        name: 'cadastrarAtendimento',
+        path: '/unidades/:unidadeId/cadastrarAtendimento',
+        component: CadastrarAtendimento,
     },
     {
         name: 'idoso',
