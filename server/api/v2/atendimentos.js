@@ -8,10 +8,11 @@ module.exports = app => {
         console.log('ATENDIMENTO RECEBIDO:');
         console.log(atendimento);
         try {
-            atendimento.forEach(element => {
-                console.log(element);
-                const result = await app.server.service.v2.atendimentoService.insertOne(element);
-            });
+            for(const i = 0; i < atendimento.length; i++ ) {
+                console.log(atendimento[i]);
+                const result = await app.server.service.v2.atendimentoService.insertOne(atendimento[i]);
+
+            }
 
             return res.status(200).json(atendimento);
         } catch(err) {
