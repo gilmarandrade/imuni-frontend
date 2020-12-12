@@ -119,6 +119,9 @@ module.exports = app => {
         .get(role(app.server.api.v2.unidades.get, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.unidades.save, 'ADMINISTRADOR'));
 
+    app.route('/api/v2/atendimentos')
+        .post(app.server.api.v2.atendimentos.save);
+
     
     
     app.route('/api/v2/migracao/unidades')
