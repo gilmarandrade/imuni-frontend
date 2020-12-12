@@ -5,7 +5,8 @@ module.exports = app => {
 
         const atendimento = req.body;
 
-        console.log('Atendimento recebido', atendimento);
+        console.log('ATENDIMENTO RECEBIDO:');
+        console.log(atendimento);
         return res.status(200).json(atendimento);
     }
 
