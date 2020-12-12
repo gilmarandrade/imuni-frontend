@@ -10,7 +10,14 @@ module.exports = app => {
         atendimento.forEach(element => {
             console.log(element);
         });
-        return res.status(200).json(atendimento);
+
+        try {
+            const result = await app.server.service.v2.atendimentoService.upsertOne(atendimento);
+            return res.status(200).json(atendimento);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
     }
 
     return { save };
