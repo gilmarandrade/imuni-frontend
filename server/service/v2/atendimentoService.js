@@ -14,13 +14,13 @@ const upsertOne = async (item) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id: ObjectId(idoso._id) }, {
+            collection.updateOne({ _id: ObjectId(item._id) }, {
                 $set: item
             }, { upsert: true }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.upsertedId === null ? idoso._id : result.upsertedId._id);
+                    resolve(result.upsertedId === null ? item._id : result.upsertedId._id);
                 }
             });
         });
