@@ -7,12 +7,12 @@ module.exports = app => {
 
         console.log('ATENDIMENTO RECEBIDO:');
         console.log(atendimento);
-        atendimento.forEach(element => {
-            console.log(element);
-        });
-
         try {
-            const result = await app.server.service.v2.atendimentoService.insertOne(atendimento);
+            atendimento.forEach(element => {
+                console.log(element);
+                const result = await app.server.service.v2.atendimentoService.insertOne(element);
+            });
+
             return res.status(200).json(atendimento);
         } catch(err) {
             console.log(err);
