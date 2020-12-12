@@ -12,7 +12,7 @@ module.exports = app => {
         });
 
         try {
-            const result = await app.server.service.v2.atendimentoService.upsertOne(atendimento);
+            const result = await app.server.service.v2.atendimentoService.insertOne(atendimento);
             return res.status(200).json(atendimento);
         } catch(err) {
             console.log(err);

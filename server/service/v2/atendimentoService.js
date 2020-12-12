@@ -3,10 +3,10 @@ const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'atendimentosForm';
 
 /**
- * Insere ou atualiza um item
+ * Insere um item
  * @param {*} item 
  */
-const upsertOne = async (item) => {
+const insertOne = async (item) => {
     const promise = new Promise( (resolve, reject) => {
         var MongoClient = require( 'mongodb' ).MongoClient;
         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -14,13 +14,11 @@ const upsertOne = async (item) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id: ObjectId(item._id) }, {
-                $set: item
-            }, { upsert: true }, function(err, result) {
+            collection.insertOne(item, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(result.upsertedId === null ? item._id : result.upsertedId._id);
+                    resolve(result);
                 }
             });
         });
@@ -31,4 +29,4 @@ const upsertOne = async (item) => {
 }
 
 
-module.exports = { upsertOne };
+module.exports = { insertOne };
