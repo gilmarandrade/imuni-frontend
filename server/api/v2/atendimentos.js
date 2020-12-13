@@ -8,11 +8,7 @@ module.exports = app => {
         console.log('ATENDIMENTO RECEBIDO:');
         console.log(atendimento);
         try {
-            for(let i = 0; i < atendimento.length; i++) {
-                console.log(atendimento[i]);
-                await app.server.service.v2.atendimentoService.insertOne(atendimento[i]);
-            }
-
+            await app.server.service.v2.atendimentoService.insertOne(atendimento);
             return res.status(200).json(atendimento);
         } catch(err) {
             console.log(err);
