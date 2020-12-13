@@ -6,9 +6,9 @@ module.exports = app => {
         const atendimento = req.body;
 
         console.log('ATENDIMENTO RECEBIDO:');
-        console.log(atendimento);
         try {
-            atendimento.timestamp = new Date(atendimento.timestamp);
+            atendimento.timestamp = (new Date(atendimento.timestamp)).toLocaleDateString('pt-BR');
+            console.log(atendimento);
             await app.server.service.v2.atendimentoService.insertOne(atendimento);
             return res.status(200).json(atendimento);
         } catch(err) {
