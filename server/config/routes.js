@@ -90,6 +90,11 @@ module.exports = app => {
         .get(app.server.api.googlesheets.stats);
 
 
+    //id da unidade é desnecessario...
+    app.route('/api/v2/unidades/:unidadeId/atendimentos/:idAtendimento')
+        // .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.atendimentos.getById);
+
     app.route('/api/v2/unidades/:unidadeId/vigilantes')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.usuarios.getVigilantesAtivosByUnidadeId, 'ADMINISTRADOR'));

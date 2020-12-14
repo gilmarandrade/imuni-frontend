@@ -43,9 +43,12 @@
                 <b-card
                     title="Sintomas do idoso"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.fichaVigilancia.atendeu"
                 >
                     <b-card-text>
+                        <FormResponse v-for="item in atendimento.raw['S05']" :key="item.question" :item="item" />
+                    </b-card-text>
+                    <!-- <b-card-text>
                         <div>
                             <b>O idoso apresenta sintomas de gripe/COVID?</b> 
                             <div v-if="!atendimento.fichaVigilancia.sintomasIdoso.apresentaSintomasGripeCOVID">Não</div>
@@ -72,16 +75,18 @@
                             <b>Esteve em contato com algum caso confirmado de coronavírus?</b>
                             <div>{{ atendimento.fichaVigilancia.sintomasIdoso.contatoComCasoConfirmado ? 'Sim' : 'Não' }} </div>
                         </div>
-                    </b-card-text>
+                    </b-card-text> -->
                 </b-card>
 
                 <b-card
                     title="Comorbidades"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.fichaVigilancia.atendeu"
                 >
                     <b-card-text>
-                        <div>
+                        <FormResponse v-for="item in atendimento.raw['S06']" :key="item.question" :item="item" />
+
+                        <!-- <div>
                             <b>Tem alguma condição de saúde?</b> 
                             <div v-if="!atendimento.fichaVigilancia.comorbidades.condicoesSaude">Não</div>
                             <ul>
@@ -98,17 +103,22 @@
                         <div v-if="atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar">
                             <b>Se toma medicação diariamente, está conseguindo adquiri-las?</b> 
                             <div>{{ atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.acessoMedicacao ? 'Sim' : 'Não' }}</div>
-                        </div>
+                        </div> -->
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Acompanhantes no domicílio"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.fichaVigilancia.atendeu"
                 >
                     <b-card-text>
-                        <div>
+
+                        <FormResponse v-for="item in atendimento.raw['S09']" :key="item.question" :item="item" />
+                        <FormResponse v-for="item in atendimento.raw['S10']" :key="item.question" :item="item" />
+                        <FormResponse v-for="item in atendimento.raw['S11']" :key="item.question" :item="item" />
+
+                        <!-- <div>
                             <b>Quantas pessoas moram na casa do idoso?</b> 
                             <div> {{ atendimento.fichaVigilancia.qtdAcompanhantesDomicilio }}</div>
                         </div>
@@ -134,17 +144,20 @@
                         <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
                             <b>Todos em casa usam máscara ao falar com o idoso?</b> 
                             <div> {{ atendimento.fichaVigilancia.habitosDomiciliaresAcompanhantes.usoMascara ? 'Sim' : 'Não' }}</div>
-                        </div>
+                        </div> -->
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Identificação de vulnerabilidades"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.fichaVigilancia.atendeu"
                 >
                     <b-card-text>
-                        <div>
+                        <FormResponse v-for="item in atendimento.raw['S12']" :key="item.question" :item="item" />
+
+
+                        <!-- <div>
                             <b>Após a sondagem, como você identifica o convívio do idoso com sua família?</b> 
                             <div> {{ atendimento.fichaVigilancia.vulnerabilidades.convivioFamilia }}</div>
                         </div>
@@ -159,11 +172,11 @@
                         <div>
                             <b>Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?</b> 
                             <div> {{ atendimento.fichaVigilancia.vulnerabilidades.violencia ? 'Sim' : 'Não' }}</div>
-                        </div>
+                        </div> -->
                     </b-card-text>
                 </b-card>
 
-                <b-card
+                <!-- <b-card
                     title="Observações"
                     class="mb-4"
                 >
@@ -172,7 +185,7 @@
                             <div> {{ atendimento.fichaVigilancia.vulnerabilidades.observacoes || '-'}}</div>
                         </div>
                     </b-card-text>
-                </b-card>
+                </b-card> -->
             </div>
             <div class="col-lg-5">
                 <b-card
@@ -182,42 +195,38 @@
                     <b-card-text>
                         <div>
                             <b>Data de realização:</b> 
-                             {{ formatDate(atendimento.fichaVigilancia.data) }}
+                             {{ formatDate(atendimento.fichaVigilancia.data) }} //TODO
                         </div>
                         <div>
-                            <b>Status da chamada: </b> 
-                            <span class="statusUltimoAtendimento" :class="{ 'atendido' : atendimento.fichaVigilancia.dadosIniciais.atendeu }">
-                                <span v-show="atendimento.fichaVigilancia.dadosIniciais.atendeu">
+                            <b>Status da chamada: </b> //TODO
+                            <span class="statusUltimoAtendimento" :class="{ 'atendido' : atendimento.fichaVigilancia.atendeu }">
+                                <span v-show="atendimento.fichaVigilancia.atendeu">
                                     <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
                                 </span>
-                                <span v-show="!atendimento.fichaVigilancia.dadosIniciais.atendeu">
+                                <span v-show="!atendimento.fichaVigilancia.atendeu">
                                     <font-awesome-icon :icon="['far', 'times-circle']" /> Ligação não atendida
                                 </span>
                             </span>
                         </div>
                         <div>
                             <b>Vigilante responsável:</b> 
-                             {{ atendimento.fichaVigilancia.vigilante }}
+                             {{ atendimento.fichaVigilancia.vigilante }} ///TODO
                         </div>
                         <div>
                             <b>Tipo de atendimento:</b> 
-                             {{ atendimento.fichaVigilancia.primeiroAtendimento ? 'Primeiro atendimento' : 'Acompanhamento'}}
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.fonte">
-                            <b>Fonte das informações:</b> 
-                             {{ atendimento.fichaVigilancia.fonte }}
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.idade">
-                            <b>Idade:</b> 
-                             {{ atendimento.fichaVigilancia.idade }} anos
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.duracaoChamada">
-                            <b>Duração da chamada:</b> 
-                             {{ atendimento.fichaVigilancia.duracaoChamada }}
+                            {{ atendimento.raw['S07']['Q01'].response }}
                         </div>
                         <div>
-                            <b>key:</b> 
-                             {{ atendimento.fichaVigilancia.row }}
+                            <b>Fonte das informações:</b> 
+                            {{ atendimento.raw['S04']['Q01'].response }}
+                        </div>
+                        <div>
+                            <b>Idade:</b> 
+                            {{ atendimento.raw['S03']['Q01'].response }} anos
+                        </div>
+                        <div>
+                            <b>Duração da chamada:</b> 
+                            {{ atendimento.raw['S13']['Q01'].response }}
                         </div>
                     </b-card-text>
                 </b-card>
@@ -225,9 +234,9 @@
                 <b-card
                     title="Resultado do atendimento"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.fichaVigilancia.atendeu"
                 >
-                    <b-card-text>
+                    <!-- <b-card-text>
                         <div>
                             <b>Escala de vulnerabilidade</b> 
                             <div v-if="atendimento.escalas.vulnerabilidade">
@@ -255,7 +264,7 @@
                                 {{ atendimento.escalas.scoreOrdenacao }}
                             </div>
                         </div>
-                    </b-card-text>
+                    </b-card-text> -->
                 </b-card>
 
                 <b-card
@@ -333,12 +342,14 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-import Badge from '@/components/template/Badge';
+// import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
+import FormResponse from '../template/FormResponse.vue';
 
 export default {
+    components: { FormResponse },
     name: 'Atendimento',
-    components: { Badge },
+    // components: { Badge },
     computed: mapState(['user']),
     data: function() {
         return {
@@ -349,24 +360,23 @@ export default {
     },
     methods: {
         loadAtendimento() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/atendimentos/${this.$route.params.atendimentoId}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/atendimentos/${this.$route.params.atendimentoId}`;
             console.log(url);
 
             axios.get(url).then(res => {
                 this.atendimento = res.data
                 console.log(this.atendimento);
                 this.loadIdoso();
-                console.log(this.atendimento.fichaVigilancia.dadosIniciais.nomeLower)
             }).catch(showError)
         },
         loadIdoso() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.atendimento.fichaVigilancia.dadosIniciais.nomeLower}`;
-            console.log(url);
+            // const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/idosos/${this.atendimento.fichaVigilancia.dadosIniciais.nomeLower}`;
+            // console.log(url);
 
-            axios.get(url).then(res => {
-                this.idoso = res.data
-                console.log(this.idoso);
-            }).catch(showError)
+            // axios.get(url).then(res => {
+            //     this.idoso = res.data
+            //     console.log(this.idoso);
+            // }).catch(showError)
         },
         formatDate(date) {
             return new Date(date).toLocaleString();

@@ -1,90 +1,91 @@
+const extractResponse = (session, question, fichaVigilancia) => {
+    if(fichaVigilancia && session && question) {
+        if(fichaVigilancia[session]) {
+            if(fichaVigilancia[session][question] && fichaVigilancia[session][question].response !== null && fichaVigilancia[session][question].response !== undefined && fichaVigilancia[session][question].response !== '') {
+                return fichaVigilancia[session][question].response;
+            }
+        }
+    }
+    return null;
+};
+
+const extractNumber = (session, question, fichaVigilancia) => {
+    const response = extractResponse(session, question, fichaVigilancia);
+    return response ? +response : null;
+}
+
+/**
+ * Retorna um booleano se o valor recebido é equivalente a trueValue.
+ * Se falseValue também for informado:
+ * retorna false caso o valor recebido seja equivalente a falseValue, e retorna null se o valor recebido for diferente de ambos 
+ * @param {*} session 
+ * @param {*} question 
+ * @param {*} fichaVigilancia 
+ * @param {*} trueValue 
+ * @param {*} falseValue 
+ */
+const extractBoolean = (session, question, fichaVigilancia, trueValue, falseValue) => {
+    if(falseValue !== undefined) {
+        const response = extractResponse(session, question, fichaVigilancia);
+        if(response == trueValue) {
+            return true;
+        } else if(response == falseValue){
+            return false;
+        } else {
+            return null;
+        }
+    }
+    return isEquals(session, question, fichaVigilancia);
+}
+
+/**
+ * Retorna true se as strings forem iguais
+ * @param {*} session 
+ * @param {*} question 
+ * @param {*} fichaVigilancia 
+ * @param {*} trueValue 
+ */
+const isEquals = (session, question, fichaVigilancia, trueValue) => {
+    return extractResponse(session, question, fichaVigilancia) == trueValue;
+}
+
+
+/**
+ * Retorna false caso a resposta seja igual ao falseValue
+ * @param {*} session 
+ * @param {*} question 
+ * @param {*} fichaVigilancia 
+ * @param {*} falseValue 
+ */
+const isNotEquals = (session, question, fichaVigilancia, falseValue) => {
+    return !isEquals(session, question, fichaVigilancia, falseValue);
+}
+
+/**
+ * Retorna um array 
+ * Retorna um array vazio se o primeiro item da lista for igual a 'Não'
+ * @param {*} session 
+ * @param {*} question 
+ * @param {*} fichaVigilancia 
+ */
+const extractRequiredList = (session, question, fichaVigilancia) => {
+    const response = extractResponse(session, question, fichaVigilancia);
+
+    if(Array.isArray(response)) {
+        if(response.length > 0 && response[0] == 'Não') {
+            return [];
+        }
+        return response;
+    }
+
+    return [];
+}
+
+
 
 module.exports = app => {
 
     const save = async (req, res) => {
-
-        const extractResponse = (session, question, fichaVigilancia) => {
-            if(fichaVigilancia && session && question) {
-                if(fichaVigilancia[session]) {
-                    if(fichaVigilancia[session][question] && fichaVigilancia[session][question].response !== null && fichaVigilancia[session][question].response !== undefined && fichaVigilancia[session][question].response !== '') {
-                        return fichaVigilancia[session][question].response;
-                    }
-                }
-            }
-            return null;
-        };
-
-        const extractNumber = (session, question, fichaVigilancia) => {
-            const response = extractResponse(session, question, fichaVigilancia);
-            return response ? +response : null;
-        }
-
-        /**
-         * Retorna um booleano se o valor recebido é equivalente a trueValue.
-         * Se falseValue também for informado:
-         * retorna false caso o valor recebido seja equivalente a falseValue, e retorna null se o valor recebido for diferente de ambos 
-         * @param {*} session 
-         * @param {*} question 
-         * @param {*} fichaVigilancia 
-         * @param {*} trueValue 
-         * @param {*} falseValue 
-         */
-        const extractBoolean = (session, question, fichaVigilancia, trueValue, falseValue) => {
-            if(falseValue !== undefined) {
-                const response = extractResponse(session, question, fichaVigilancia);
-                if(response == trueValue) {
-                    return true;
-                } else if(response == falseValue){
-                    return false;
-                } else {
-                    return null;
-                }
-            }
-            return isEquals(session, question, fichaVigilancia);
-        }
-
-        /**
-         * Retorna true se as strings forem iguais
-         * @param {*} session 
-         * @param {*} question 
-         * @param {*} fichaVigilancia 
-         * @param {*} trueValue 
-         */
-        const isEquals = (session, question, fichaVigilancia, trueValue) => {
-            return extractResponse(session, question, fichaVigilancia) == trueValue;
-        }
-
-
-        /**
-         * Retorna false caso a resposta seja igual ao falseValue
-         * @param {*} session 
-         * @param {*} question 
-         * @param {*} fichaVigilancia 
-         * @param {*} falseValue 
-         */
-        const isNotEquals = (session, question, fichaVigilancia, falseValue) => {
-            return !isEquals(session, question, fichaVigilancia, falseValue);
-        }
-
-        /**
-         * Retorna um array 
-         * Retorna um array vazio se o primeiro item da lista for igual a 'Não'
-         * @param {*} session 
-         * @param {*} question 
-         * @param {*} fichaVigilancia 
-         */
-        const extractRequiredList = (session, question, fichaVigilancia) => {
-            const response = extractResponse(session, question, fichaVigilancia);
-
-            if(Array.isArray(response)) {
-                if(response.length > 0 && response[0] == 'Não') {
-                    return [];
-                }
-                return response;
-            }
-
-            return [];
-        }
 
         const atendimento = req.body;
 
@@ -177,5 +178,16 @@ module.exports = app => {
         }
     }
 
-    return { save };
+    const getById = async (req, res) => {
+        const id = req.params.idAtendimento;
+
+        try {
+            const result = await app.server.service.v2.atendimentoService.findById(id);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
+    return { save, getById };
 };
