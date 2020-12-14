@@ -176,7 +176,7 @@ export default {
         //TODO deveria ter um spining loading 
         // modo de edição
         if(this.$route.query.id) {
-            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/idosos/${this.$route.query.id}`;
+            const url = `${baseApiUrl}/v2/idosos/${this.$route.query.id}`;
             axios.get(url).then(res => {
                 this.form = res.data;
             }).catch(showError)

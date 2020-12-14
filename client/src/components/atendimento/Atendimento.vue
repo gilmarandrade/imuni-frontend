@@ -4,7 +4,7 @@
         <h6 v-if="user.role === 'ADMINISTRADOR' && idoso"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}} / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+idoso._id">{{idoso.nome}}</router-link></h6>
         
         <h1>Atendimento</h1>
-        <h6 class="text-muted">{{ formatDate(atendimento.fichaVigilancia.data) }}</h6>
+        <h6 class="text-muted">{{ formatDate(atendimento.fichaVigilancia.data) }}</h6>//TODO
 
         <div class="row mt-5">
             <div class="col-lg-7">
@@ -27,13 +27,13 @@
                             </div>
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Unidade:</b> {{ idoso.unidade }}
+                                    <b>Unidade:</b> {{ idoso.unidadeId }}//TODO
                                 </div>
                                 <div>
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
                                 </div>
                                 <div>
-                                    <b>Vigilante:</b> {{ idoso.vigilante }}
+                                    <b>Vigilante:</b> {{ idoso.vigilanteId }}//TODO
                                 </div>
                             </div>
                         </div>
@@ -236,6 +236,7 @@
                     class="mb-4"
                     v-if="atendimento.fichaVigilancia.atendeu"
                 >
+                //TODO
                     <!-- <b-card-text>
                         <div>
                             <b>Escala de vulnerabilidade</b> 
@@ -272,7 +273,7 @@
                     class="mb-4"
                     v-if="idoso && idoso.ultimaEscala"
                 >
-                    <b-card-text>
+                    <b-card-text>//TODO
                         <div>
                             <b>Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?</b> 
                             <div>
@@ -329,7 +330,7 @@
                     class="mb-4"
                     v-if="idoso && !idoso.ultimaEscala"
                 >
-                    <b-card-text>
+                    <b-card-text>//TODO
                         O idoso ainda não possui atendimentos efetuados
                     </b-card-text>
                 </b-card>
@@ -370,13 +371,13 @@ export default {
             }).catch(showError)
         },
         loadIdoso() {
-            // const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/idosos/${this.atendimento.fichaVigilancia.dadosIniciais.nomeLower}`;
-            // console.log(url);
+            const url = `${baseApiUrl}/v2/idosos/${this.atendimento.idosoId}`;
+            console.log(url);
 
-            // axios.get(url).then(res => {
-            //     this.idoso = res.data
-            //     console.log(this.idoso);
-            // }).catch(showError)
+            axios.get(url).then(res => {
+                this.idoso = res.data
+                console.log(this.idoso);
+            }).catch(showError)
         },
         formatDate(date) {
             return new Date(date).toLocaleString();

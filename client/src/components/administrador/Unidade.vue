@@ -393,7 +393,7 @@ export default {
             .then(value => {
               console.log(value);
               if(value === true) {
-                  const url = `${baseApiUrl}/v2/unidades/${this.unidade._id}/idosos/${id}`;
+                  const url = `${baseApiUrl}/v2/idosos/${id}`;
                   console.log(url);
 
                   axios.delete(url).then(res => {

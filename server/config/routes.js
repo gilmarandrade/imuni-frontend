@@ -104,7 +104,7 @@ module.exports = app => {
         .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/unidades/:unidadeId/idosos/:idosoId')
+    app.route('/api/v2/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.idosos.getById)
         .delete(role(app.server.api.v2.idosos.remove, 'ADMINISTRADOR'));
