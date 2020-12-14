@@ -33,7 +33,7 @@ function calcularEscalas(atendimento) {
         case 'IIa - Assintomático, mas sai de casa':
             scoreOrdenacao += 30;
             break;
-        case 'IIb - Assitomático, mas recebe visita ou domiciliares saem':
+        case 'IIb - Assitomático, mas recebe visita ou domiciliares saem'://assiNtomático?
             scoreOrdenacao += 40;
             break;
         case 'IIIa - Assintomático, mas com comorbidades':

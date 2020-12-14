@@ -27,13 +27,13 @@
                             </div>
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Unidade:</b> {{ idoso.unidadeId }}//TODO
+                                    <b>Unidade:</b> {{ idoso.unidadeId }} // TODO
                                 </div>
                                 <div>
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
                                 </div>
                                 <div>
-                                    <b>Vigilante:</b> {{ idoso.vigilanteId }}//TODO
+                                    <b>Vigilante:</b> {{ idoso.vigilanteId }} // TODO
                                 </div>
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                         </div>
                         <div>
                             <b>Vigilante responsável:</b> 
-                             {{ atendimento.vigilanteId }} ///TODO
+                             {{ atendimento.vigilanteId }} // TODO
                         </div>
                         <div>
                             <b>Tipo de atendimento:</b> 
@@ -131,8 +131,7 @@
                     class="mb-4"
                     v-if="atendimento.atendeu"
                 >
-                //TODO
-                    <!-- <b-card-text>
+                    <b-card-text>
                         <div>
                             <b>Escala de vulnerabilidade</b> 
                             <div v-if="atendimento.escalas.vulnerabilidade">
@@ -160,9 +159,9 @@
                                 {{ atendimento.escalas.scoreOrdenacao }}
                             </div>
                         </div>
-                    </b-card-text> -->
+                    </b-card-text>
                 </b-card>
-                
+
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
@@ -192,14 +191,13 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-// import Badge from '@/components/template/Badge';
+import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
 import FormResponse from '../template/FormResponse.vue';
 
 export default {
-    components: { FormResponse },
     name: 'Atendimento',
-    // components: { Badge },
+    components: { Badge, FormResponse },
     computed: mapState(['user']),
     data: function() {
         return {
