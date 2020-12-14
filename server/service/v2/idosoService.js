@@ -42,7 +42,7 @@ const upsertOne = async (idoso) => {
 }
 
 /**
- * Lista todos os idosos ativos de uma unidade
+ * Lista todos os idosos ativos de uma unidade // esse nome confunde. 
  * @param {*} unidadeId 
  */
 const findAtivosByUnidadeId = async (unidadeId) => {
@@ -54,7 +54,7 @@ const findAtivosByUnidadeId = async (unidadeId) => {
             
             const collection = db.collection(collectionName);
 
-            collection.find({ _isDeleted: false, unidadeId: ObjectId(unidadeId) }).toArray(function(err, result) {
+            collection.find({ _isDeleted: false, unidadeId: ObjectId(unidadeId) }, { projection: { epidemiologia: 0 } }).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -81,7 +81,7 @@ const getById = async (id) => {
             
             const collection = db.collection(collectionName);
 
-            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            collection.findOne({ _id: ObjectId(id) }, { projection: { epidemiologia: 0 } }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -127,4 +127,62 @@ const softDeleteOne = async (id) => {
     return promise;
 }
 
-module.exports = { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne };
+
+/**
+ * Insere ou atualiza a Epidemiologia de um idoso
+ * @param {*} epidemiologia 
+ */
+const upsertEpidemiologia = async (idIdoso, epidemiologia) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.updateOne({ _id: ObjectId(idIdoso) }, {
+                $set: { 
+                    epidemiologia
+                }
+            }, { upsert: true }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result.upsertedId === null ? idIdoso : result.upsertedId._id);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+/**
+ * Encontra a epidemiologia de um idoso
+ * @param {*} id 
+ */
+const getEpidemiologia = async (idosoId) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+            collection.findOne({ _id: ObjectId(idosoId) }, { projection: { _id: 0, epidemiologia: 1 } }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve( Object.keys(result).length === 0 ? null : result.epidemiologia );
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEpidemiologia, getEpidemiologia };

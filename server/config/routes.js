@@ -104,6 +104,10 @@ module.exports = app => {
         .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
+    app.route('/api/v2/epidemiologias/:idosoId')
+        .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.idosos.getEpidemiologia);
+
     app.route('/api/v2/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.idosos.getById)
