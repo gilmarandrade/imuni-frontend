@@ -165,18 +165,17 @@
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
-                    v-if="idoso && epidemiologia"
+                    v-if="atendimento.raw['S08']"
                 >
                     <b-card-text>
-                        
-                         <FormResponse v-for="item in epidemiologia" :key="item.question" :item="item" />
+                         <FormResponse v-for="item in atendimento.raw['S08']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
-                    v-if="idoso && !epidemiologia"
+                    v-if="!atendimento.raw['S08']"
                 >
                     <b-card-text>
                         O idoso ainda não possui atendimentos efetuados. A epidemiologia é colhida no primeiro atendimento.
@@ -203,7 +202,6 @@ export default {
         return {
             atendimento: null,
             idoso: null,
-            epidemiologia: null,
             loading: false,
         }
     },
@@ -216,7 +214,7 @@ export default {
                 this.atendimento = res.data
                 console.log(this.atendimento);
                 this.loadIdoso();
-                this.loadEpidemiologia();
+                // this.loadEpidemiologia();
             }).catch(showError)
         },
         loadIdoso() {
@@ -228,15 +226,15 @@ export default {
                 console.log(this.idoso);
             }).catch(showError)
         },
-        loadEpidemiologia() {
-            const url = `${baseApiUrl}/v2/epidemiologias/${this.atendimento.idosoId}`;
-            console.log(url);
+        // loadEpidemiologia() {
+        //     const url = `${baseApiUrl}/v2/epidemiologias/${this.atendimento.idosoId}`;
+        //     console.log(url);
 
-            axios.get(url).then(res => {
-                this.epidemiologia = res.data;
-                console.log(this.epidemiologia);
-            }).catch(showError)
-        },
+        //     axios.get(url).then(res => {
+        //         this.epidemiologia = res.data;
+        //         console.log(this.epidemiologia);
+        //     }).catch(showError)
+        // },
         formatDate(date) {
             return new Date(date).toLocaleString();
         },

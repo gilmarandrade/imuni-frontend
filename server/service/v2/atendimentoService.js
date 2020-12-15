@@ -14,6 +14,10 @@ const insertOne = async (item) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
+            item.idosoId = ObjectId(item.idosoId);
+            item.vigilanteId = ObjectId(item.vigilanteId);
+            item.unidadeId = ObjectId(item.unidadeId);
+
             collection.insertOne(item, function(err, result) {
                 if(err) {
                     reject(err);
@@ -52,5 +56,32 @@ const findById = async (id) => {
     return promise;
 }
 
+    /**
+     * Encontra a última epidemiologia preenchida de um idoso
+     * @param {*} id 
+     */
+    const getEpidemiologia = async (idosoId) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                
+                const collection = db.collection(collectionName);
 
-module.exports = { insertOne, findById };
+                collection.findOne({ idosoId: ObjectId(idosoId), tipo: 'Primeiro Atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve( Object.keys(result).length === 0 ? null : result.raw );
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
+
+module.exports = { insertOne, findById, getEpidemiologia };

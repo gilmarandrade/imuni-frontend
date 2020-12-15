@@ -336,10 +336,10 @@ module.exports = app => {
 
         const atendimento = req.body;
 
-        console.log('ATENDIMENTO RECEBIDO:');
+        console.log('ATENDIMENTO RECEBIDO');
         try {
             // atendimento.timestamp = (new Date(atendimento.timestamp)).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
-            console.log(atendimento);
+            // console.log(atendimento);
 
             
             if(atendimento && atendimento.responses) {
@@ -353,7 +353,7 @@ module.exports = app => {
                     atendimento.raw[item.question.substring(1,4)][item.question.substring(4,7)] = item;
                 });
 
-                console.log(atendimento.raw);
+                // console.log(atendimento.raw);
                 delete atendimento.responses;
 
                 atendimento.idosoId = extractResponse('S01','Q01', atendimento.raw);
@@ -394,7 +394,7 @@ module.exports = app => {
                 };
 
                 if(atendimento.tipo == 'Primeiro Atendimento') {
-                    await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, atendimento.raw['S08']);
+                    // await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, atendimento.raw['S08']);
                     
                     criterios.epidemiologia = {
                         isolamento: {
@@ -405,7 +405,12 @@ module.exports = app => {
                         },
                     };
                 } else {// acompanhamento
-                    const epidemiologiaRaw = await app.server.service.v2.idosoService.getEpidemiologia(atendimento.idosoId);
+                    // copia a epidemilogia do primeiro atendimento
+                    const epidemiologiaRaw = await app.server.service.v2.atendimentoService.getEpidemiologia(atendimento.idosoId);
+                    if(epidemiologiaRaw && epidemiologiaRaw['S08']) {
+                        atendimento.raw['S08'] = epidemiologiaRaw['S08'];
+                    }
+
                     criterios.epidemiologia = {
                         isolamento: {
                             saiDeCasa: isEquals('S08','Q02', epidemiologiaRaw, 'Sim'),
@@ -416,12 +421,32 @@ module.exports = app => {
                     };
                 }
                 
-                console.log(criterios);
+                // console.log(criterios);
                 atendimento.criterios = criterios;
 
                 atendimento.escalas = calcularEscalas(criterios, atendimento.timestamp);
 
                 await app.server.service.v2.atendimentoService.insertOne(atendimento);
+                
+                // TODO atualizar idoso com estatisticas
+                const estatisticas = {
+                    qtdAtendimentosEfetuados: null,
+                    qtdTentativas: null,
+                    ultimoAtendimento: {
+                        timestamp: null,
+                        efetuado: false,
+                    },
+                    ultimaEscala: {
+                        timestamp: null,
+                        scoreOrdenacao: null,
+                        vulnerabilidade: null,
+                        epidemiologica: null,
+                        riscoContagio: null,
+                        dataProximoAtendimento: null,
+                    },
+                };
+                await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
+
                 return res.status(200).json(atendimento);
             }
 

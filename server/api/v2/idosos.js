@@ -65,5 +65,18 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, getEpidemiologia };
+    const idososByUser = async (req, res) => {
+        console.log('idosos by user' + req.params.usuarioId)
+        const unidadeId = req.params.unidadeId;
+        const usuarioId = req.params.usuarioId;
+
+        try {
+            const result = await app.server.service.v2.idosoService.findAllByUser(unidadeId, usuarioId, req.query.filter, req.query.sort, +req.query.page, +req.query.rowsPerPage);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById, remove, getEpidemiologia, idososByUser };
 };

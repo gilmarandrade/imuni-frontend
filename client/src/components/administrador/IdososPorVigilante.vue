@@ -28,13 +28,13 @@
 
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="com-escalas" orderBy="score"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadeId" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="com-escalas" orderBy="score"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="sem-escalas"  orderBy="score"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadeId" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="sem-escalas"  orderBy="score"></TableIdosos>
             </b-tab>
             <b-tab title="Todos" lazy>
-                <TableIdosos :collectionPrefix="$route.params.unidadePrefix" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="all"  orderBy="score"></TableIdosos>
+                <TableIdosos :collectionPrefix="$route.params.unidadeId" :userId="$route.params.usuarioId" :vigilanteNome="$route.params.nome" filter="all"  orderBy="score"></TableIdosos>
             </b-tab>
         </b-tabs>
     </div>
@@ -62,7 +62,7 @@ export default {
     },
     methods: {
         loadUnidade() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
             console.log(url);
 
             axios.get(url).then(res => {

@@ -34,13 +34,9 @@ module.exports = app => {
 
 
 
-    app.route('/api/docs/:id/sheets/:sheetName/range/:range')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.planilhas.get);
-
-    // app.route('/api/unidades/:unidadeId/usuarios/:usuarioId/idosos')
+    // app.route('/api/docs/:id/sheets/:sheetName/range/:range')
     //     .all(app.server.config.passport.authenticate())
-    //     .get(app.server.api.idosos.idososByUser);
+    //     .get(app.server.api.planilhas.get);
 
     // app.route('/api/unidades/:unidadeId/vigilantes/:vigilanteId/idosos')
     //     .all(app.server.config.passport.authenticate())
@@ -85,9 +81,9 @@ module.exports = app => {
         .get(role(app.server.api.v2.usuarios.getAdministradores, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
-    app.route('/api/stats')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.googlesheets.stats);
+    // app.route('/api/stats')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.googlesheets.stats);
 
 
     //id da unidade é desnecessario...
@@ -99,14 +95,18 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.usuarios.getVigilantesAtivosByUnidadeId, 'ADMINISTRADOR'));
 
+    app.route('/api/v2/unidades/:unidadeId/usuarios/:usuarioId/idosos')
+        // .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.idosos.idososByUser);
+
     app.route('/api/v2/unidades/:unidadeId/usuarios')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/epidemiologias/:idosoId')
-        .all(app.server.config.passport.authenticate())
-        .get(app.server.api.v2.idosos.getEpidemiologia);
+    // app.route('/api/v2/epidemiologias/:idosoId')
+    //     .all(app.server.config.passport.authenticate())
+    //     .get(app.server.api.v2.idosos.getEpidemiologia);
 
     app.route('/api/v2/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())

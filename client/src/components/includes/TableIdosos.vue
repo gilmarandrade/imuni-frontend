@@ -1,15 +1,19 @@
 <template>
     <div class="tableIdosos">
+        <pre>
+
+        {{ teste }}
+        </pre>
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
-                {{ tableInfo.totalRows }} resultados
+                <!-- {{ tableInfo.totalRows }} resultados -->
             </b-col>
             <b-col cols="2">
                 ordenar por 
                 <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos(0)"></b-form-select>
             </b-col>
         </b-row>
-        <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
+        <!-- <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
             <template v-slot:table-busy>
                 <div class="text-center text-primary my-2">
                     <b-spinner class="align-middle"></b-spinner>
@@ -178,25 +182,26 @@
                     :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
                     @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
             </b-button-group>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-import Badge from '@/components/template/Badge';
-import Popper from 'vue-popperjs';
+// import Badge from '@/components/template/Badge';
+// import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'TableIdosos',
     props: ['collectionPrefix', 'vigilanteNome', 'userId', 'filter', 'orderBy'],
-    components: { Badge, 'popper': Popper },
+    // components: { Badge, 'popper': Popper },
     computed: mapState(['pageParamsMap']),
     data: function() {
         return {
+            teste: null,
             carregando: true,
             unidade: null,
             order: this.orderBy,// por padrão ele aplica a ordem recebida como parâmetro do componente
@@ -236,7 +241,7 @@ export default {
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
             if(this.userId != 'undefined') {
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
+                url = `${baseApiUrl}/v2/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
             } else if(this.vigilanteNome) {
                 console.log('vigilanteNome', this.vigilanteNome)
                 url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
@@ -246,6 +251,8 @@ export default {
                 this.tableInfo =  res.data.info;
                 this.idosos = res.data.data;
                 this.carregando = false;
+                this.teste = res.data
+                console.log(this.teste);
             }).catch(function(e) {console.error(e);showError(e)})
         },
         formatDate(date) {
