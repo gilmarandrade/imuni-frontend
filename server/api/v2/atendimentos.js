@@ -364,6 +364,7 @@ module.exports = app => {
                 atendimento.tipo =  extractResponse('S07','Q01', atendimento.raw);
                 atendimento.idadeIdoso = extractNumber('S03','Q01', atendimento.raw);
                 atendimento.duracaoChamada = extractResponse('S13','Q01', atendimento.raw);
+                atendimento._idDeleted = false;
 
                 const criterios = {
                     atendeu: isEquals('S02','Q01', atendimento.raw, 'Sim'),

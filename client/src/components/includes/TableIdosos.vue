@@ -196,7 +196,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'TableIdosos',
-    props: ['collectionPrefix', 'vigilanteNome', 'userId', 'filter', 'orderBy'],
+    props: ['unidadeId', 'userId', 'filter', 'orderBy'],
     components: { Badge, 'popper': Popper },
     computed: mapState(['pageParamsMap']),
     data: function() {
@@ -230,7 +230,7 @@ export default {
             
             this.$store.commit('setPageParamsMap', 
                 {
-                    userId: this.userId == 'undefined' ? this.vigilanteNome : this.userId,
+                    userId: this.userId,
                     filter: this.filter,
                     order: this.order,
                     page: page,
@@ -240,12 +240,12 @@ export default {
           
             let url;
             // se o vigilante ainda não possui um usuario cadastrado, busca os idosos pelo nome do vigilante
-            if(this.userId != 'undefined') {
-                url = `${baseApiUrl}/v2/unidades/${this.collectionPrefix}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
-            } else if(this.vigilanteNome) {
-                console.log('vigilanteNome', this.vigilanteNome)
-                url = `${baseApiUrl}/unidades/${this.collectionPrefix}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
-            }
+            // if(this.userId != 'undefined') {
+            url = `${baseApiUrl}/v2/unidades/${this.unidadeId}/usuarios/${this.userId}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
+            // } else if(this.vigilanteNome) {
+            //     console.log('vigilanteNome', this.vigilanteNome)
+            //     url = `${baseApiUrl}/unidades/${this.unidadeId}/vigilantes/${this.vigilanteNome}/idosos?filter=${this.filter}&sort=${this.order}&page=${page}&rowsPerPage=${this.tableInfo.rowsPerPage}`;
+            // }
             console.log(url);
             axios.get(url).then(res => {
                 this.tableInfo =  res.data.info;
@@ -261,7 +261,7 @@ export default {
     },
     mounted() {
         let page = 0;
-        const userParams = this.$store.state.pageParamsMap.get(this.userId == 'undefined' ? this.vigilanteNome : this.userId);
+        const userParams = this.$store.state.pageParamsMap.get(this.userId);
         if(userParams) {
             const tableParams = userParams.find(element => element.filter == this.filter);
             if(tableParams) {

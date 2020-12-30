@@ -42,7 +42,7 @@ const findById = async (id) => {
             
             const collection = db.collection(collectionName);
 
-            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+            collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -69,7 +69,7 @@ const findById = async (id) => {
                 
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ idosoId: ObjectId(idosoId), tipo: 'Primeiro Atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
+                collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro Atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
@@ -96,7 +96,7 @@ const findById = async (id) => {
                 
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ idosoId: ObjectId(idosoId), atendeu: true }, { sort: { timestamp: -1 }, projection: { _id: 0, 'escalas': 1, 'timestamp': 1 } }, function(err, result) {
+                collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, atendeu: true }, { sort: { timestamp: -1 }, projection: { _id: 0, 'escalas': 1, 'timestamp': 1 } }, function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
@@ -125,7 +125,7 @@ const findById = async (id) => {
                 const collection = db.collection(collectionName);
 
                 collection.aggregate([
-                    { $match: { "idosoId": ObjectId(idosoId) } },
+                    { $match: { "idosoId": ObjectId(idosoId), _isDeleted: false } },
                     {
                         $facet: {
                             "atendimentosEfetuados" : [ 

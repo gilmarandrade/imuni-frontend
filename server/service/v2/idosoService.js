@@ -196,11 +196,11 @@ module.exports = app => {
         const user = await app.server.service.v2.usuarioService.findById(usuarioId);
         // console.log('find all by user')
         if(user) {
-            // console.log(user)
+            console.log(user)
             switch(user.role) {
                 case 'VIGILANTE':
-                    // console.log('role vigilante')
-                    //return findAllByVigilante(collectionPrefix, user.name, filter, sort, page, rowsPerPage);
+                    console.log('role vigilante')
+                    return findAllByVigilante(unidadeId, user._id, filter, sort, page, rowsPerPage);
                 case 'PRECEPTOR':
                     return findAll(unidadeId, filter, sort, page, rowsPerPage);
                 case 'ADMINISTRADOR':
@@ -214,21 +214,21 @@ module.exports = app => {
         return [];
     }
 
-    const findAll = async (unidadeId, filter, sort, page, rowsPerPage) => {
+    const findAllByVigilante = async (unidadeId, userId, filter, sort, page, rowsPerPage) => {
 
         let match;
         // TODO falta filtrar por _isDeleted
         // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
         switch(filter) {
             case 'com-escalas':
-                match = { $match: { unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
                 break;
             case 'sem-escalas':
-                match = { $match: { unidadeId: ObjectId(unidadeId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
                 break;
             case 'all':
             default:
-                match = { $match: { unidadeId: ObjectId(unidadeId)} }; //todos
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId)} }; //todos
                 break;
         }
 
@@ -258,33 +258,139 @@ module.exports = app => {
 
                 idososCollection.aggregate([
                     match,
-                    {
-                        $facet : {
-                            "data" : [
-                                querySort,
-                                { $skip : rowsPerPage * page },
-                                { $limit : rowsPerPage },
-                            ],
-                            "info": [
-                                { $group: { _id: null, totalRows: { $sum: 1 } } },
-                                // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
-                                // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
-                                { 
-                                    $addFields: {
-                                        currentPage: page,
-                                        rowsPerPage: rowsPerPage,
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
+                    querySort,
+                    { $skip : rowsPerPage * page },
+                    { $limit : rowsPerPage },
+
+                    // match,
+                    // {
+                    //     $facet : {
+                    //         "data" : [
+                    //             querySort,
+                    //             { $skip : rowsPerPage * page },
+                    //             { $limit : rowsPerPage },
+                    //         ],
+                    //         "info": [
+                    //             { $group: { _id: null, totalRows: { $sum: 1 } } },
+                    //             // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
+                    //             // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
+                    //             { 
+                    //                 $addFields: {
+                    //                     currentPage: page,
+                    //                     rowsPerPage: rowsPerPage,
+                    //                 }
+                    //             }
+                    //         ]
+                    //     }
+                    // },
+                    // { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        // console.log(result.length);
+
+                        resolve({
+                            data : result,
+                            info: {
+                                totalRows: result.length,
+                                currentPage: page,
+                                rowsPerPage: rowsPerPage
+                            }
+                        });
+                        // resolve(result[0]);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
+    const findAll = async (unidadeId, filter, sort, page, rowsPerPage) => {
+
+        let match;
+        // TODO falta filtrar por _isDeleted
+        // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
+        switch(filter) {
+            case 'com-escalas':
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                break;
+            case 'sem-escalas':
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
+                break;
+            case 'all':
+            default:
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} }; //todos
+                break;
+        }
+
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const idososCollection = db.collection(collectionName);
+      
+                // TODO verificar se esses filtros funcionam
+                let querySort;
+                switch(sort) {
+                    case 'score':
+                        querySort = { $sort : { 'estatisticas.ultimaEscala.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
+                    break;
+                    case 'ultimo-atendimento':
+                        querySort = { $sort: { 'estatisticas.ultimoAtendimento.timestamp': -1, nome: 1 } };//ultimo atendimento (tentativa) des
+                        break;
+                    case 'proximo-atendimento':
+                        querySort = { $sort: { 'estatisticas.ultimaEscala.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
+                        break;
+                    case 'nome':
+                    default:
+                        querySort = { $sort : { nome: 1 } };//nome asc 
+                }
+
+                idososCollection.aggregate([
+                    match,
+                    querySort,
+                    { $skip : rowsPerPage * page },
+                    { $limit : rowsPerPage },
+
+                    // match,
+                    // {
+                    //     $facet : {
+                    //         "data" : [
+                    //             querySort,
+                    //             { $skip : rowsPerPage * page },
+                    //             { $limit : rowsPerPage },
+                    //         ],
+                    //         "info": [
+                    //             { $group: { _id: null, totalRows: { $sum: 1 } } },
+                    //             // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
+                    //             // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
+                    //             { 
+                    //                 $addFields: {
+                    //                     currentPage: page,
+                    //                     rowsPerPage: rowsPerPage,
+                    //                 }
+                    //             }
+                    //         ]
+                    //     }
+                    // },
+                    // { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
                 ]).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
                         // console.log(result);
-                        resolve(result[0]);
+                        resolve({
+                            data : result,
+                            info: {
+                                totalRows: result.length,
+                                currentPage: page,
+                                rowsPerPage: rowsPerPage
+                            }
+                        });
                         // resolve(result[0]);
                     }
                 });

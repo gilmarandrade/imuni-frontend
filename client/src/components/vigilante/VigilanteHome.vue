@@ -2,7 +2,7 @@
     <div class="listaIdosos">
         <h6><router-link :to="'/'">Home</router-link></h6>
 
-        <div v-if="unidade">
+        <!-- <div v-if="unidade"> -->
             <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
                 trigger="hover"
@@ -20,23 +20,23 @@
             </div> -->
             <!-- <h1>{{ unidade.nome }}</h1>
             <p>Distrito {{ unidade.distrito }}</p> -->
-        </div>
+        <!-- </div> -->
 
-        <h5>{{ user.nomeUnidade }}</h5>
+        <h5>// TODO Unidade {{ user.unidadeId }}</h5>
         <h1>Meus Idosos</h1>
         <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
-        <a disabled v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
+        <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a>
 
 
          <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="sem-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="sem-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Todos" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
         </b-tabs>
     </div>
@@ -44,7 +44,7 @@
 
 <script>
 import { baseApiUrl, showError } from '@/global';
-import axios from 'axios';
+// import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import TableIdosos from '@/components/includes/TableIdosos';
 // import { userKey } from '@/global';
@@ -64,13 +64,14 @@ export default {
     },
     methods: {
         loadUnidade() {
-            const url = `${baseApiUrl}/unidades/${this.user.unidadeId}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.user.unidadeId}`;
             console.log(url);
 
-            axios.get(url).then(res => {
-                this.unidade = res.data
-                console.log(this.unidade)
-            }).catch(showError)
+            // axios.get(url).then(res => {
+            //     this.unidade = res.data
+            //     console.log(this.unidade)
+            // }).catch(showError)
+            showError
         },
         formatDate(date) {
             return new Date(date).toLocaleString();
@@ -95,7 +96,7 @@ export default {
     },
     mounted() {
         this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
-        this.loadUnidade();
+        // this.loadUnidade();
     }
 }
 </script>

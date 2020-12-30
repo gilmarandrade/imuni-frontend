@@ -87,7 +87,7 @@
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade.collectionPrefix+'/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">

@@ -113,14 +113,14 @@ module.exports = app => {
         .get(app.server.api.v2.idosos.getById)
         .delete(role(app.server.api.v2.idosos.remove, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/unidades/:unidadeId/idosos')
+    app.route('/api/v2/unidades/:unidadeId/idosos')// TODO esse endpoint está sendo usado?
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
 
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
-        .get(role(app.server.api.v2.unidades.getById, 'ADMINISTRADOR'))
+        .get(app.server.api.v2.unidades.getById)
         .delete(role(app.server.api.v2.unidades.remove, 'ADMINISTRADOR'));
 
     app.route('/api/v2/unidades')
