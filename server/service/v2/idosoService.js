@@ -216,6 +216,21 @@ module.exports = app => {
 
     const findAll = async (unidadeId, filter, sort, page, rowsPerPage) => {
 
+        let match;
+        // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
+        switch(filter) {
+            case 'com-escalas':
+                match = { $match: { unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                break;
+            case 'sem-escalas':
+                match = { $match: { unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 } } }; //apenas idosos sem escalas
+                break;
+            case 'all':
+            default:
+                match = { $match: { unidadeId: ObjectId(unidadeId)} }; //todos
+                break;
+        }
+
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -223,28 +238,36 @@ module.exports = app => {
                 const db = client.db(dbName);
                 const idososCollection = db.collection(collectionName);
       
-                // TODO criar uma View com essa collection?
+                // TODO verificar se esses filtros funcionam
+                let querySort;
+                switch(sort) {
+                    case 'score':
+                        querySort = { $sort : { 'estatisticas.ultimaEscala.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
+                    break;
+                    case 'ultimo-atendimento':
+                        querySort = { $sort: { 'estatisticas.ultimoAtendimento.timestamp': -1, nome: 1 } };//ultimo atendimento (tentativa) des
+                        break;
+                    case 'proximo-atendimento':
+                        querySort = { $sort: { 'estatisticas.ultimaEscala.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
+                        break;
+                    case 'nome':
+                    default:
+                        querySort = { $sort : { nome: 1 } };//nome asc 
+                }
+
                 idososCollection.aggregate([
-                    {
-                        $lookup:
-                        {
-                            from: 'atendimentosForm',
-                            localField: '_id',
-                            foreignField: 'idosoId',
-                            as: 'atendimentos'
-                        }
-                    },
-                    { $match: { unidadeId: ObjectId(unidadeId) } },
+                    match,
                     {
                         $facet : {
                             "data" : [
-                                // querySort,
+                                querySort,
                                 { $skip : rowsPerPage * page },
                                 { $limit : rowsPerPage },
                             ],
                             "info": [
-                                { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
-                                { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
+                                { $group: { _id: null, totalRows: { $sum: 1 } } },
+                                // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
+                                // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
                                 { 
                                     $addFields: {
                                         currentPage: page,
@@ -254,12 +277,13 @@ module.exports = app => {
                             ]
                         }
                     },
+                    { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
                 ]).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
                         // console.log(result);
-                        resolve(result);
+                        resolve(result[0]);
                         // resolve(result[0]);
                     }
                 });

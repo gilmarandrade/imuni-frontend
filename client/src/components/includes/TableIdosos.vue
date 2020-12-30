@@ -6,14 +6,14 @@
         </pre>
         <b-row align-h="end" class="mb-3" align-v="end">
             <b-col cols="2" class="text-right text-muted">
-                <!-- {{ tableInfo.totalRows }} resultados -->
+                {{ tableInfo.totalRows }} resultados
             </b-col>
             <b-col cols="2">
                 ordenar por 
                 <b-form-select size="sm" v-model="order" :options="sortOptions" @change="loadIdosos(0)"></b-form-select>
             </b-col>
         </b-row>
-        <!-- <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
+        <b-table :items="idosos" :fields="fields"  primary-key="_id" :busy="carregando" show-empty>
             <template v-slot:table-busy>
                 <div class="text-center text-primary my-2">
                     <b-spinner class="align-middle"></b-spinner>
@@ -27,8 +27,8 @@
                 <div>
                     <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
                 </div>
-                <div class="badges" v-if="data.item.ultimaEscala">
-                     <popper v-if="data.item.ultimaEscala.vulnerabilidade"
+                <div class="badges" v-if="data.item.estatisticas.ultimaEscala">
+                     <popper v-if="data.item.estatisticas.ultimaEscala.vulnerabilidade"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -38,10 +38,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.vulnerabilidade" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.vulnerabilidade" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.ultimaEscala.epidemiologica"
+                    <popper v-if="data.item.estatisticas.ultimaEscala.epidemiologica"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -51,10 +51,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.epidemiologica" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.epidemiologica" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.ultimaEscala.riscoContagio"
+                    <popper v-if="data.item.estatisticas.ultimaEscala.riscoContagio"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -64,7 +64,7 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.ultimaEscala.riscoContagio" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.riscoContagio" />
                         </span>
                     </popper>
                 </div>
@@ -83,12 +83,12 @@
                             </div>
 
                             <span slot="reference">
-                                <font-awesome-icon :icon="['fas', 'headset']"  /> {{ data.item.ultimaEscala ? data.item.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.ultimoAtendimento ? data.item.ultimoAtendimento.qtdTentativas : 0) }}
+                                <font-awesome-icon :icon="['fas', 'headset']"  /> {{ data.item.estatisticas ? data.item.estatisticas.count.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.estatisticas ? data.item.estatisticas.count.qtdTotal : 0) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento" v-if="data.item.ultimoAtendimento" :class="{ 'atendido' : data.item.ultimoAtendimento.efetuado }">
+                    <span class="statusUltimoAtendimento" v-if="data.item.estatisticas.ultimoAtendimento" :class="{ 'atendido' : data.item.estatisticas.ultimoAtendimento.efetuado }">
                         <popper
                             trigger="hover"
                             :options="{
@@ -97,23 +97,23 @@
                             }">
                             <div class="popper">
                                Último atendimento: 
-                                <span v-if="data.item.ultimoAtendimento.efetuado">Ligação atendida</span>
-                                <span v-if="!data.item.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                                <span v-if="data.item.estatisticas.ultimoAtendimento.efetuado">Ligação atendida</span>
+                                <span v-if="!data.item.estatisticas.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
                             </div>
 
                             <span slot="reference">
-                                <span v-show="data.item.ultimoAtendimento.efetuado">
+                                <span v-show="data.item.estatisticas.ultimoAtendimento.efetuado">
                                     <font-awesome-icon :icon="['far', 'check-circle']"  />
                                 </span>
-                                <span v-show="!data.item.ultimoAtendimento.efetuado">
+                                <span v-show="!data.item.estatisticas.ultimoAtendimento.efetuado">
                                     <font-awesome-icon :icon="['far', 'times-circle']" />
                                 </span>
-                                {{ formatDate(data.item.ultimoAtendimento.data) }}
+                                {{ formatDate(data.item.estatisticas.ultimoAtendimento.timestamp) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento atencao" v-show="!data.item.ultimoAtendimento">
+                    <span class="statusUltimoAtendimento atencao" v-show="!data.item.estatisticas.ultimoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -130,7 +130,7 @@
                         </popper>
                     </span>
 
-                    <span class="dataProximoAtendimento" v-if="data.item.ultimaEscala && data.item.ultimaEscala.dataProximoAtendimento">
+                    <span class="dataProximoAtendimento" v-if="data.item.estatisticas.ultimaEscala && data.item.estatisticas.ultimaEscala.dataProximoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -142,7 +142,7 @@
                             </div>
 
                             <span slot="reference">
-                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(data.item.ultimaEscala.dataProximoAtendimento) }}
+                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(data.item.estatisticas.ultimaEscala.dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>
@@ -182,22 +182,22 @@
                     :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
                     @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
             </b-button-group>
-        </div> -->
+        </div>
     </div>
 </template>
 
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
-// import Badge from '@/components/template/Badge';
-// import Popper from 'vue-popperjs';
+import Badge from '@/components/template/Badge';
+import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'TableIdosos',
     props: ['collectionPrefix', 'vigilanteNome', 'userId', 'filter', 'orderBy'],
-    // components: { Badge, 'popper': Popper },
+    components: { Badge, 'popper': Popper },
     computed: mapState(['pageParamsMap']),
     data: function() {
         return {
@@ -218,7 +218,7 @@ export default {
             },
             idosos: [],
             fields: [ 
-                { key: 'ultimaEscala.score', label: 'Score' },
+                { key: 'estatisticas.ultimaEscala.scoreOrdenacao', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
                 { key: 'col-2', label: ' ' },
             ],
