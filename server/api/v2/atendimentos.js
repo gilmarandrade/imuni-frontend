@@ -430,11 +430,11 @@ module.exports = app => {
                 
                 // TODO atualizar idoso com estatisticas
                 const estatisticas = {
-                    qtdAtendimentosEfetuados: null,
-                    qtdTentativas: null,
+                    // qtdAtendimentosEfetuados: null,
+                    // qtdTotal: null,
                     ultimoAtendimento: {
-                        timestamp: null,
-                        efetuado: false,
+                        timestamp: atendimento.timestamp,
+                        efetuado: atendimento.atendeu,
                     },
                     ultimaEscala: {
                         timestamp: null,
@@ -445,6 +445,9 @@ module.exports = app => {
                         dataProximoAtendimento: null,
                     },
                 };
+                estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimento.idosoId);
+                estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
+                console.log(estatisticas)
                 await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
 
                 return res.status(200).json(atendimento);

@@ -162,7 +162,7 @@ module.exports = app => {
 
     /**
      * Insere ou atualiza as Estatisticas de um idoso
-     * @param {*} epidemiologia 
+     * @param {*}  
      */
     const upsertEstatisticas = async (idIdoso, estatisticas) => {
         const promise = new Promise( (resolve, reject) => {
