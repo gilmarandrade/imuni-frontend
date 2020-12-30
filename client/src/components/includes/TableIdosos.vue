@@ -27,7 +27,7 @@
                 <div>
                     <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
                 </div>
-                <div class="badges" v-if="data.item.estatisticas.ultimaEscala">
+                <div class="badges" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala">
                      <popper v-if="data.item.estatisticas.ultimaEscala.vulnerabilidade"
                         trigger="hover"
                         :options="{
@@ -88,7 +88,7 @@
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento" v-if="data.item.estatisticas.ultimoAtendimento" :class="{ 'atendido' : data.item.estatisticas.ultimoAtendimento.efetuado }">
+                    <span class="statusUltimoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimoAtendimento" :class="{ 'atendido' : data.item.estatisticas.ultimoAtendimento.efetuado }">
                         <popper
                             trigger="hover"
                             :options="{
@@ -113,7 +113,7 @@
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento atencao" v-show="!data.item.estatisticas.ultimoAtendimento">
+                    <span class="statusUltimoAtendimento atencao" v-show="!data.item.estatisticas || !data.item.estatisticas.ultimoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -130,7 +130,7 @@
                         </popper>
                     </span>
 
-                    <span class="dataProximoAtendimento" v-if="data.item.estatisticas.ultimaEscala && data.item.estatisticas.ultimaEscala.dataProximoAtendimento">
+                    <span class="dataProximoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala && data.item.estatisticas.ultimaEscala.dataProximoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -252,7 +252,7 @@ export default {
                 this.idosos = res.data.data;
                 this.carregando = false;
                 this.teste = res.data
-                console.log(this.teste);
+                console.log(res.data);
             }).catch(function(e) {console.error(e);showError(e)})
         },
         formatDate(date) {

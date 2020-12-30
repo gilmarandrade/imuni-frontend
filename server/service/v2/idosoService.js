@@ -217,13 +217,14 @@ module.exports = app => {
     const findAll = async (unidadeId, filter, sort, page, rowsPerPage) => {
 
         let match;
+        // TODO falta filtrar por _isDeleted
         // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
         switch(filter) {
             case 'com-escalas':
                 match = { $match: { unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
                 break;
             case 'sem-escalas':
-                match = { $match: { unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 } } }; //apenas idosos sem escalas
+                match = { $match: { unidadeId: ObjectId(unidadeId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
                 break;
             case 'all':
             default:
