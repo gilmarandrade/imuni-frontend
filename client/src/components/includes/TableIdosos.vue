@@ -25,7 +25,7 @@
             </template>
             <template v-slot:cell(col-1)="data">
                 <div>
-                    <router-link :to="'/unidades/'+data.item.unidade+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
+                    <router-link :to="'/unidades/'+data.item.unidadeId+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
                 </div>
                 <div class="badges" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala">
                      <popper v-if="data.item.estatisticas.ultimaEscala.vulnerabilidade"

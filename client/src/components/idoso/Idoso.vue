@@ -1,13 +1,13 @@
 <template>
     <div class="idoso"  v-if="idoso">
         <h6 v-if="user.role !== 'ADMINISTRADOR'"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link></h6>
-        <h6 v-if="user.role === 'ADMINISTRADOR'"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}}</h6>
+        <h6 v-if="user.role === 'ADMINISTRADOR'"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidadeId }} / {{ idoso.vigilanteId}}</h6>
         <h1>
             {{ idoso.nome }}
         </h1>
 
-        <div class="badges" v-if="idoso.ultimaEscala">
-                <popper v-if="idoso.ultimaEscala.vulnerabilidade"
+        <div class="badges" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
+                <popper v-if="idoso.estatisticas.ultimaEscala.vulnerabilidade"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -17,10 +17,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.vulnerabilidade" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.vulnerabilidade" />
                 </span>
             </popper>
-            <popper v-if="idoso.ultimaEscala.epidemiologica"
+            <popper v-if="idoso.estatisticas.ultimaEscala.epidemiologica"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -30,10 +30,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.epidemiologica" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.epidemiologica" />
                 </span>
             </popper>
-            <popper v-if="idoso.ultimaEscala.riscoContagio"
+            <popper v-if="idoso.estatisticas.ultimaEscala.riscoContagio"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -43,16 +43,16 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.riscoContagio" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.riscoContagio" />
                 </span>
             </popper>
-            <small class="text-muted ml-2">Score {{ idoso.ultimaEscala.score }}</small>
+            <small class="text-muted ml-2">Score {{ idoso.estatisticas.ultimaEscala.scoreOrdenacao }}</small>
         </div>
         
         <div class="row mt-4">
             <div class="col">
                 <div>
-                    <strong>Unidade:</strong> {{ $route.params.unidadeId }} 
+                    <strong>Unidade:</strong> {{ $route.params.unidadeId }} // TODO
                 </div>
                 <div>
                     <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
@@ -63,13 +63,10 @@
                 <div>
                     <strong>Telefones:</strong> {{ idoso.telefone1 }} {{ idoso.telefone2 ? '/ ' + idoso.telefone2 : '' }} 
                 </div>
-                <div>
-                    <strong>Key:</strong> {{ idoso.row }} 
-                </div>
             </div>
             <div class="col">
                 <div>
-                    <strong>Vigilante:</strong> {{ idoso.vigilante }} 
+                    <strong>Vigilante:</strong> {{ idoso.vigilanteId }} // TODO 
                 </div>
                 <div>
                     <strong>Atendimentos efetuados:</strong> 
@@ -85,14 +82,14 @@
                             </div>
 
                             <span slot="reference">
-                                {{ idoso.ultimaEscala ? idoso.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.ultimoAtendimento ? idoso.ultimoAtendimento.qtdTentativas : 0) }}
+                                {{ idoso.estatisticas ? idoso.estatisticas.count.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.estatisticas ? idoso.estatisticas.count.qtdTotal : 0) }}
                             </span>
                         </popper>
                     </span>
                 </div>
                 <div>
                     <strong>Último atendimento:</strong>
-                    <span class="statusUltimoAtendimento" v-if="idoso.ultimoAtendimento" :class="{ 'atendido' : idoso.ultimoAtendimento.efetuado }">
+                    <span class="statusUltimoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimoAtendimento" :class="{ 'atendido' : idoso.estatisticas.ultimoAtendimento.efetuado }">
                         <popper
                             trigger="hover"
                             :options="{
@@ -101,23 +98,23 @@
                             }">
                             <div class="popper">
                                 Último atendimento: 
-                                <span v-if="idoso.ultimoAtendimento.efetuado">Ligação atendida</span>
-                                <span v-if="!idoso.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                                <span v-if="idoso.estatisticas.ultimoAtendimento.efetuado">Ligação atendida</span>
+                                <span v-if="!idoso.estatisticas.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
                             </div>
 
                             <span slot="reference">
-                                <span v-show="idoso.ultimoAtendimento.efetuado">
+                                <span v-show="idoso.estatisticas.ultimoAtendimento.efetuado">
                                     <font-awesome-icon :icon="['far', 'check-circle']"  />
                                 </span>
-                                <span v-show="!idoso.ultimoAtendimento.efetuado">
+                                <span v-show="!idoso.estatisticas.ultimoAtendimento.efetuado">
                                     <font-awesome-icon :icon="['far', 'times-circle']" />
                                 </span>
-                                {{ formatDate(idoso.ultimoAtendimento.data) }}
+                                {{ formatDate(idoso.estatisticas.ultimoAtendimento.timestamp) }}
                             </span>
                         </popper>
                     </span>
 
-                    <span class="statusUltimoAtendimento atencao" v-show="!idoso.ultimoAtendimento">
+                    <span class="statusUltimoAtendimento atencao" v-show="!idoso.estatisticas || !idoso.estatisticas.ultimoAtendimento">
                         <popper
                             trigger="hover"
                             :options="{
@@ -136,7 +133,7 @@
                 </div>
                 <div>
                     <strong>Sugestão de próximo atendimento:</strong>
-                    <span class="dataProximoAtendimento" v-if="idoso.ultimaEscala && idoso.ultimaEscala.dataProximoAtendimento">
+                    <span class="dataProximoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
                         <popper
                             trigger="hover"
                             :options="{
@@ -148,7 +145,7 @@
                             </div>
 
                             <span slot="reference">
-                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.ultimaEscala.dataProximoAtendimento) }}
+                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.estatisticas.ultimaEscala.dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>
@@ -281,7 +278,7 @@ export default {
     },
     methods: {
         loadIdoso() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.$route.params.idosoId}`;
+            const url = `${baseApiUrl}/v2/idosos/${this.$route.params.idosoId}`;
             console.log(url);
 
             axios.get(url).then(res => {
