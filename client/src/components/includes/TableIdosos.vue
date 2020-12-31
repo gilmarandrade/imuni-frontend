@@ -166,7 +166,7 @@
                         </div>
                     </section>
                     <div class="table-actions ml-2" v-if="user.role == 'ADMINISTRADOR'">
-                        <b-dropdown id="dropdown-1" no-caret variant="light" title="Opções">
+                        <b-dropdown right no-caret variant="light" title="Opções">
                             <template #button-content>
                                 <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
                             </template>
