@@ -364,7 +364,7 @@ module.exports = app => {
                 atendimento.tipo =  extractResponse('S07','Q01', atendimento.raw);
                 atendimento.idadeIdoso = extractNumber('S03','Q01', atendimento.raw);
                 atendimento.duracaoChamada = extractResponse('S13','Q01', atendimento.raw);
-                atendimento._idDeleted = false;
+                atendimento._isDeleted = false;
 
                 const criterios = {
                     atendeu: isEquals('S02','Q01', atendimento.raw, 'Sim'),
@@ -437,14 +437,14 @@ module.exports = app => {
                         timestamp: atendimento.timestamp,
                         efetuado: atendimento.atendeu,
                     },
-                    ultimaEscala: {
-                        timestamp: null,
-                        scoreOrdenacao: null,
-                        vulnerabilidade: null,
-                        epidemiologica: null,
-                        riscoContagio: null,
-                        dataProximoAtendimento: null,
-                    },
+                    // ultimaEscala: {
+                    //     timestamp: null,
+                    //     scoreOrdenacao: null,
+                    //     vulnerabilidade: null,
+                    //     epidemiologica: null,
+                    //     riscoContagio: null,
+                    //     dataProximoAtendimento: null,
+                    // },
                 };
                 estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimento.idosoId);
                 estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
