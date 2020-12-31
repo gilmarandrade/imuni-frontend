@@ -111,19 +111,15 @@
        </div>
        <div class="card mb-4">
          <div class="card-body">
-            <h5 class="card-title">
+            <h5 class="card-title mb-4">
               Idosos
-              <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right mb-3">cadastrar</router-link>
+              <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
             </h5>
-            
-            <b-table :items="idosos" :fields="fieldsIdosos">
-              <template v-slot:cell(acoes)="data">
-                  <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso?id='+data.item._id" class="btn btn-outline-primary">editar</router-link>           
-                  <b-button @click="deleteIdoso(data.item._id)" class="btn btn-danger ml-2">excluir</b-button>
-              </template>
-            </b-table>
+            <TableIdosos :unidadeId="unidade._id" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
          </div>
        </div>
+
+
    </div>
 
   <!-- The modal -->
@@ -171,9 +167,11 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
+import TableIdosos from '@/components/includes/TableIdosos';
 
 export default {
     name: 'Unidade',
+    components: { TableIdosos },
     data: function() {
         return {
             unidade: null,
@@ -185,17 +183,6 @@ export default {
                 { key: 'email', label: 'email' },
                 { key: 'role', label: 'tipo' },
                 { key: 'status', label: 'status' },
-                { key: 'acoes', label: 'ações' },
-            ],
-            idosos: [],
-            fieldsIdosos: [ 
-                { key: 'nome', label: 'nome' },
-                { key: 'dataNascimento', label: 'data de nascimento' },
-                { key: 'telefone1', label: 'telefone 1' },
-                { key: 'telefone2', label: 'telefone 2' },
-                { key: 'agenteSaude', label: 'agente de saúde' },
-                { key: 'vigilanteId', label: 'vigilante' },
-                { key: 'anotacoes', label: 'anotações' },
                 { key: 'acoes', label: 'ações' },
             ],
             completarCadastroUsuario: {
@@ -225,16 +212,6 @@ export default {
             axios.get(url).then(res => {
                 this.usuarios = res.data
                 console.log(this.usuarios)
-            }).catch(showError)
-        },
-        loadIdosos() {
-          //TODO mostrar o nome do vigilante ao invés do id
-            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/idosos`;
-            console.log(url);
-
-            axios.get(url).then(res => {
-                this.idosos = res.data
-                // console.log(this.idosos)
             }).catch(showError)
         },
         formatDate(date) {
@@ -384,30 +361,6 @@ export default {
               console.error(err.toString())
             })
         },
-        deleteIdoso(id) {
-          this.$bvModal.msgBoxConfirm('Deseja realmente excluir o idoso? Todos os dados serão perdidos!', {
-            okVariant: 'danger',
-            okTitle: 'excluir',
-            cancelTitle: 'cancelar',
-          })
-            .then(value => {
-              console.log(value);
-              if(value === true) {
-                  const url = `${baseApiUrl}/v2/idosos/${id}`;
-                  console.log(url);
-
-                  axios.delete(url).then(res => {
-                      console.log(res)
-                      this.$toasted.global.defaultSuccess({ msg: 'Idoso removido com sucesso'});
-                      this.loadIdosos();
-                  }).catch(showError)
-              }
-            })
-            .catch(err => {
-              // An error occurred
-              console.error(err.toString())
-            })
-        },
     },
     sockets: {
       connect: function () {
@@ -417,7 +370,6 @@ export default {
     mounted() {
       this.loadUnidade();
       this.loadUsuarios();
-      this.loadIdosos();
     }
 }
 </script>

@@ -203,9 +203,8 @@ module.exports = app => {
                     return findAllByVigilante(unidadeId, user._id, filter, sort, page, rowsPerPage);
                 case 'PRECEPTOR':
                     return findAll(unidadeId, filter, sort, page, rowsPerPage);
-                case 'ADMINISTRADOR':
-                    console.log('eita...')//TODO?
-                    return [];
+                    case 'ADMINISTRADOR':
+                    return findAll(unidadeId, filter, sort, page, rowsPerPage);
                 default:
                     console.log('opa...')//TODO?
                     return [];
