@@ -22,9 +22,10 @@
             <p>Distrito {{ unidade.distrito }}</p>
         </div> -->
 
+        <h5>// TODO Unidade {{ $route.params.unidadeId }}</h5>
         <h1>Meus Idosos ({{ $route.params.nome }})</h1>
-        <button @click="manualSync" class="btn btn-primary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
-
+        <button @click="manualSync" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
+<router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
                 <TableIdosos :unidadeId="$route.params.unidadeId" :userId="$route.params.usuarioId" filter="com-escalas" orderBy="score"></TableIdosos>

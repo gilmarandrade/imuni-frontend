@@ -160,7 +160,8 @@ export default {
             console.log(url, this.form);
 
             axios.post(url, this.form).then( () => {
-                this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
+                // this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
+                window.history.length > 1 ? this.$router.go(-1) : null;
                 this.$toasted.global.defaultSuccess({ msg: 'Registro salvo com sucesso'});
             }).catch(showError)
         },

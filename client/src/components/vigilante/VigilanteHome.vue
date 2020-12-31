@@ -1,7 +1,7 @@
+<!-- Vigilante ou Preceptor Home -->
 <template>
     <div class="listaIdosos">
         <h6><router-link :to="'/'">Home</router-link></h6>
-
         <!-- <div v-if="unidade"> -->
             <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper

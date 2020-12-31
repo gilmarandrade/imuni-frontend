@@ -78,6 +78,15 @@
             </ul>
          </div>
        </div> -->
+      <div class="card mb-4">
+         <div class="card-body">
+            <h5 class="card-title mb-4">
+              Idosos
+            </h5>
+            <router-link :to="'/unidades/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ user.id +'/'+user.name + '/all'">Ver todos</router-link>
+          </div>
+      </div>
+
        <div class="card mb-4">
          <div class="card-body">
             <h5 class="card-title">
@@ -108,18 +117,7 @@
               </template>
             </b-table>
          </div>
-       </div>
-       <div class="card mb-4">
-         <div class="card-body">
-            <h5 class="card-title mb-4">
-              Idosos
-              <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
-            </h5>
-            <TableIdosos :unidadeId="unidade._id" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
-         </div>
-       </div>
-
-
+      </div>
    </div>
 
   <!-- The modal -->
@@ -167,11 +165,9 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
-import TableIdosos from '@/components/includes/TableIdosos';
 
 export default {
     name: 'Unidade',
-    components: { TableIdosos },
     data: function() {
         return {
             unidade: null,
