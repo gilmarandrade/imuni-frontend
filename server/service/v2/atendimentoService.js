@@ -166,5 +166,40 @@ const findById = async (id) => {
         return promise;
     }
 
+    const findAllByIdoso = async (idosoId) => {
 
-module.exports = { insertOne, findById, getEpidemiologia, getEscalas, count};
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+      
+                collection.aggregate([
+                    { $match: { _isDeleted: false, idosoId: ObjectId(idosoId)} },
+                    // { $skip : rowsPerPage * page },
+                    // { $limit : rowsPerPage },
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        // console.log(result);
+                        // resolve({
+                        //     data : result,
+                        //     info: {
+                        //         totalRows: result.length,
+                        //         currentPage: page,
+                        //         rowsPerPage: rowsPerPage
+                        //     }
+                        // });
+                        resolve(result);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
+module.exports = { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso};

@@ -108,6 +108,10 @@ module.exports = app => {
     //     .all(app.server.config.passport.authenticate())
     //     .get(app.server.api.v2.idosos.getEpidemiologia);
 
+    app.route('/api/v2/idosos/:idosoId/atendimentos')
+        .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.atendimentos.getByIdoso);
+
     app.route('/api/v2/idosos/:idosoId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.idosos.getById)

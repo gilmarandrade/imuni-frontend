@@ -472,5 +472,16 @@ module.exports = app => {
         }
     }
 
-    return { save, getById };
+    const getByIdoso = async (req, res) => {
+        const idosoId = req.params.idosoId;
+
+        try {
+            const result = await app.server.service.v2.atendimentoService.findAllByIdoso(idosoId);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getById, getByIdoso };
 };

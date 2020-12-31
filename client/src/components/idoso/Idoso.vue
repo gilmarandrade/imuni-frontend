@@ -191,15 +191,15 @@
             </template>
             <template v-slot:cell(col-data)="data">
                 <router-link :to="'/unidades/'+$route.params.unidadeId+'/atendimentos/'+ data.item._id">
-                    {{ formatDate(data.item.fichaVigilancia.data) }}
+                    {{ formatDate(data.item.timestamp) }}
                 </router-link>
             </template>
             <template v-slot:cell(col-status)="data">
-                <span class="statusUltimoAtendimento" v-if="data.item.fichaVigilancia.dadosIniciais" :class="{ 'atendido' : data.item.fichaVigilancia.dadosIniciais.atendeu }">
-                    <span v-show="data.item.fichaVigilancia.dadosIniciais.atendeu">
+                <span class="statusUltimoAtendimento" v-if="data.item.atendeu" :class="{ 'atendido' : data.item.atendeu }">
+                    <span v-show="data.item.atendeu">
                         <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
                     </span>
-                    <span v-show="!data.item.fichaVigilancia.dadosIniciais.atendeu">
+                    <span v-show="!data.item.atendeu">
                         <font-awesome-icon :icon="['far', 'times-circle']" /> Ligação não atendida
                     </span>
                 </span>
@@ -271,7 +271,7 @@ export default {
                 { key: 'col-data', label: 'Data' },
                 { key: 'col-status', label: 'Status' },
                 { key: 'col-escalas', label: 'Escalas' },
-                { key: 'fichaVigilancia.vigilante', label: 'Vigilante' },
+                { key: 'vigilanteId', label: 'Vigilante' },
             ],
             carregandoAtendimentos: false,
         }
@@ -289,7 +289,7 @@ export default {
         },
         loadAtendimentos() {
             this.carregandoAtendimentos = true;
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.idoso.nomeLower}/atendimentos`;
+            const url = `${baseApiUrl}/v2/idosos/${this.$route.params.idosoId}/atendimentos`;
             console.log(url);
 
             axios.get(url).then(res => {
