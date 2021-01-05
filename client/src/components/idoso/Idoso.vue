@@ -177,7 +177,17 @@
             </div>
         </div>
 
-        <h2 class="my-5">Histórico de atendimentos</h2>
+        <div class="row mt-5 mb-3">
+            <div class="col">
+                <h2 class="">Histórico de atendimentos</h2>
+            </div>
+            <div class="col text-right" v-if="user.role == 'VIGILANTE'">
+                <a class="btn btn-primary" target="_blank" title="Novo atendimento" 
+                    :href="`/unidades/${idoso.unidadeId}/cadastrarAtendimento?idIdoso=${idoso._id}&idVigilante=${user.id}&idUnidade=${idoso.unidadeId}&nomeIdoso=${idoso.nome}&tipoAtendimento=${idoso.estatisticas && idoso.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`">
+                    <font-awesome-icon :icon="['fas', 'comment-medical']" /> Novo atendimento
+                </a>
+            </div>
+        </div>
 
         <b-table :items="atendimentos" :fields="fields" primary-key="_id" :busy="carregandoAtendimentos" show-empty>
             <template v-slot:table-busy>

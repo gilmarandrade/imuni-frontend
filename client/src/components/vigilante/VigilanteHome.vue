@@ -25,7 +25,7 @@
         <h5>// TODO Unidade {{ user.unidadeId }}</h5>
         <h1>Meus Idosos</h1>
         <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
-        <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a>
+        <!-- <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a> -->
 
 
          <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">

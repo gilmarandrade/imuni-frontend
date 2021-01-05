@@ -46,9 +46,6 @@
         </router-link>
         <b-button @click="confirmDeletion(unidade._id)" class="btn btn-danger ml-2">excluir</b-button>
 
-        <router-link :to="'/unidades/'+unidade._id+'/cadastrarAtendimento?idIdoso='+unidade._id +'&idVigilante='+unidade._id+'&idUnidade='+unidade._id + '&nomeIdoso=Abimael Soares&idade=56'" class="btn btn-outline-primary">
-          atendimento
-        </router-link>
         <div v-if="loading">carregando...</div>
         
    </header>

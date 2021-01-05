@@ -1,7 +1,6 @@
 <template>
-    <div class="idososPorVigilante">
-         <h6 v-if="unidade"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / <router-link :to="'/unidades/'+unidade._id">{{ $route.params.unidadeNome }}</router-link></h6>
-
+    <div class="idososPorVigilante" v-if="unidade">
+         <h6 ><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / <router-link :to="'/unidades/'+unidade._id">{{ $route.params.unidadeNome }}</router-link></h6>
         <!-- <div v-if="unidade">
             <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
@@ -25,7 +24,7 @@
         <h5>// TODO Unidade {{ $route.params.unidadeId }}</h5>
         <h1>Meus Idosos ({{ $route.params.nome }})</h1>
         <button @click="manualSync" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
-<router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
+        <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
                 <TableIdosos :unidadeId="$route.params.unidadeId" :userId="$route.params.usuarioId" filter="com-escalas" orderBy="score"></TableIdosos>

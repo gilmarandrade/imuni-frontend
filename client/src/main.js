@@ -13,7 +13,7 @@ import VueSocketIO from 'vue-socket.io';
 // import '@fortawesome/fontawesome-free/js/all.js'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCoffee, faChild, faCircle, faArchive, faExclamationCircle, faSync, faHeadset, faPlus, faSpinner, faAngleDown, faInfoCircle, faEllipsisV } from '@fortawesome/free-solid-svg-icons'
+import { faCoffee, faChild, faCircle, faArchive, faExclamationCircle, faSync, faHeadset, faPlus, faSpinner, faAngleDown, faInfoCircle, faEllipsisV, faCommentMedical } from '@fortawesome/free-solid-svg-icons'
 import { faComment, faCheckCircle, faTimesCircle, faClock } from '@fortawesome/free-regular-svg-icons'
 import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from '@fortawesome/vue-fontawesome'
@@ -36,6 +36,7 @@ library.add(
   faAngleDown,
   faInfoCircle,
   faEllipsisV,
+  faCommentMedical
 )
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)

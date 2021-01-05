@@ -174,6 +174,12 @@
                             <b-dropdown-item @click="deleteIdoso(data.item._id)">Excluir</b-dropdown-item>
                         </b-dropdown>
                     </div>
+                    <div class="table-actions ml-2" v-if="user.role == 'VIGILANTE'">
+                        <a class="btn btn-light" target="_blank" title="Novo atendimento" 
+                            :href="`/unidades/${unidadeId}/cadastrarAtendimento?idIdoso=${data.item._id}&idVigilante=${user.id}&idUnidade=${unidadeId}&nomeIdoso=${data.item.nome}&tipoAtendimento=${data.item.estatisticas && data.item.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`">
+                            <font-awesome-icon :icon="['fas', 'comment-medical']" />
+                        </a>
+                    </div>
                 </div>
           </template>
         </b-table>
