@@ -176,7 +176,7 @@
                     </div>
                     <div class="table-actions ml-2" v-if="user.role == 'VIGILANTE'">
                         <a class="btn btn-light" target="_blank" title="Novo atendimento" 
-                            :href="`/unidades/${unidadeId}/cadastrarAtendimento?idIdoso=${data.item._id}&idVigilante=${user.id}&idUnidade=${unidadeId}&nomeIdoso=${data.item.nome}&tipoAtendimento=${data.item.estatisticas && data.item.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`">
+                            :href="novoAtendimentoURL(data.item, user)">
                             <font-awesome-icon :icon="['fas', 'comment-medical']" />
                         </a>
                     </div>
@@ -201,7 +201,7 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, novoAtendimentoURL, formatDate } from '@/global';
 import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import Popper from 'vue-popperjs';
@@ -238,6 +238,8 @@ export default {
         }
     },
     methods: {
+        novoAtendimentoURL,
+        formatDate,
         loadIdosos(page) {
             this.carregando = true;
             
@@ -290,9 +292,6 @@ export default {
               // An error occurred
               console.error(err.toString())
             })
-        },
-        formatDate(date) {
-            return new Date(date).toLocaleString();
         },
     },
     mounted() {

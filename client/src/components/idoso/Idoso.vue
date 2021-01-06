@@ -183,7 +183,7 @@
             </div>
             <div class="col text-right" v-if="user.role == 'VIGILANTE'">
                 <a class="btn btn-primary" target="_blank" title="Novo atendimento" 
-                    :href="`/unidades/${idoso.unidadeId}/cadastrarAtendimento?idIdoso=${idoso._id}&idVigilante=${user.id}&idUnidade=${idoso.unidadeId}&nomeIdoso=${idoso.nome}&tipoAtendimento=${idoso.estatisticas && idoso.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`">
+                    :href="novoAtendimentoURL(idoso, user)">
                     <font-awesome-icon :icon="['fas', 'comment-medical']" /> Novo atendimento
                 </a>
             </div>
@@ -262,7 +262,7 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, novoAtendimentoURL, formatDate } from '@/global';
 import axios from 'axios';
 import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
@@ -287,6 +287,8 @@ export default {
         }
     },
     methods: {
+        novoAtendimentoURL,
+        formatDate,
         loadIdoso() {
             const url = `${baseApiUrl}/v2/idosos/${this.$route.params.idosoId}`;
             console.log(url);
@@ -307,9 +309,6 @@ export default {
                 this.carregandoAtendimentos = false;
                 console.log(this.atendimentos)
             }).catch(function(e) {console.error(e);showError(e)})
-        },
-        formatDate(date) {
-            return new Date(date).toLocaleString();
         },
     },
     mounted() {

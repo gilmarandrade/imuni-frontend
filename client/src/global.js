@@ -15,4 +15,16 @@ export function showError(e) {
     }
 }
 
-export default { baseApiUrl, showError, userKey }
+export function novoAtendimentoURL(idoso, user) {
+    return `/unidades/${idoso.unidadeId}/cadastrarAtendimento?idIdoso=${idoso._id}&idVigilante=${user.id}&idUnidade=${idoso.unidadeId}&nomeIdoso=${idoso.nome}&tipoAtendimento=${idoso.estatisticas && idoso.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`;
+}
+
+export function googleFormIframeURL(idIdoso, idVigilante, idUnidade, tipoAtendimento) {
+    return `https://docs.google.com/forms/d/e/1FAIpQLSfLfnC9b5dKX2cZKyYec_HNTWoiK24VcUTnAePbKyxqxmK77A/viewform?entry.1400965172=${idIdoso}&entry.107358182=${idVigilante}&entry.1292516784=${idUnidade}&entry.2065609378=${tipoAtendimento}&embedded=true`;
+}
+
+export function formatDate(date) {
+    return new Date(date).toLocaleString();
+}
+
+export default { baseApiUrl, showError, userKey, novoAtendimentoURL, formatDate }
