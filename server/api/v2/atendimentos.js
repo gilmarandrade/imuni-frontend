@@ -332,11 +332,15 @@ const extractRequiredList = (session, question, fichaVigilancia) => {
 module.exports = app => {
 
     const save = async (req, res) => {
-        // TODO checar se o api key recebido é valido por segurança 
 
         const atendimento = req.body;
 
         console.log('ATENDIMENTO RECEBIDO');
+        if(atendimento.authsecret !== process.env.AUTH_SECRET) {
+            console.log("authsecret inválido");
+            return res.status(403).send("authsecret inválido");
+        }
+
         try {
             // atendimento.timestamp = (new Date(atendimento.timestamp)).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
             // console.log(atendimento);
