@@ -182,6 +182,7 @@ const findById = async (id) => {
       
                 collection.aggregate([
                     { $match: { _isDeleted: false, idosoId: ObjectId(idosoId)} },
+                    { $sort : { timestamp : -1 } },
                     // { $skip : rowsPerPage * page },
                     // { $limit : rowsPerPage },
                 ]).toArray(function(err, result) {
