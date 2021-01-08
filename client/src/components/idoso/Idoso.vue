@@ -205,7 +205,7 @@
                 </router-link>
             </template>
             <template v-slot:cell(col-status)="data">
-                <span class="statusUltimoAtendimento" v-if="data.item.atendeu" :class="{ 'atendido' : data.item.atendeu }">
+                <span class="statusUltimoAtendimento" :class="{ 'atendido' : data.item.atendeu }">
                     <span v-show="data.item.atendeu">
                         <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
                     </span>
