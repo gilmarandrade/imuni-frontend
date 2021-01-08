@@ -55,15 +55,15 @@ module.exports = app => {
         }
     }
 
-    const getEpidemiologia = async (req, res) => {
-        try {
-            const result = await app.server.service.v2.idosoService.getEpidemiologia(req.params.idosoId);
-            return res.status(200).json(result);
-        } catch(err) {
-            console.log(err);
-            return res.status(500).send(err.toString());
-        }
-    }
+    // const getEpidemiologia = async (req, res) => {
+    //     try {
+    //         const result = await app.server.service.v2.atendimentoService.getEpidemiologia(req.params.idosoId);
+    //         return res.status(200).json(result);
+    //     } catch(err) {
+    //         console.log(err);
+    //         return res.status(500).send(err.toString());
+    //     }
+    // }
 
     const idososByUser = async (req, res) => {
         console.log('idosos by user' + req.params.usuarioId)
@@ -78,5 +78,5 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, getEpidemiologia, idososByUser };
+    return { save, getByUnidadeId, getById, remove, idososByUser };
 };

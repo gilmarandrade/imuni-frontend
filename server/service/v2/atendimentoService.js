@@ -73,7 +73,12 @@ const findById = async (id) => {
                     if(err) {
                         reject(err);
                     } else {
-                        resolve( Object.keys(result).length === 0 ? null : result.raw );
+                        console.log('epidemiologia', result);
+                        if(result) {
+                            resolve( Object.keys(result).length === 0 ? null : result.raw );
+                        } else {
+                            resolve( null);
+                        }
                     }
                 });
             });
