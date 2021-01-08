@@ -398,6 +398,7 @@ module.exports = app => {
                     },
                 };
 
+                // TODO checar se existe um bug na consulta da epidemiologia
                 if(atendimento.tipo == 'Primeiro Atendimento') {
                     // await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, atendimento.raw['S08']);
                     
@@ -412,6 +413,7 @@ module.exports = app => {
                 } else {// acompanhamento
                     // copia a epidemilogia do primeiro atendimento
                     const epidemiologiaRaw = await app.server.service.v2.atendimentoService.getEpidemiologia(atendimento.idosoId);
+                    console.log('epidemiologiaRaw', epidemiologiaRaw)
                     if(epidemiologiaRaw && epidemiologiaRaw['S08']) {
                         atendimento.raw['S08'] = epidemiologiaRaw['S08'];
                     }
