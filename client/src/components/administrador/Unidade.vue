@@ -50,37 +50,12 @@
         
    </header>
    <div class="container">
-       <!-- <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Planilhas</h5>
-          <div>
-            <b>Planilha de idosos:</b> <a :href="`https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaIdosos}/edit?usp=sharing`" target="_blank">{{ unidade.idPlanilhaIdosos }}</a>
-          </div>
-          <div>
-            <b>Planilha de gerenciamento:</b> <a :href="`https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaGerenciamento}/edit?usp=sharing`" target="_blank">{{ unidade.idPlanilhaGerenciamento }}</a>
-          </div>
-          <div>
-            <b>Ficha de vigilância:</b> <a :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">{{ unidade.idFichaVigilancia }}</a>
-          </div>
-        </div>
-       </div> -->
-<!-- 
-       <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">Vigilantes</h5>
-            <ul>
-                <li v-for="vigilante in unidade.vigilantes" :key="vigilante.nome">
-                    <router-link :to="'/unidades/' + unidade.collectionPrefix+'/' + unidade.nome + '/' + unidade._id + '/usuarios/undefined/' + vigilante.nome + '/com-escalas'">{{ vigilante.nome }}</router-link>
-                </li>
-            </ul>
-         </div>
-       </div> -->
       <div class="card mb-4">
          <div class="card-body">
             <h5 class="card-title mb-4">
               Idosos
             </h5>
-            <router-link :to="'/unidades/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ user.id +'/'+user.name + '/all'">Ver todos</router-link>
+            <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ user.id +'/'+user.name + '/all'">Ver todos</router-link>
           </div>
       </div>
 
@@ -93,7 +68,7 @@
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade.nome+'/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">

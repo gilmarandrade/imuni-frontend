@@ -49,7 +49,7 @@ const routes = [
     },
     {
         name: 'idososPorUsuario',
-        path: '/unidades/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome/:tab',
+        path: '/unidades/:unidadeId/usuarios/:usuarioId/:nome/:tab',
         component: IdososPorVigilante,
         meta: { requiresAdmin: true }
     },
