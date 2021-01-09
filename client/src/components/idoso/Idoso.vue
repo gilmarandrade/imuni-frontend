@@ -184,7 +184,7 @@
             <div class="col">
                 <h2 class="">Histórico de atendimentos</h2>
             </div>
-            <div class="col text-right" v-if="user.role == 'VIGILANTE'">
+            <div class="col text-right">
                 <a class="btn btn-primary" target="_blank" title="Novo atendimento" 
                     :href="novoAtendimentoURL(idoso, user)">
                     <font-awesome-icon :icon="['fas', 'comment-medical']" /> Novo atendimento

@@ -165,6 +165,12 @@
                             Telefones: {{ data.item.telefone1 }} {{ data.item.telefone2 }}
                         </div>
                     </section>
+                    <div class="table-actions ml-2" >
+                        <a class="btn btn-light" target="_blank" title="Novo atendimento" 
+                            :href="novoAtendimentoURL(data.item, user)">
+                            <font-awesome-icon :icon="['fas', 'comment-medical']" />
+                        </a>
+                    </div>
                     <div class="table-actions ml-2" v-if="user.role == 'ADMINISTRADOR'">
                         <b-dropdown right no-caret variant="light" title="Opções">
                             <template #button-content>
@@ -173,12 +179,6 @@
                             <b-dropdown-item :href="'/unidades/'+unidadeId+'/cadastrarIdoso?id='+data.item._id">Editar</b-dropdown-item>
                             <b-dropdown-item @click="deleteIdoso(data.item._id)">Excluir</b-dropdown-item>
                         </b-dropdown>
-                    </div>
-                    <div class="table-actions ml-2" v-if="user.role == 'VIGILANTE'">
-                        <a class="btn btn-light" target="_blank" title="Novo atendimento" 
-                            :href="novoAtendimentoURL(data.item, user)">
-                            <font-awesome-icon :icon="['fas', 'comment-medical']" />
-                        </a>
                     </div>
                 </div>
           </template>

@@ -1,6 +1,8 @@
 <template>
     <div class="atendimento" >
-        <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: $route.query.nomeIdoso, url: `/unidades/${$route.query.idUnidade}/idosos/${$route.query.idIdoso}`}, {text:'Novo atendimento'}]" />
+        <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: $route.query.nomeIdoso, url: `/unidades/${$route.query.idUnidade}/idosos/${$route.query.idIdoso}`}, {text:'Novo atendimento'}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: $route.query.idUnidade, url: `/unidades/${$route.query.idUnidade}`}, {text: 'Idosos', url: `/unidades/${$route.query.idUnidade}/usuarios/${user.id}/idosos/com-escalas`}, {text: $route.query.nomeIdoso, url: `/unidades/${$route.query.idUnidade}/idosos/${$route.query.idIdoso}`}, {text: 'Novo atendimentos'}]" />
+        
         <iframe id="iframe-ficha-vigilancia" 
             :src="iframeURL" 
             width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Carregando…</iframe>
