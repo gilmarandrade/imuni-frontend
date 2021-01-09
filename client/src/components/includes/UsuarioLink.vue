@@ -31,7 +31,7 @@ export default {
                 // this.usuario = response.data;
                 this.usuarioName = response.data.name;
                 if(response.data.unidadeId) {
-                    this.usuarioUrl = `/unidades/${response.data.unidadeId}/usuarios/${this._id}/idosos/com-escalas`;
+                    this.usuarioUrl = `/unidades/${response.data.unidadeId}/usuarios/${this.id}/idosos/com-escalas`;
                 }
             } catch (error) {
                 this.usuarioName = this.id;
