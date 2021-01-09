@@ -27,7 +27,8 @@
                             </div>
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Unidade:</b> {{ idoso.unidadeId }} // TODO
+                                    <b>Unidade: </b>
+                                    <UnidadeLink :id="idoso.unidadeId"></UnidadeLink>
                                 </div>
                                 <div>
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
@@ -193,10 +194,11 @@ import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
 import FormResponse from '../template/FormResponse.vue';
+import UnidadeLink from '@/components/includes/UnidadeLink';
 
 export default {
     name: 'Atendimento',
-    components: { Badge, FormResponse },
+    components: { Badge, FormResponse, UnidadeLink },
     computed: mapState(['user']),
     data: function() {
         return {

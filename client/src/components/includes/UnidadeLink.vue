@@ -1,16 +1,19 @@
 <template>
-  <span class="unidadeName">
-    <router-link :to="`/unidades/${unidadeId}`">{{ unidadeName }}</router-link> // TODO desativar o link se o usuario não tiver permissao
+  <span class="unidadeLink">
+    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="`/unidades/${id}`">{{ unidadeName }}</router-link>
+    <span v-else>{{ unidadeName }}</span>
   </span>
 </template>
 
 <script>
 import { baseApiUrl } from '@/global';
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
-    name: 'UnidadeName',
-    props: ['unidadeId'],
+    name: 'UnidadeLink',
+    props: ['id'],
+    computed: mapState(['user']),
     data: function() {
         return {
             unidadeName: null,
@@ -18,7 +21,7 @@ export default {
     },
     methods: {
         async getUnidadeName() {
-            const url = `${baseApiUrl}/v2/names/unidades/${this.unidadeId}`;
+            const url = `${baseApiUrl}/v2/names/unidades/${this.id}`;
             console.log(url);
 
             try {
@@ -26,7 +29,7 @@ export default {
                 console.log(response);
                 this.unidadeName = response.data;
             } catch (error) {
-                this.unidadeName = this.unidadeId;
+                this.unidadeName = this.id;
                 console.error(error);
                 return error
             }
@@ -39,7 +42,7 @@ export default {
 </script>
 
 <style>
-    .unidadeName {
+    .unidadeLink {
         /* background-color: darkgray; */
     }
 </style>
