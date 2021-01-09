@@ -69,11 +69,11 @@ const findById = async (id) => {
                 
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro Atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
+            collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
-                        console.log('epidemiologia', result);
+                        console.log('GET epidemiologia', result);
                         if(result) {
                             resolve( Object.keys(result).length === 0 ? null : result.raw );
                         } else {
