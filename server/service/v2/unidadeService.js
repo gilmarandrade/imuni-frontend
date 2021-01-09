@@ -217,4 +217,31 @@ const softDeleteOne = async (id) => {
     return promise;
 }
 
-module.exports = { findAll, findAtivos, upsertOne, bulkUpdateOne, getById, softDeleteOne };
+/**
+ * Insere um item
+ * @param {*} item 
+ */
+// TODO todos os inserts e updates do sistema deveriam retornar o id
+const insertOne = async (item) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            const collection = db.collection(collectionName);
+
+            collection.insertOne(item, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result.insertedId);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
+module.exports = { findAll, findAtivos, upsertOne, bulkUpdateOne, getById, softDeleteOne, insertOne };

@@ -11,8 +11,8 @@
                 <strong>Adicionar unidade</strong>
                 <p>Crie uma nova unidade do zero</p>
               </b-dropdown-item>
-              <b-dropdown-item href="/migrarUnidade" disabled>
-                <strong>Importar unidade (em breve)</strong>
+              <b-dropdown-item href="/migrarUnidade">
+                <strong>Importar unidade</strong>
                 <p>Importe uma unidade a partir de uma planilha do google sheets</p>
               </b-dropdown-item>
             </b-dropdown>

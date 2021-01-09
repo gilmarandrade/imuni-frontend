@@ -92,15 +92,15 @@ module.exports = app => {
             return res.status(400).send(err.toString());
         }
 
-        unidade.collectionPrefix = unidade.nome.replace(/[^a-zA-Z0-9]/g,'_');
+        // unidade.collectionPrefix = unidade.nome.replace(/[^a-zA-Z0-9]/g,'_');
         // unidade.ativo = true;
         // unidade.autoSync = false;
         // unidade.lastSyncDate = null;
         // unidade.vigilantes = [];
 
-        console.log(unidade);
+        console.log('MIGRATE', unidade);
         try {
-            const result = await app.server.service.v2.unidadeService.upsertOne(unidade);
+            const result = await app.server.service.v2.unidadeService.insertOne(unidade);
             return res.status(200).json(result);
         } catch(err) {
             console.log(err);
@@ -112,6 +112,7 @@ module.exports = app => {
      * Migração das unidades cadastradas no banco antigo para o formato compatível com a versão 2
      * @param {*} req 
      * @param {*} res 
+     * @deprecated
      */
     const adequarUnidades = async (req, res) => {
         try {
@@ -142,5 +143,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades, getById, remove, getName };
+    return { get, save, adequarUnidades, getById, remove, getName, migrate };
 };

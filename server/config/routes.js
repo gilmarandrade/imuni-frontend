@@ -88,8 +88,8 @@ module.exports = app => {
 
     
     app.route('/api/v2/migracao/unidades')
-        // .all(app.server.config.passport.authenticate())
-        .get(app.server.api.v2.unidades.adequarUnidades);
+        .all(app.server.config.passport.authenticate())
+        .post(app.server.api.v2.unidades.migrate);
 
         
     //Handle Production routes

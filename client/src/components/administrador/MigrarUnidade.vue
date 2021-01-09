@@ -1,8 +1,11 @@
 <template>
   <div class="adicionarUnidade">
     <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Importar unidade'}]" />
-    <h1>Importar unidade a partir de planilhas</h1>
-    <p>Atenção: Não se esqueça de compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.</p>
+    <h1>Importar unidade</h1>
+    <b-alert show variant="warning">
+        <h4 class="alert-heading">Atenção</h4>
+        Antes de tudo, você deve compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.
+    </b-alert>
 
     <b-form @submit="onSubmit">
         <b-form-group
@@ -70,7 +73,7 @@
             ></b-form-input>
         </b-form-group>
 
-        <b-button type="submit" variant="primary">Salvar</b-button>
+        <b-button type="submit" variant="primary">Importar</b-button>
     </b-form>
   </div>
 </template>
@@ -89,18 +92,19 @@ export default {
                 nome: '',
                 distrito: null,
                 _isDeleted: false,
-                /* TODO DEPRECATED ATTRIBUTES*/
+                status: 'ATIVO',
                 planilhaIdosos: '',
                 planilhaGerenciamento: '',
                 fichaVigilancia: '',
-                idPlanilhaIdosos: '',
-                idPlanilhaGerenciamento: '',
-                idFichaVigilancia: '',
-                collectionPrefix: '',
-                ativo: true,
-                autoSync: false,
-                lastSyncDate: null,
-                vigilantes: [],
+                /* TODO DEPRECATED ATTRIBUTES*/
+                // idPlanilhaIdosos: '',
+                // idPlanilhaGerenciamento: '',
+                // idFichaVigilancia: '',
+                // collectionPrefix: '',
+                // ativo: true,
+                // autoSync: false,
+                // lastSyncDate: null,
+                // vigilantes: [],
             },
             distritos: [ { text: 'Selecione...', value: null }, 'Norte I', 'Norte II', 'Sul', 'Leste', 'Oeste' ],
         }
