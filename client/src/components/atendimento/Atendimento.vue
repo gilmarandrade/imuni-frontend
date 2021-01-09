@@ -16,7 +16,9 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Nome:</b> {{ idoso.nome }}
+                                    <b>Nome: </b>
+                                    <IdosoLink :nome="idoso.nome" :url="`/unidades/${idoso.unidadeId}/idosos/${idoso._id}`" />
+                                    <!-- <IdosoLink :id="idoso._id" /> -->
                                 </div>
                                 <div>
                                     <b>Data de nascimento:</b> {{ idoso.dataNascimento }}
@@ -197,11 +199,12 @@ import { mapState } from 'vuex';
 import FormResponse from '../template/FormResponse.vue';
 import UnidadeLink from '@/components/includes/UnidadeLink';
 import UsuarioLink from '@/components/includes/UsuarioLink';
+import IdosoLink from '@/components/includes/IdosoLink';
 import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'Atendimento',
-    components: { Badge, FormResponse, UnidadeLink, UsuarioLink, Breadcrumb },
+    components: { Badge, FormResponse, UnidadeLink, UsuarioLink, IdosoLink, Breadcrumb },
     computed: mapState(['user']),
     data: function() {
         return {

@@ -31,7 +31,6 @@ export default {
             } catch (error) {
                 this.unidadeName = this.id;
                 console.error(error);
-                return error
             }
         },
     },

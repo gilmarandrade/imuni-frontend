@@ -31,7 +31,6 @@ export default {
             } catch (error) {
                 this.usuario = this.id;
                 console.error(error);
-                return error
             }
         },
     },
