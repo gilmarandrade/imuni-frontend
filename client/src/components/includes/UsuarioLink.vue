@@ -1,7 +1,7 @@
 <template>
-  <span class="usuarioLink" v-if="usuario">
-    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="'/unidades/'+usuario.unidadeId+'/usuarios/'+ usuario._id +'/idosos/com-escalas'">{{ usuario.name }}</router-link>
-    <span v-else>{{ usuario.name }}</span>
+  <span class="usuarioLink">
+    <router-link v-if="user.role == 'ADMINISTRADOR' && usuarioUrl" :to="usuarioUrl">{{ usuarioName }}</router-link>
+    <span v-else>{{ usuarioName }}</span>
   </span>
 </template>
 
@@ -16,7 +16,8 @@ export default {
     computed: mapState(['user']),
     data: function() {
         return {
-            usuario: null,
+            usuarioName: '',
+            usuarioUrl: '',
         };
     },
     methods: {
@@ -26,10 +27,14 @@ export default {
 
             try {
                 const response = await axios.get(url);
-                console.log(response);
-                this.usuario = response.data;
+                console.log('USUARIOLINK', response);
+                // this.usuario = response.data;
+                this.usuarioName = response.data.name;
+                if(response.data.unidadeId) {
+                    this.usuarioUrl = `/unidades/${response.data.unidadeId}/usuarios/${this._id}/idosos/com-escalas`;
+                }
             } catch (error) {
-                this.usuario = this.id;
+                this.usuarioName = this.id;
                 console.error(error);
             }
         },
