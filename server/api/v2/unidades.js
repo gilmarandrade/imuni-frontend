@@ -21,6 +21,16 @@ module.exports = app => {
         }
     }
 
+    const getName = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.unidadeService.getById(req.params.unidadeId);
+            return res.json(result ? result.nome : null);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
     //TODO não permitir o cadastro duplicado de unidades?
     const save = async (req, res) => {
         const unidade = req.body;
@@ -132,5 +142,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades, getById, remove };
+    return { get, save, adequarUnidades, getById, remove, getName };
 };

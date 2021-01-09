@@ -52,7 +52,8 @@
         <div class="row mt-4">
             <div class="col">
                 <div>
-                    <strong>Unidade:</strong> {{ $route.params.unidadeId }} // TODO
+                    <strong>Unidade: </strong>
+                    <UnidadeName :unidadeId="$route.params.unidadeId"></UnidadeName>
                 </div>
                 <div>
                     <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
@@ -266,12 +267,13 @@ import { baseApiUrl, showError, novoAtendimentoURL, formatDate } from '@/global'
 import axios from 'axios';
 import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
+import UnidadeName from '@/components/includes/UnidadeName';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'Idoso',
-    components: { Badge, 'popper': Popper },
+    components: { Badge, 'popper': Popper, UnidadeName },
     computed: mapState(['user']),
     data: function() {
         return {
@@ -284,6 +286,7 @@ export default {
                 { key: 'vigilanteId', label: 'Vigilante' },
             ],
             carregandoAtendimentos: false,
+            unidadeName: null,
         }
     },
     methods: {

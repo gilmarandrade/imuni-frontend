@@ -21,7 +21,7 @@
             <p>Distrito {{ unidade.distrito }}</p>
         </div> -->
 
-        <h5>// TODO Unidade {{ $route.params.unidadeId }}</h5>
+        <h5>{{ unidade.nome }}</h5>
         <h1>Meus Idosos ({{ $route.params.nome }})</h1>
         <button @click="manualSync" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
@@ -69,6 +69,7 @@ export default {
                 console.log(this.unidade)
             }).catch(showError)
         },
+        
         formatDate(date) {
             return new Date(date).toLocaleString();
         },
