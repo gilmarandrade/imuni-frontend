@@ -1,7 +1,7 @@
 <template>
     <div class="atendimento" v-if="atendimento">
         <Breadcrumb v-if="user.role !== 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
-        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/idosos/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
 
         <h1>Atendimento</h1>
         <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>

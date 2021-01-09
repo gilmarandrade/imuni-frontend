@@ -1,6 +1,6 @@
 <template>
   <span class="usuarioLink" v-if="usuario">
-    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="'/unidades/'+usuario.unidadeId+'/usuarios/'+ usuario._id +'/'+usuario.name + '/com-escalas'">{{ usuario.name }}</router-link>
+    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="'/unidades/'+usuario.unidadeId+'/usuarios/'+ usuario._id +'/idosos/com-escalas'">{{ usuario.name }}</router-link>
     <span v-else>{{ usuario.name }}</span>
   </span>
 </template>

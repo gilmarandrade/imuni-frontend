@@ -24,7 +24,7 @@
         </div> -->
 
         <h5>{{ unidade.nome }}</h5>
-        <h1>Idosos de {{ $route.params.nome }}</h1>
+        <h1 v-if="usuario">Idosos de {{ usuario.name }}</h1>
         <button @click="manualSync" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
         <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, formatDate } from '@/global';
 import axios from 'axios';
 import TableIdosos from '@/components/includes/TableIdosos';
 import Breadcrumb from '@/components/includes/Breadcrumb';
@@ -58,11 +58,13 @@ export default {
         return {
             carregando: true,
             unidade: null,
+            usuario: null,
             tabIndex: 0,
             tabs: ['com-escalas', 'sem-escalas', 'todos']
         }
     },
     methods: {
+        formatDate,
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
             console.log(url);
@@ -72,9 +74,13 @@ export default {
                 console.log(this.unidade)
             }).catch(showError)
         },
-        
-        formatDate(date) {
-            return new Date(date).toLocaleString();
+        loadUsuario() {
+            const url = `${baseApiUrl}/v2/names/usuarios/${this.$route.params.usuarioId}`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.usuario = res.data
+            }).catch(showError)
         },
         manualSync() {
           // $socket is socket.io-client instance
@@ -94,6 +100,7 @@ export default {
         this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
         // this.tabIndex = +this.$route.params.tab || 0,
         this.loadUnidade();
+        this.loadUsuario();
     }
 }
 </script>

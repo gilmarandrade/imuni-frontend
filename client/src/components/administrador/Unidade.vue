@@ -55,7 +55,7 @@
             <h5 class="card-title mb-4">
               Idosos
             </h5>
-            <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ user.id +'/'+user.name + '/all'">Ver todos</router-link>
+            <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ user.id +'/idosos/all'">Ver todos</router-link>
           </div>
       </div>
 
@@ -68,7 +68,7 @@
             
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/'+data.item.name + '/com-escalas'">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">
