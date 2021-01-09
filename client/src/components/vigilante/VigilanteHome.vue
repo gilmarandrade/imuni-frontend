@@ -1,6 +1,6 @@
 <!-- Vigilante ou Preceptor Home -->
 <template>
-    <div class="listaIdosos">
+    <div class="listaIdosos" v-if="unidade">
         <h6><router-link :to="'/'">Home</router-link></h6>
         <!-- <div v-if="unidade"> -->
             <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
@@ -22,7 +22,7 @@
             <p>Distrito {{ unidade.distrito }}</p> -->
         <!-- </div> -->
 
-        <h5>// TODO Unidade {{ user.unidadeId }}</h5>
+        <h5>{{ unidade.nome }}</h5>
         <h1>Meus Idosos</h1>
         <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
         <!-- <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a> -->
@@ -44,7 +44,7 @@
 
 <script>
 import { baseApiUrl, showError } from '@/global';
-// import axios from 'axios';
+import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import TableIdosos from '@/components/includes/TableIdosos';
 // import { userKey } from '@/global';
@@ -67,11 +67,10 @@ export default {
             const url = `${baseApiUrl}/v2/unidades/${this.user.unidadeId}`;
             console.log(url);
 
-            // axios.get(url).then(res => {
-            //     this.unidade = res.data
-            //     console.log(this.unidade)
-            // }).catch(showError)
-            showError
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
         },
         formatDate(date) {
             return new Date(date).toLocaleString();
@@ -96,7 +95,7 @@ export default {
     },
     mounted() {
         this.tabIndex = this.tabs.findIndex(tab => tab === this.$route.params.tab)
-        // this.loadUnidade();
+        this.loadUnidade();
     }
 }
 </script>
