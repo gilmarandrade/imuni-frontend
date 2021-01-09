@@ -291,7 +291,7 @@ export default {
                 { key: 'col-data', label: 'Data' },
                 { key: 'col-status', label: 'Status' },
                 { key: 'col-escalas', label: 'Escalas' },
-                { key: 'col-vigilante', label: 'Vigilante' },
+                { key: 'col-vigilante', label: 'Atendente' },
             ],
             carregandoAtendimentos: false,
         }

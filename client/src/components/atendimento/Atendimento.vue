@@ -108,7 +108,7 @@
                             </span>
                         </div>
                         <div>
-                            <b>Vigilante responsável: </b>
+                            <b>Atendente: </b>
                              <UsuarioLink :id="atendimento.vigilanteId"></UsuarioLink>
                         </div>
                         <div>
