@@ -1,7 +1,9 @@
 <template>
     <div class="idososPorVigilante" v-if="unidade">
-         <h6 ><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / <router-link :to="'/unidades/'+unidade._id">{{ $route.params.unidadeNome }}</router-link></h6>
-        <!-- <div v-if="unidade">
+        <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos'}]" />
+        <!-- <Breadcrumb :path="[{text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos', url: `/unidades/${unidade.nome}/${unidade._id}/usuarios/${$route.params.usuarioId}/${$route.params.nome}/com-escalas`}]" /> -->
+
+         <!-- <div v-if="unidade">
             <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
                 trigger="hover"
@@ -43,13 +45,14 @@
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import TableIdosos from '@/components/includes/TableIdosos';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 // import Popper from 'vue-popperjs';
 // import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'IdososPorVigilante',
-    components: { TableIdosos},
+    components: { TableIdosos, Breadcrumb },
     computed: mapState(['syncStatus']),
     data: function() {
         return {

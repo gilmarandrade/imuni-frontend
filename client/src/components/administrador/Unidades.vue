@@ -1,6 +1,6 @@
 <template>
  <div class="unidades">
-        <h6><router-link :to="'/'">Home</router-link></h6>
+    <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades'}]" />
         <div class="row mb-3">
           <div class="col">
             <h1>Unidades</h1>
@@ -47,10 +47,12 @@
 
 <script>
 import { baseApiUrl, showError } from '@/global';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 import axios from 'axios';
 
 export default {
     name: 'Unidades',
+    components: { Breadcrumb },
     data: function() {
         return {
             unidades: [],

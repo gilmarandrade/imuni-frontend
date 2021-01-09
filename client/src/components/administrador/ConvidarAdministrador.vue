@@ -1,5 +1,6 @@
 <template>
   <div class="adicionarUsuario">
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Administradores', url:'/administradores'}, {text: 'Convidar'}]" />
     <h1>Convidar Administrador</h1>
 
     <b-form @submit="onSubmit">
@@ -85,9 +86,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'ConvidarUsuario',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {

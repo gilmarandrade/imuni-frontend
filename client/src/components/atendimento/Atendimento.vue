@@ -1,8 +1,8 @@
 <template>
     <div class="atendimento" v-if="atendimento">
-        <h6 v-if="user.role !== 'ADMINISTRADOR' && idoso"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link> / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+ idoso._id">{{ idoso.nome }}</router-link></h6>
-        <h6 v-if="user.role === 'ADMINISTRADOR' && idoso"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}} / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+idoso._id">{{idoso.nome}}</router-link></h6>
-        
+        <Breadcrumb v-if="user.role !== 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: idoso.unidadeId, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+
         <h1>Atendimento</h1>
         <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>
 
@@ -197,10 +197,11 @@ import { mapState } from 'vuex';
 import FormResponse from '../template/FormResponse.vue';
 import UnidadeLink from '@/components/includes/UnidadeLink';
 import UsuarioLink from '@/components/includes/UsuarioLink';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'Atendimento',
-    components: { Badge, FormResponse, UnidadeLink, UsuarioLink },
+    components: { Badge, FormResponse, UnidadeLink, UsuarioLink, Breadcrumb },
     computed: mapState(['user']),
     data: function() {
         return {

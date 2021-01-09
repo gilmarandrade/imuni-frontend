@@ -1,6 +1,6 @@
 <template>
  <div class="administradores">
-        <h6><router-link :to="'/'">Home</router-link></h6>
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Administradores'}]" />
         <h1>Administradores</h1>
         <div class="card mb-4">
          <div class="card-body">
@@ -36,9 +36,11 @@
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import { mapState } from 'vuex';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'Administradores',
+    components: { Breadcrumb },
     data: function() {
         return {
             usuarios: [],

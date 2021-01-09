@@ -1,5 +1,6 @@
 <template>
     <div class="home">
+        <Breadcrumb :path="[{text: 'Dashboard'}]"/>
         <PageTitle icon="" main="Home" sub="Bem vindo ao sistema de monitoramento" />
         <!-- <h2>Planilhas</h2>
         <ul>
@@ -29,11 +30,12 @@
 
 <script>
 import PageTitle from '../template/PageTitle';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 import { mapState } from 'vuex';
 
 export default {
     name: 'Home',
-    components: { PageTitle },
+    components: { PageTitle, Breadcrumb },
     data: function() {
         return {
         }

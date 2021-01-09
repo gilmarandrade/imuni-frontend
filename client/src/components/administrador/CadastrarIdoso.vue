@@ -1,6 +1,7 @@
 <template>
   <div class="adicionarIdoso">
-    <h1>Cadastrar/Editar Idoso</h1>
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Adicionar idoso'}]" />
+    <h1>Adicionar/Editar Idoso</h1>
 
     <b-form @submit="onSubmit">
         <b-form-group
@@ -108,9 +109,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'CadastrarIdoso',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {

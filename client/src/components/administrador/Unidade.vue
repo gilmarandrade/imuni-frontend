@@ -1,6 +1,6 @@
 <template>
  <div class="unidades" v-if="unidade">
-   <h6><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link></h6>
+   <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome}]" />
    <header class="header-page">
         <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
           <popper
@@ -159,12 +159,14 @@
 
 <script>
 import { baseApiUrl, showError } from '@/global';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 import axios from 'axios';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'Unidade',
+    components: { Breadcrumb },
     data: function() {
         return {
             unidade: null,

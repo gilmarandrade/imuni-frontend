@@ -1,5 +1,6 @@
 <template>
   <div class="adicionarUsuario">
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Convidar usuário'}]" />
     <h1>Convidar Usuário</h1>
 
     <!-- obs: caso o usuario seja um vigilante, seu nome deve ser informado da mesma forma que foi usado nas planilhas (incluido letras maiúsculas, acentos e abreviações).  -->
@@ -86,9 +87,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'ConvidarUsuario',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {

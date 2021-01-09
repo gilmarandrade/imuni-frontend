@@ -1,5 +1,6 @@
 <template>
   <div class="adicionarUnidade">
+    <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Importar unidade'}]" />
     <h1>Importar unidade a partir de planilhas</h1>
     <p>Atenção: Não se esqueça de compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.</p>
 
@@ -77,9 +78,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'MigrarUnidade',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {

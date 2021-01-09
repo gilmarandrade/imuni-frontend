@@ -1,7 +1,8 @@
 <template>
     <div class="idoso"  v-if="idoso">
-        <h6 v-if="user.role !== 'ADMINISTRADOR'"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link></h6>
-        <h6 v-if="user.role === 'ADMINISTRADOR'"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidadeId }} / {{ idoso.vigilanteId}}</h6>
+        <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: idoso.unidadeId, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome}]" />
+
         <h1>
             {{ idoso.nome }}
         </h1>
@@ -273,12 +274,13 @@ import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
 import UnidadeLink from '@/components/includes/UnidadeLink';
 import UsuarioLink from '@/components/includes/UsuarioLink';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'Idoso',
-    components: { Badge, 'popper': Popper, UnidadeLink, UsuarioLink },
+    components: { Badge, 'popper': Popper, UnidadeLink, UsuarioLink, Breadcrumb },
     computed: mapState(['user']),
     data: function() {
         return {

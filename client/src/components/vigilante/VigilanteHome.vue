@@ -1,7 +1,7 @@
 <!-- Vigilante ou Preceptor Home -->
 <template>
     <div class="listaIdosos" v-if="unidade">
-        <h6><router-link :to="'/'">Home</router-link></h6>
+        <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos'}]" />
         <!-- <div v-if="unidade"> -->
             <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
@@ -47,12 +47,13 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import TableIdosos from '@/components/includes/TableIdosos';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 // import { userKey } from '@/global';
 import { mapState } from 'vuex';
 
 export default {
     name: 'VigilanteHome',
-    components: { TableIdosos },
+    components: { TableIdosos, Breadcrumb },
     computed: mapState(['user', 'syncStatus']),
     data: function() {
         return {

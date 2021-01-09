@@ -1,5 +1,6 @@
 <template>
   <div class="adicionarUnidade">
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Adicionar Unidade'}]" />
     <h1>Adicionar/Editar Unidade</h1>
   
     <b-form @submit="onSubmit">
@@ -76,9 +77,11 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'AdicionarUnidade',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {

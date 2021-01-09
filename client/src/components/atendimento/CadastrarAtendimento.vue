@@ -1,6 +1,6 @@
 <template>
     <div class="atendimento" >
-        <h6>//TODO BREADCRUMB / {{ $route.query.nomeIdoso }}</h6>
+        <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: $route.query.nomeIdoso, url: `/unidades/${$route.query.idUnidade}/idosos/${$route.query.idIdoso}`}, {text:'Novo atendimento'}]" />
         <iframe id="iframe-ficha-vigilancia" 
             :src="iframeURL" 
             width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Carregando…</iframe>
@@ -12,9 +12,11 @@ import { googleFormIframeURL } from '@/global';
 // import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'CadastrarAtendimento',
+    components: { Breadcrumb },
     computed: mapState(['user']),
     data: function() {
         return {
