@@ -1,7 +1,7 @@
 <template>
   <span class="idosoLink">
-    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="urlIdoso">{{ nomeIdoso }}</router-link>
-    <span v-else>{{ nomeIdoso }}</span>
+    <router-link :to="urlIdoso">{{ nomeIdoso }}</router-link>
+    <!-- <span v-else>{{ nomeIdoso }}</span> -->
   </span>
 </template>
 
@@ -16,8 +16,8 @@ export default {
     computed: mapState(['user']),
     data: function() {
         return {
-            nomeIdoso: 'asas',
-            urlIdoso: 'fsf',
+            nomeIdoso: '',
+            urlIdoso: '',
         };
     },
     methods: {
@@ -30,13 +30,14 @@ export default {
                 this.nomeIdoso = response.data.nome;
                 this.urlIdoso = `/unidades/${response.data.unidadeId}/idosos/${response.data._id}`;
             } catch (error) {
+                this.nomeIdoso = this.id;
                 console.error(error);
             }
         },
     },
     mounted() {
         if(this.nome && this.url) {
-            console.log('já definido')
+            console.log('já definido', this.url)
             this.nomeIdoso = this.nome;
             this.urlIdoso = this.url;
         } else {

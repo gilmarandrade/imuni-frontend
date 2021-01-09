@@ -1,6 +1,6 @@
 <template>
   <span class="unidadeLink">
-    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="`/unidades/${id}`">{{ unidadeName }}</router-link>
+    <router-link v-if="user.role == 'ADMINISTRADOR'" :to="unidadeUrl">{{ unidadeName }}</router-link>
     <span v-else>{{ unidadeName }}</span>
   </span>
 </template>
@@ -12,11 +12,12 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'UnidadeLink',
-    props: ['id'],
+    props: ['id', 'nome', 'url'],
     computed: mapState(['user']),
     data: function() {
         return {
-            unidadeName: null,
+            unidadeName: '',
+            unidadeUrl: '',
         };
     },
     methods: {
@@ -28,6 +29,7 @@ export default {
                 const response = await axios.get(url);
                 console.log(response);
                 this.unidadeName = response.data;
+                this.unidadeUrl = `/unidades/${this.id}`;
             } catch (error) {
                 this.unidadeName = this.id;
                 console.error(error);
@@ -35,7 +37,14 @@ export default {
         },
     },
     mounted() {
-      this.getUnidadeName();
+         if(this.nome && this.url) {
+            console.log('já definido')
+            this.unidadeName = this.nome;
+            this.unidadeUrl = this.url;
+        } else {
+            console.log('não definido')
+            this.getUnidadeName();
+        }
     }
 }
 </script>

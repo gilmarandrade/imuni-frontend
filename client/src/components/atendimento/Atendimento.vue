@@ -1,7 +1,7 @@
 <template>
     <div class="atendimento" v-if="atendimento">
         <Breadcrumb v-if="user.role !== 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
-        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: idoso.unidadeId, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
 
         <h1>Atendimento</h1>
         <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>
@@ -30,7 +30,7 @@
                             <div class="col-lg-6">
                                 <div>
                                     <b>Unidade: </b>
-                                    <UnidadeLink :id="idoso.unidadeId"></UnidadeLink>
+                                    <UnidadeLink v-if="unidade" :nome="unidade.nome" :url="`/unidades/${unidade._id}`" />
                                 </div>
                                 <div>
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
@@ -192,7 +192,7 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, formatDate } from '@/global';
 import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
@@ -211,9 +211,11 @@ export default {
             atendimento: null,
             idoso: null,
             loading: false,
+            unidade: null,
         }
     },
     methods: {
+        formatDate,
         loadAtendimento() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/atendimentos/${this.$route.params.atendimentoId}`;
             console.log(url);
@@ -222,7 +224,7 @@ export default {
                 this.atendimento = res.data
                 console.log(this.atendimento);
                 this.loadIdoso();
-                // this.loadEpidemiologia();
+                this.loadUnidade();
             }).catch(showError)
         },
         loadIdoso() {
@@ -234,17 +236,14 @@ export default {
                 console.log(this.idoso);
             }).catch(showError)
         },
-        // loadEpidemiologia() {
-        //     const url = `${baseApiUrl}/v2/epidemiologias/${this.atendimento.idosoId}`;
-        //     console.log(url);
+        loadUnidade() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
+            console.log(url);
 
-        //     axios.get(url).then(res => {
-        //         this.epidemiologia = res.data;
-        //         console.log(this.epidemiologia);
-        //     }).catch(showError)
-        // },
-        formatDate(date) {
-            return new Date(date).toLocaleString();
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
         },
     },
     mounted() {

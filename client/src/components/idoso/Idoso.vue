@@ -1,7 +1,7 @@
 <template>
     <div class="idoso"  v-if="idoso">
         <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome}]" />
-        <Breadcrumb v-if="user.role === 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: idoso.unidadeId, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/${idoso.unidadeId}/usuarios/${user.id}/${user.name}/com-escalas`}, {text: idoso.nome}]" />
 
         <h1>
             {{ idoso.nome }}
@@ -54,7 +54,7 @@
             <div class="col">
                 <div>
                     <strong>Unidade: </strong>
-                    <UnidadeLink :id="$route.params.unidadeId"></UnidadeLink>
+                    <UnidadeLink v-if="unidade" :nome="unidade.nome" :url="`/unidades/${unidade._id}`" />
                 </div>
                 <div>
                     <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
@@ -285,6 +285,7 @@ export default {
     data: function() {
         return {
             idoso: null,
+            unidade: null,
             atendimentos: [],
             fields: [ 
                 { key: 'col-data', label: 'Data' },
@@ -319,9 +320,19 @@ export default {
                 console.log(this.atendimentos)
             }).catch(function(e) {console.error(e);showError(e)})
         },
+        loadUnidade() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
+        },
     },
     mounted() {
       this.loadIdoso();
+      this.loadUnidade();
     }
 }
 </script>
