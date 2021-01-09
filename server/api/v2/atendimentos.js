@@ -398,8 +398,8 @@ module.exports = app => {
                     },
                 };
 
-                // TODO checar se existe um bug na consulta da epidemiologia
-                if(atendimento.tipo == 'Primeiro Atendimento') {
+                // TODO trasnformar essas strings hardcoded em constantes
+                if(atendimento.tipo == 'Primeiro atendimento') {
                     // await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, atendimento.raw['S08']);
                     
                     criterios.epidemiologia = {
