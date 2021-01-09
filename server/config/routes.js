@@ -82,6 +82,10 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.unidades.getName);
 
+    app.route('/api/v2/names/usuarios/:usuarioId')
+        .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.usuarios.getName);
+
     
     app.route('/api/v2/migracao/unidades')
         // .all(app.server.config.passport.authenticate())

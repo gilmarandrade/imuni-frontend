@@ -34,7 +34,8 @@
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
                                 </div>
                                 <div>
-                                    <b>Vigilante:</b> {{ idoso.vigilanteId }} // TODO
+                                    <b>Vigilante: </b>
+                                    <UsuarioLink :id="idoso.vigilanteId"></UsuarioLink>
                                 </div>
                             </div>
                         </div>
@@ -105,8 +106,8 @@
                             </span>
                         </div>
                         <div>
-                            <b>Vigilante responsável:</b> 
-                             {{ atendimento.vigilanteId }} // TODO
+                            <b>Vigilante responsável: </b>
+                             <UsuarioLink :id="atendimento.vigilanteId"></UsuarioLink>
                         </div>
                         <div>
                             <b>Tipo de atendimento:</b> 
@@ -195,10 +196,11 @@ import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
 import FormResponse from '../template/FormResponse.vue';
 import UnidadeLink from '@/components/includes/UnidadeLink';
+import UsuarioLink from '@/components/includes/UsuarioLink';
 
 export default {
     name: 'Atendimento',
-    components: { Badge, FormResponse, UnidadeLink },
+    components: { Badge, FormResponse, UnidadeLink, UsuarioLink },
     computed: mapState(['user']),
     data: function() {
         return {

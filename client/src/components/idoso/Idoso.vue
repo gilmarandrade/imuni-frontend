@@ -67,7 +67,8 @@
             </div>
             <div class="col">
                 <div>
-                    <strong>Vigilante:</strong> {{ idoso.vigilanteId }} // TODO 
+                    <strong>Vigilante: </strong>
+                    <UsuarioLink :id="idoso.vigilanteId" />
                 </div>
                 <div>
                     <strong>Atendimentos efetuados:</strong> 
@@ -258,6 +259,9 @@
                     </popper>
                 </div>
             </template>
+            <template v-slot:cell(col-vigilante)="data">
+                <UsuarioLink :id="data.item.vigilanteId"></UsuarioLink>
+            </template>
         </b-table>
     </div>
 </template>
@@ -268,12 +272,13 @@ import axios from 'axios';
 import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
 import UnidadeLink from '@/components/includes/UnidadeLink';
+import UsuarioLink from '@/components/includes/UsuarioLink';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'Idoso',
-    components: { Badge, 'popper': Popper, UnidadeLink },
+    components: { Badge, 'popper': Popper, UnidadeLink, UsuarioLink },
     computed: mapState(['user']),
     data: function() {
         return {
@@ -283,7 +288,7 @@ export default {
                 { key: 'col-data', label: 'Data' },
                 { key: 'col-status', label: 'Status' },
                 { key: 'col-escalas', label: 'Escalas' },
-                { key: 'vigilanteId', label: 'Vigilante' },
+                { key: 'col-vigilante', label: 'Vigilante' },
             ],
             carregandoAtendimentos: false,
         }
