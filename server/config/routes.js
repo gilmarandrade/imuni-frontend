@@ -91,6 +91,11 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .post(app.server.api.v2.unidades.migrate);
 
+    
+    //avalins
+    app.route('/api/v2/avalins/atendimentos')
+        .post(app.server.api.v2.avalins.atendimentos.save);
+
         
     //Handle Production routes
     if(process.env.NODE_ENV === 'production') {

@@ -22,11 +22,23 @@ import ConvidarAdministrador from '@/components/administrador/ConvidarAdministra
 import CadastrarIdoso from '@/components/administrador/CadastrarIdoso'
 import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
+import Listar from '@/components/avalins/Listar'
+import Novo from '@/components/avalins/Novo'
 import CadastrarAtendimento from '@/components/atendimento/CadastrarAtendimento'
 
 Vue.use(VueRouter);
 
 const routes = [
+    {
+        name: 'Novoavalins',
+        path: '/avalins/novo',
+        component: Novo
+    },
+    {
+        name: 'avalins',
+        path: '/avalins',
+        component: Listar
+    },
     {
         name: 'home',
         path: '/',
