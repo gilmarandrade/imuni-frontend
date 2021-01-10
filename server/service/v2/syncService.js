@@ -264,329 +264,349 @@ const syncAtendimentos = async (unidade, total) => {
     console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
     const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
     const respostasArray = [];
-    rows.forEach((item, index) => {
-        // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
-        const resp = {
-            // row: `${unidade.collectionPrefix}-'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
-            // vigilanteNome: item[1],
-            raw: {},
-
-            // dadosIniciais: {
-            //     nome: item[2],
-            //     nomeLower: item[2].toLowerCase(),
-            //     atendeu: item[3] === 'Sim',
-            // },
-            // idade: item[4] === undefined ? null : +item[4],
-            // fonte: item[5] ? item[5] : '',
-            // sintomasIdoso: {
-            //     apresentaSinomasGripeCOVID: item[6] !== undefined && item[6] !== 'Não',
-            //     sintomas: item[6] === undefined || item[6] === 'Não' ? [] : item[6].split(',').map(s => s.trim()),
-            //     outrosSintomas: item[7] === undefined || item[7] === 'Não' ? [] : item[7].split(',').map(s => s.trim()),
-            //     detalhesAdicionais: item[8],
-            //     haQuantosDiasIniciaram:  item[9] === undefined ? null : +item[9],
-            //     contatoComCasoConfirmado: item[10] === 'Sim',
-            // },
-            // comorbidades: {
-            //     condicoesSaude: item[11] === undefined || item[11] === 'Não' ? [] : item[11].split(',').map(s => s.trim()),
-            //     medicacaoDiaria: {
-            //         deveTomar: item[12] !== undefined && item[12].startsWith('Sim'),
-            //         medicacoes: item[12] === undefined || item[12] === 'Não' || item[12] === 'Sim' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
-            //         acessoMedicacao: item[13] === 'Sim, consigo adquirí-las',
-            //     }
-            // },
-            // primeiroAtendimento: item[14] === 'Primeiro atendimento',
-            // epidemiologia: {
-            //     higienizacaoMaos: item[15] === 'Sim',
-            //     isolamento: {
-            //         saiDeCasa: item[16] === 'Sim',
-            //         frequencia: item[17] ? item[17] : '',
-            //         paraOnde: item[18] ? item[18].split(',').map(s => s.trim()) : [],
-            //     },
-            //     recebeApoioFamiliarOuAmigo: item[19] === 'Sim',
-            //     visitas: {
-            //         recebeVisitas: item[20] !== undefined && item[20] !== 'O idoso não recebe visitas',
-            //         tomamCuidadosPrevencao: item[20] === 'Sim, e as visitas estão tomando os cuidados de prevenção',
-            //     },
-            //     qtdComodosCasa:  item[21] === undefined ? null : +item[21],
-            //     realizaAtividadePrazerosa: item[22] === 'Sim',
-            // },
-            // qtdAcompanhantesDomicilio: item[23] === 'Somente o idoso' ? 0 : ( item[23] === undefined ? null : +item[23]),
-            // sintomasDomicilio: item[24] === undefined || item[24] === 'Não' || item[24].trim() === '' ? [] : item[24].split(',').map(s => s.trim()),
-            // habitosDomiciliaresAcompanhantes: {
-            //     saiDeCasa: item[25] === 'Sim',
-            //     higienizacaoMaos: item[26] === 'Sim',
-            //     compartilhamentoUtensilios: item[27] === 'Sim',
-            //     usoMascara: item[28] === 'Sim',
-            // },
-            // vulnerabilidades: {
-            //     convivioFamilia: item[29] ? item[29] : '',
-            //     alimentar: item[30] === 'Sim',
-            //     financeira: item[31] === 'Sim',
-            //     violencia: item[32] === 'Sim',
-            //     observacoes: item[33] ? item[33] : '',
-            // },
-            // duracaoChamada: item[34] ? item[34] : '',
-        }
-
-
-        resp.raw.S01 = {
-            Q01: {
-              question: '[S01Q01] I_id',
-              response: '5fd119cec807a433447f9160'
-            },
-            Q02: {
-              question: '[S01Q02] V_id',
-              response: '5fd1161fc807a433447f915e'
-            },
-            Q03: {
-              question: '[S01Q03] U_id',
-              response: '5fd1065e72a8ca29ec2d700a'
-            },
-        };
-
-        resp.raw.S02 = {
-            Q01: {
-                question: '[S02Q01] Atendeu aos telefonemas',
-                response: item[3]
-            },
-        };
-
-        if(item[3] === 'Sim') { // se a ligação foi atendida 
-            resp.raw.S03 = {
-                Q01: {
-                    question: '[S03Q01] Idade do idoso?',
-                    response: item[4]
-                },
-            };
+    for(let i = 0; i < rows.length; i++) {
+            // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
+            const resp = {
+                // row: `${unidade.collectionPrefix}-'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
+                // vigilanteNome: rows[i][1],
+                raw: {},
     
-            resp.raw.S04 = {
-                Q01: {
-                    question: '[S04Q01] Quem responderá o questionário?',
-                    response: item[5]
-                },
-            };
+                // dadosIniciais: {
+                //     nome: rows[i][2],
+                //     nomeLower: rows[i][2].toLowerCase(),
+                //     atendeu: rows[i][3] === 'Sim',
+                // },
+                // idade: rows[i][4] === undefined ? null : +rows[i][4],
+                // fonte: rows[i][5] ? rows[i][5] : '',
+                // sintomasIdoso: {
+                //     apresentaSinomasGripeCOVID: rows[i][6] !== undefined && rows[i][6] !== 'Não',
+                //     sintomas: rows[i][6] === undefined || rows[i][6] === 'Não' ? [] : rows[i][6].split(',').map(s => s.trim()),
+                //     outrosSintomas: rows[i][7] === undefined || rows[i][7] === 'Não' ? [] : rows[i][7].split(',').map(s => s.trim()),
+                //     detalhesAdicionais: rows[i][8],
+                //     haQuantosDiasIniciaram:  rows[i][9] === undefined ? null : +rows[i][9],
+                //     contatoComCasoConfirmado: rows[i][10] === 'Sim',
+                // },
+                // comorbidades: {
+                //     condicoesSaude: rows[i][11] === undefined || rows[i][11] === 'Não' ? [] : rows[i][11].split(',').map(s => s.trim()),
+                //     medicacaoDiaria: {
+                //         deveTomar: rows[i][12] !== undefined && rows[i][12].startsWith('Sim'),
+                //         medicacoes: rows[i][12] === undefined || rows[i][12] === 'Não' || rows[i][12] === 'Sim' ? [] : rows[i][12].substring(4).split(',').map(s => s.trim()),
+                //         acessoMedicacao: rows[i][13] === 'Sim, consigo adquirí-las',
+                //     }
+                // },
+                // primeiroAtendimento: rows[i][14] === 'Primeiro atendimento',
+                // epidemiologia: {
+                //     higienizacaoMaos: rows[i][15] === 'Sim',
+                //     isolamento: {
+                //         saiDeCasa: rows[i][16] === 'Sim',
+                //         frequencia: rows[i][17] ? rows[i][17] : '',
+                //         paraOnde: rows[i][18] ? rows[i][18].split(',').map(s => s.trim()) : [],
+                //     },
+                //     recebeApoioFamiliarOuAmigo: rows[i][19] === 'Sim',
+                //     visitas: {
+                //         recebeVisitas: rows[i][20] !== undefined && rows[i][20] !== 'O idoso não recebe visitas',
+                //         tomamCuidadosPrevencao: rows[i][20] === 'Sim, e as visitas estão tomando os cuidados de prevenção',
+                //     },
+                //     qtdComodosCasa:  rows[i][21] === undefined ? null : +rows[i][21],
+                //     realizaAtividadePrazerosa: rows[i][22] === 'Sim',
+                // },
+                // qtdAcompanhantesDomicilio: rows[i][23] === 'Somente o idoso' ? 0 : ( rows[i][23] === undefined ? null : +rows[i][23]),
+                // sintomasDomicilio: rows[i][24] === undefined || rows[i][24] === 'Não' || rows[i][24].trim() === '' ? [] : rows[i][24].split(',').map(s => s.trim()),
+                // habitosDomiciliaresAcompanhantes: {
+                //     saiDeCasa: rows[i][25] === 'Sim',
+                //     higienizacaoMaos: rows[i][26] === 'Sim',
+                //     compartilhamentoUtensilios: rows[i][27] === 'Sim',
+                //     usoMascara: rows[i][28] === 'Sim',
+                // },
+                // vulnerabilidades: {
+                //     convivioFamilia: rows[i][29] ? rows[i][29] : '',
+                //     alimentar: rows[i][30] === 'Sim',
+                //     financeira: rows[i][31] === 'Sim',
+                //     violencia: rows[i][32] === 'Sim',
+                //     observacoes: rows[i][33] ? rows[i][33] : '',
+                // },
+                // duracaoChamada: rows[i][34] ? rows[i][34] : '',
+            }
     
-            resp.raw.S05 = {
-                Q01: {
-                    question: '[S05Q01] O idoso apresenta sintomas de gripe/COVID?',
-                    response: item[6].split(',').map(s => s.trim())
-                },
-            };
-            
-            if(item[7]) { // apresenta também outros sintomas?
-                resp.raw.S05.Q02 = {
-                    question: '[S05Q02] Apresenta também outros sintomas?',
-                    response: item[7].split(',').map(s => s.trim())
-                };
+            const idos = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
+            const idosoId = idos ? idos._id.toString() : null;
+            if(!idosoId) {
+                console.error('ATENDIMENTO SEM IDOSO! ', rows[i], unidade._id, idos)
             }
             
-            if(item[8]) { // detalhes adicionas a respeito dos sintomas
-                resp.raw.S05.Q03 = {
-                    question: '[S05Q03] Detalhes adicionais a respeito dos sintomas',
-                    response: item[8]
-                };
-            }
+            const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
+            let vigilanteId = vig ? vig._id.toString() : null;
+            if(!vigilanteId) {
+                vigilanteId = await app.server.service.v2.usuarioService.insertOne({
+                    name: rows[i][1].trim(),
+                    role: 'VIGILANTE',
+                    unidadeId: unidade._id,
+                    status: 'INCOMPLETO',
+                    _isDeleted: false,
+                });
+                console.error('ATENDIMENTO SEM VIGILANTE! ', rows[i], unidade._id, vig);
+            } 
 
-            if(item[9]) { // se estiver apresentando sintomas, há quantos dias iniciaram?
-                resp.raw.S05.Q04 = {
-                    question: '[S05Q04] Se estiver apresentando sintomas, há quantos dias eles iniciaram?',
-                    response: item[9]
-                };
-            }
-
-            resp.raw.S05.Q05 = {
-                question: '[S05Q05] Esteve em contato com algum caso confirmado de coronavírus?',
-                response: item[10]
-            };
-    
-
-            resp.raw.S06 = {
+            resp.raw.S01 = {
                 Q01: {
-                    question: '[S06Q01] Tem alguma condição de saúde?',
-                    response: item[11].split(',').map(s => s.trim())
+                  question: '[S01Q01] I_id',
+                  response: idosoId
                 },
                 Q02: {
-                    question: '[S06Q02] Tem alguma medicação que toma todos os dias?',
-                    response: item[12].startsWith('Sim') ? 'Sim' : 'Não'
+                  question: '[S01Q02] V_id',
+                  response: vigilanteId.toString()
+                },
+                Q03: {
+                  question: '[S01Q03] U_id',
+                  response: unidade._id.toString()
                 },
             };
-            
-            if(item[12].startsWith('Sim')) { // se toma medicações diariamente
-                resp.raw.S06.Q03 = {
-                    question: '[S06Q03] Se toma mediação diariamente, quais são?',
-                    response: item[12] === 'Sim' ? '' : item[12].substring(4).split(',').map(s => s.trim())
-                };
-            }
-            
-            resp.raw.S06.Q04 = {
-                question: '[S06Q04] Se toma medicações diariamente, está conseguindo adquiri-las?',
-                response: item[13]
-            };
-
-
-            resp.raw.S07 = {
+    
+            resp.raw.S02 = {
                 Q01: {
-                    question: '[S07Q01] Esta ligação é o primeiro atendimento ou se trata de um acompanhamento?',
-                    response: item[14]
+                    question: '[S02Q01] Atendeu aos telefonemas',
+                    response: rows[i][3]
                 },
             };
     
-            if(item[14] === 'Primeiro atendimento') { // Se é o primeiro atendimento
-                resp.raw.S08 = {
+            if(rows[i][3] === 'Sim') { // se a ligação foi atendida 
+                resp.raw.S03 = {
                     Q01: {
-                        question: '[S08Q01] Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?',
-                        response: item[15]
-                    },
-                    Q02: {
-                        question: '[S08Q02] O idoso tem saído de casa?',
-                        response: item[16]
-                    },
-                };
-
-                if(item[17]) { // se sai de casa
-                    resp.raw.S08.Q03 = {
-                        question: '[S08Q03] Caso o idoso esteja saindo de casa, qual a frequência?',
-                        response: item[17]
-                    };
-                }
-
-                if(item[18]) { // se sai de casa, pra onde?
-                    resp.raw.S08.Q04 = {
-                        question: '[S08Q04] Caso o idoso esteja saindo de casa, para onde?',
-                        response: item[18] ? item[18].split(',').map(s => s.trim()) : []
-                    };
-                }
-
-                if(item[19]) { // tem apoio familiar ou amigo?
-                    resp.raw.S08.Q05 = {
-                        question: '[S08Q05] Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?',
-                        response: item[19]
-                    };
-                }
-
-                resp.raw.S08.Q06 ={
-                    question: '[S08Q06] Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?',
-                    response: item[20]
-                };
-
-                resp.raw.S08.Q07 = {
-                    question: '[S08Q07] Qual número de cômodos a casa do idoso possui?',
-                    response: item[21]
-                };
-
-                if(item[22]) { // realiza atividade prazerosa
-                    resp.raw.S08.Q08 = {
-                        question: '[S08Q08] Dentro de casa, tem realizado alguma atividade prazerosa?',
-                        response: item[22]
-                    };
-                }
-            }
-    
-            resp.raw.S09 = {
-                Q01: {
-                    question: '[S09Q01] Quantas pessoas moram na casa do idoso?',
-                    response: item[23]
-                },
-            };
-    
-            if(item[23] !== 'Somente o idoso') { // Se não mora sozinho
-                resp.raw.S10 = {
-                    Q01: {
-                        question: '[S10Q01] Na casa do idoso, alguém apresenta sintomas de gripe/COVID?',
-                        response: item[24].split(',').map(s => s.trim())
+                        question: '[S03Q01] Idade do idoso?',
+                        response: rows[i][4]
                     },
                 };
         
-                resp.raw.S11 = {
+                resp.raw.S04 = {
                     Q01: {
-                        question: '[S11Q01] As pessoas que moram com o idoso têm saído de casa?',
-                        response: item[25]
+                        question: '[S04Q01] Quem responderá o questionário?',
+                        response: rows[i][5]
+                    },
+                };
+        
+                resp.raw.S05 = {
+                    Q01: {
+                        question: '[S05Q01] O idoso apresenta sintomas de gripe/COVID?',
+                        response: rows[i][6].split(',').map(s => s.trim())
                     },
                 };
                 
-                if(item[26]) { // higienização das mãos
-                    resp.raw.S11.Q02 = {
-                        question: '[S11Q02] As pessoas que moram com o idoso têm feito a higienização frequente das mãos com água e sabão ou álcool gel?',
-                        response: item[26]
+                if(rows[i][7]) { // apresenta também outros sintomas?
+                    resp.raw.S05.Q02 = {
+                        question: '[S05Q02] Apresenta também outros sintomas?',
+                        response: rows[i][7].split(',').map(s => s.trim())
                     };
                 }
                 
-                if(item[27]) { // compartilha utensílios
-                    resp.raw.S11.Q03 = {
-                        question: '[S11Q03] O idoso costuma compartilhar utensílios com as pessoas da sua casa? Ex: copos, talheres.',
-                        response: item[27]
+                if(rows[i][8]) { // detalhes adicionas a respeito dos sintomas
+                    resp.raw.S05.Q03 = {
+                        question: '[S05Q03] Detalhes adicionais a respeito dos sintomas',
+                        response: rows[i][8]
                     };
                 }
-
-                if(item[28]) { // usam mascara
-                    resp.raw.S11.Q04 = {
-                        question: '[S11Q04] Todos em casa usam máscara ao falar com o idoso?',
-                        response: item[28] 
-                    };
-                }
-
-            }
     
-            resp.raw.S12 = {
-                Q01: {
-                    question: '[S12Q01] Após a sondagem, como você identifica o convívio do idoso com sua família?',
-                    response: item[29]
-                },
-                Q02: {
-                    question: '[S12Q02] Após a sondagem, você identificou algum sinal de vulnerabilidade alimentar?',
-                    response: item[30]
-                },
-                Q03: {
-                    question: '[S12Q03] Após a sondagem, você identificou algum sinal de vulnerabilidade financeira ou abuso financeiro por parte de terceiros?',
-                    response: item[31]
-                },
-                Q04: {
-                    question: '[S12Q04] Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?',
-                    response: item[32]
-                },
-            };
-
-            if(item[33]) { // observações
-                resp.raw.S12.Q05 = {
-                    question: '[S12Q05] Observações e outras informações importantes',
-                    response: item[33]
+                if(rows[i][9]) { // se estiver apresentando sintomas, há quantos dias iniciaram?
+                    resp.raw.S05.Q04 = {
+                        question: '[S05Q04] Se estiver apresentando sintomas, há quantos dias eles iniciaram?',
+                        response: rows[i][9]
+                    };
+                }
+    
+                resp.raw.S05.Q05 = {
+                    question: '[S05Q05] Esteve em contato com algum caso confirmado de coronavírus?',
+                    response: rows[i][10]
                 };
-            }
+        
     
-            if(item[34]) { // duração da chamada
-                resp.raw.S13 = {
+                resp.raw.S06 = {
                     Q01: {
-                        question: '[S13Q01] Tempo de duração da chamada',
-                        response: item[34]
+                        question: '[S06Q01] Tem alguma condição de saúde?',
+                        response: rows[i][11].split(',').map(s => s.trim())
+                    },
+                    Q02: {
+                        question: '[S06Q02] Tem alguma medicação que toma todos os dias?',
+                        response: rows[i][12].startsWith('Sim') ? 'Sim' : 'Não'
                     },
                 };
+                
+                if(rows[i][12].startsWith('Sim')) { // se toma medicações diariamente
+                    resp.raw.S06.Q03 = {
+                        question: '[S06Q03] Se toma mediação diariamente, quais são?',
+                        response: rows[i][12] === 'Sim' ? '' : rows[i][12].substring(4).split(',').map(s => s.trim())
+                    };
+                }
+                
+                resp.raw.S06.Q04 = {
+                    question: '[S06Q04] Se toma medicações diariamente, está conseguindo adquiri-las?',
+                    response: rows[i][13]
+                };
+    
+    
+                resp.raw.S07 = {
+                    Q01: {
+                        question: '[S07Q01] Esta ligação é o primeiro atendimento ou se trata de um acompanhamento?',
+                        response: rows[i][14]
+                    },
+                };
+        
+                if(rows[i][14] === 'Primeiro atendimento') { // Se é o primeiro atendimento
+                    resp.raw.S08 = {
+                        Q01: {
+                            question: '[S08Q01] Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?',
+                            response: rows[i][15]
+                        },
+                        Q02: {
+                            question: '[S08Q02] O idoso tem saído de casa?',
+                            response: rows[i][16]
+                        },
+                    };
+    
+                    if(rows[i][17]) { // se sai de casa
+                        resp.raw.S08.Q03 = {
+                            question: '[S08Q03] Caso o idoso esteja saindo de casa, qual a frequência?',
+                            response: rows[i][17]
+                        };
+                    }
+    
+                    if(rows[i][18]) { // se sai de casa, pra onde?
+                        resp.raw.S08.Q04 = {
+                            question: '[S08Q04] Caso o idoso esteja saindo de casa, para onde?',
+                            response: rows[i][18] ? rows[i][18].split(',').map(s => s.trim()) : []
+                        };
+                    }
+    
+                    if(rows[i][19]) { // tem apoio familiar ou amigo?
+                        resp.raw.S08.Q05 = {
+                            question: '[S08Q05] Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?',
+                            response: rows[i][19]
+                        };
+                    }
+    
+                    resp.raw.S08.Q06 ={
+                        question: '[S08Q06] Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?',
+                        response: rows[i][20]
+                    };
+    
+                    resp.raw.S08.Q07 = {
+                        question: '[S08Q07] Qual número de cômodos a casa do idoso possui?',
+                        response: rows[i][21]
+                    };
+    
+                    if(rows[i][22]) { // realiza atividade prazerosa
+                        resp.raw.S08.Q08 = {
+                            question: '[S08Q08] Dentro de casa, tem realizado alguma atividade prazerosa?',
+                            response: rows[i][22]
+                        };
+                    }
+                }
+        
+                resp.raw.S09 = {
+                    Q01: {
+                        question: '[S09Q01] Quantas pessoas moram na casa do idoso?',
+                        response: rows[i][23]
+                    },
+                };
+        
+                if(rows[i][23] !== 'Somente o idoso') { // Se não mora sozinho
+                    resp.raw.S10 = {
+                        Q01: {
+                            question: '[S10Q01] Na casa do idoso, alguém apresenta sintomas de gripe/COVID?',
+                            response: rows[i][24].split(',').map(s => s.trim())
+                        },
+                    };
+            
+                    resp.raw.S11 = {
+                        Q01: {
+                            question: '[S11Q01] As pessoas que moram com o idoso têm saído de casa?',
+                            response: rows[i][25]
+                        },
+                    };
+                    
+                    if(rows[i][26]) { // higienização das mãos
+                        resp.raw.S11.Q02 = {
+                            question: '[S11Q02] As pessoas que moram com o idoso têm feito a higienização frequente das mãos com água e sabão ou álcool gel?',
+                            response: rows[i][26]
+                        };
+                    }
+                    
+                    if(rows[i][27]) { // compartilha utensílios
+                        resp.raw.S11.Q03 = {
+                            question: '[S11Q03] O idoso costuma compartilhar utensílios com as pessoas da sua casa? Ex: copos, talheres.',
+                            response: rows[i][27]
+                        };
+                    }
+    
+                    if(rows[i][28]) { // usam mascara
+                        resp.raw.S11.Q04 = {
+                            question: '[S11Q04] Todos em casa usam máscara ao falar com o idoso?',
+                            response: rows[i][28] 
+                        };
+                    }
+    
+                }
+        
+                resp.raw.S12 = {
+                    Q01: {
+                        question: '[S12Q01] Após a sondagem, como você identifica o convívio do idoso com sua família?',
+                        response: rows[i][29]
+                    },
+                    Q02: {
+                        question: '[S12Q02] Após a sondagem, você identificou algum sinal de vulnerabilidade alimentar?',
+                        response: rows[i][30]
+                    },
+                    Q03: {
+                        question: '[S12Q03] Após a sondagem, você identificou algum sinal de vulnerabilidade financeira ou abuso financeiro por parte de terceiros?',
+                        response: rows[i][31]
+                    },
+                    Q04: {
+                        question: '[S12Q04] Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?',
+                        response: rows[i][32]
+                    },
+                };
+    
+                if(rows[i][33]) { // observações
+                    resp.raw.S12.Q05 = {
+                        question: '[S12Q05] Observações e outras informações importantes',
+                        response: rows[i][33]
+                    };
+                }
+        
+                if(rows[i][34]) { // duração da chamada
+                    resp.raw.S13 = {
+                        Q01: {
+                            question: '[S13Q01] Tempo de duração da chamada',
+                            response: rows[i][34]
+                        },
+                    };
+                }
             }
-        }
-
-        //TODO criar uma função para conversao de datas string da planilha para Date
-        // 13/05/2020 13:10:19
-        var parts = item[0].split(' ');
-        var data = parts[0].split('/');
-        var hora = parts[1].split(':');
-
-        resp.authsecret = '';
-        resp.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
-        resp.responseId = '';
-        resp.idosoId = '5fd119cec807a433447f9160'; // TODO
-        resp.vigilanteId = '5fd1161fc807a433447f915e'; // TODO
-        resp.unidadeId = '5fd1065e72a8ca29ec2d700a'; // TODO
-        resp.atendeu = item[3] === 'Sim';
-        resp.fonte = item[5];
-        resp.tipo = item[14];
-        resp.idadeIdoso = item[4] === undefined ? null : +item[4];
-        resp.duracaoChamada = item[34];
-        resp._isDeleted = false;
-        // criterios // TODO
-        // escalas // TODO
-
-        respostasArray.push(resp);
-
-    });
+    
+            //TODO criar uma função para conversao de datas string da planilha para Date
+            // 13/05/2020 13:10:19
+            var parts = rows[i][0].split(' ');
+            var data = parts[0].split('/');
+            var hora = parts[1].split(':');
+    
+            resp.authsecret = '';
+            resp.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
+            resp.responseId = '';
+            
+            resp.idosoId = idosoId;
+            resp.vigilanteId = vigilanteId;
+            resp.unidadeId = unidade._id; // TODO ao importar uma unidade, o nome deve ser extraido da planilha? se não não será possível encontrar o id da unidade?
+            resp.atendeu = rows[i][3] === 'Sim';
+            resp.fonte = rows[i][5];
+            resp.tipo = rows[i][14];
+            resp.idadeIdoso = rows[i][4] === undefined ? null : +rows[i][4];
+            resp.duracaoChamada = rows[i][34];
+            resp._isDeleted = false;
+            // criterios // TODO
+            // escalas // TODO
+    
+            respostasArray.push(resp);
+    
+       
+    }
 
     await app.server.service.v2.atendimentoService.insertOne(respostasArray[18]);
 

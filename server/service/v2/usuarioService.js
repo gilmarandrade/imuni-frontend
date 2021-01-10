@@ -29,6 +29,29 @@ const findById = async (id) => {
     return promise;
 }
 
+const findVigilanteByNome = async (nome, unidadeId) => {
+    const promise = new Promise( (resolve, reject) => {
+        var MongoClient = require( 'mongodb' ).MongoClient;
+        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+            if(err) return reject(err);
+            const db = client.db(dbName);
+            
+            const collection = db.collection(collectionName);
+
+        collection.findOne({ name: nome, role: 'VIGILANTE', unidadeId: ObjectId(unidadeId), _isDeleted: false }, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+    });
+
+    return promise;
+}
+
 /**
  * Encontra apenas os registros da collection que estão status ATIVO e _isDeleted false
  */
@@ -328,4 +351,4 @@ const updateEmail = async (usuarioId, email) => {
     return promise;
 }
 
-module.exports = { findById, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail };
+module.exports = { findById, findVigilanteByNome, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail };
