@@ -263,7 +263,7 @@ export default {
             // }
             console.log(url);
             axios.get(url).then(res => {
-                this.tableInfo =  res.data.info;
+                this.tableInfo =  res.data.info ? res.data.info : {totalRows: 0, currentPage: 0, rowsPerPage: 25,};
                 this.idosos = res.data.data;
                 this.carregando = false;
                 console.log(res.data);

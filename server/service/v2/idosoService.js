@@ -256,48 +256,48 @@ module.exports = app => {
                 }
 
                 idososCollection.aggregate([
-                    match,
-                    querySort,
-                    { $skip : rowsPerPage * page },
-                    { $limit : rowsPerPage },
-
                     // match,
-                    // {
-                    //     $facet : {
-                    //         "data" : [
-                    //             querySort,
-                    //             { $skip : rowsPerPage * page },
-                    //             { $limit : rowsPerPage },
-                    //         ],
-                    //         "info": [
-                    //             { $group: { _id: null, totalRows: { $sum: 1 } } },
-                    //             // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
-                    //             // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
-                    //             { 
-                    //                 $addFields: {
-                    //                     currentPage: page,
-                    //                     rowsPerPage: rowsPerPage,
-                    //                 }
-                    //             }
-                    //         ]
-                    //     }
-                    // },
-                    // { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
+                    // querySort,
+                    // { $skip : rowsPerPage * page },
+                    // { $limit : rowsPerPage },
+
+                    match,
+                    {
+                        $facet : {
+                            "data" : [
+                                querySort,
+                                { $skip : rowsPerPage * page },
+                                { $limit : rowsPerPage },
+                            ],
+                            "info": [
+                                { $group: { _id: null, totalRows: { $sum: 1 } } },
+                                // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
+                                // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
+                                { 
+                                    $addFields: {
+                                        currentPage: page,
+                                        rowsPerPage: rowsPerPage,
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
                 ]).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
                         // console.log(result.length);
 
-                        resolve({
-                            data : result,
-                            info: {
-                                totalRows: result.length,
-                                currentPage: page,
-                                rowsPerPage: rowsPerPage
-                            }
-                        });
-                        // resolve(result[0]);
+                        // resolve({
+                        //     data : result,
+                        //     info: {
+                        //         totalRows: result.length,
+                        //         currentPage: page,
+                        //         rowsPerPage: rowsPerPage
+                        //     }
+                        // });
+                        resolve(result[0]);
                     }
                 });
             });
@@ -325,6 +325,7 @@ module.exports = app => {
                 break;
         }
 
+        // TODO resolver bug da paginação
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -332,7 +333,6 @@ module.exports = app => {
                 const db = client.db(dbName);
                 const idososCollection = db.collection(collectionName);
       
-                // TODO verificar se esses filtros funcionam
                 let querySort;
                 switch(sort) {
                     case 'score':
@@ -350,47 +350,47 @@ module.exports = app => {
                 }
 
                 idososCollection.aggregate([
-                    match,
-                    querySort,
-                    { $skip : rowsPerPage * page },
-                    { $limit : rowsPerPage },
-
                     // match,
-                    // {
-                    //     $facet : {
-                    //         "data" : [
-                    //             querySort,
-                    //             { $skip : rowsPerPage * page },
-                    //             { $limit : rowsPerPage },
-                    //         ],
-                    //         "info": [
-                    //             { $group: { _id: null, totalRows: { $sum: 1 } } },
-                    //             // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
-                    //             // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
-                    //             { 
-                    //                 $addFields: {
-                    //                     currentPage: page,
-                    //                     rowsPerPage: rowsPerPage,
-                    //                 }
-                    //             }
-                    //         ]
-                    //     }
-                    // },
-                    // { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
+                    // querySort,
+                    // { $skip : rowsPerPage * page },
+                    // { $limit : rowsPerPage },
+
+                    match,
+                    {
+                        $facet : {
+                            "data" : [
+                                querySort,
+                                { $skip : rowsPerPage * page },
+                                { $limit : rowsPerPage },
+                            ],
+                            "info": [
+                                { $group: { _id: null, totalRows: { $sum: 1 } } },
+                                // { $unwind: { path: "$atendimentos", preserveNullAndEmptyArrays: true } },
+                                // { $group: { _id: { _id: '$_id', atendido: '$atendimentos.atendeu'}, atendidos: { $sum: 1 } } },
+                                { 
+                                    $addFields: {
+                                        currentPage: page,
+                                        rowsPerPage: rowsPerPage,
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
                 ]).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
-                        // console.log(result);
-                        resolve({
-                            data : result,
-                            info: {
-                                totalRows: result.length,
-                                currentPage: page,
-                                rowsPerPage: rowsPerPage
-                            }
-                        });
-                        // resolve(result[0]);
+                        console.log(result[0]);
+                        // resolve({
+                        //     data : result,
+                        //     info: {
+                        //         totalRows: result.length,
+                        //         currentPage: page,
+                        //         rowsPerPage: rowsPerPage
+                        //     }
+                        // });
+                        resolve(result[0]);
                     }
                 });
             });
