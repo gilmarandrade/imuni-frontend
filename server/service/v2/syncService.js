@@ -27,7 +27,7 @@ const fullSyncUnidade = async (idUnidade) => {
             }
         }
         
-        // await syncAtendimentos(unidade);
+        await syncAtendimentos(unidade);
         console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
     } else {
         throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
@@ -274,9 +274,9 @@ const syncAtendimentos = async (unidade, total) => {
         // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
 
         respostasArray.push({
-            row: `${unidade.collectionPrefix}-'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
+            // row: `${unidade.collectionPrefix}-'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
             data: new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`),
-            vigilante: item[1],
+            vigilanteNome: item[1],
             dadosIniciais: {
                 nome: item[2],
                 nomeLower: item[2].toLowerCase(),

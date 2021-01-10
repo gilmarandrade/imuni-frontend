@@ -1,6 +1,6 @@
 {
   "name": "frenteprevencaocovidrn-frontend",
-  "version": "v2.3.3",
+  "version": "v2.3.4",
   "description": "",
   "scripts": {
     "serve": "vue-cli-service serve",
