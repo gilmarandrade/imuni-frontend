@@ -1,3 +1,5 @@
+module.exports = app => {
+
 const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'unidades';
@@ -244,4 +246,5 @@ const insertOne = async (item) => {
     return promise;
 }
 
-module.exports = { findAll, findAtivos, upsertOne, bulkUpdateOne, getById, softDeleteOne, insertOne };
+    return { findAll, findAtivos, upsertOne, bulkUpdateOne, getById, softDeleteOne, insertOne };
+}

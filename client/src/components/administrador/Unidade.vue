@@ -100,7 +100,7 @@
     @ok="modalCompletarCadastroUsuarioHandleOk">
 
     <form ref="form" @submit.stop.prevent=" modalCompletarCadastroUsuarioHandleSubmit">
-      {{completarCadastroUsuario.id}}
+      <b-alert show variant="info">Um email será enviado para que o usuário possa completar o cadastro e ter acesso ao sistema</b-alert>
       <b-form-group
         label="Nome"
         label-for="nome-input"

@@ -227,4 +227,4 @@ module.exports = app => {
     }    
 
     return { riscoContagioEnum, vulnerabilidadeEnum, epidemiologicaEnum, calcularEscalas, calcularEscalaVulnerabilidade, calculaEscalaEpidemiologica, calcularEscalaRiscoContagio, calcularDataProximoAtendimento }
-};
+}
