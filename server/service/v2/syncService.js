@@ -362,172 +362,223 @@ const syncAtendimentos = async (unidade, total) => {
             },
         };
 
-        resp.raw.S03 = {
-            Q01: {
-                question: '[S03Q01] Idade do idoso?',
-                response: '70'
-            },
-        };
+        if(item[3] === 'Sim') { // se a ligação foi atendida 
+            resp.raw.S03 = {
+                Q01: {
+                    question: '[S03Q01] Idade do idoso?',
+                    response: item[4]
+                },
+            };
+    
+            resp.raw.S04 = {
+                Q01: {
+                    question: '[S04Q01] Quem responderá o questionário?',
+                    response: item[5]
+                },
+            };
+    
+            resp.raw.S05 = {
+                Q01: {
+                    question: '[S05Q01] O idoso apresenta sintomas de gripe/COVID?',
+                    response: item[6].split(',').map(s => s.trim())
+                },
+            };
+            
+            if(item[7]) { // apresenta também outros sintomas?
+                resp.raw.S05.Q02 = {
+                    question: '[S05Q02] Apresenta também outros sintomas?',
+                    response: item[7].split(',').map(s => s.trim())
+                };
+            }
+            
+            if(item[8]) { // detalhes adicionas a respeito dos sintomas
+                resp.raw.S05.Q03 = {
+                    question: '[S05Q03] Detalhes adicionais a respeito dos sintomas',
+                    response: item[8]
+                };
+            }
 
-        resp.raw.S04 = {
-            Q01: {
-                question: '[S04Q01] Quem responderá o questionário?',
-                response: 'O proprio idoso'
-            },
-        };
+            if(item[9]) { // se estiver apresentando sintomas, há quantos dias iniciaram?
+                resp.raw.S05.Q04 = {
+                    question: '[S05Q04] Se estiver apresentando sintomas, há quantos dias eles iniciaram?',
+                    response: item[9]
+                };
+            }
 
-        resp.raw.S05 = {
-            Q01: {
-                question: '[S05Q01] O idoso apresenta sintomas de gripe/COVID?',
-                response: ['Febre', 'Dor de cabeça']
-            },
-            Q02: {
-                question: '[S05Q02] Apresenta também outros sintomas?',
-                response: ['Febre', 'Dor de cabeça']
-            },
-            Q03: {
-                question: '[S05Q03] Detalhes adicionais a respeito dos sintomas',
-                response: 'detalhes sd'
-            },
-            Q04: {
-                question: '[S05Q04] Se estiver apresentando sintomas, há quantos dias eles iniciaram?',
-                response: ''
-            },
-            Q05: {
+            resp.raw.S05.Q05 = {
                 question: '[S05Q05] Esteve em contato com algum caso confirmado de coronavírus?',
-                response: 'Não'
-            },
-        };
+                response: item[10]
+            };
+    
 
-        resp.raw.S06 = {
-            Q01: {
-                question: '[S06Q01] Tem alguma condição de saúde?',
-                response: ['Não']
-            },
-            Q02: {
-                question: '[S06Q02] Tem alguma medicação que toma todos os dias?',
-                response: 'Não'
-            },
-            Q03: {
-                question: '[S06Q03] Se toma mediação diariamente, quais são?',
-                response: 'askdas dais d'
-            },
-            Q04: {
+            resp.raw.S06 = {
+                Q01: {
+                    question: '[S06Q01] Tem alguma condição de saúde?',
+                    response: item[11].split(',').map(s => s.trim())
+                },
+                Q02: {
+                    question: '[S06Q02] Tem alguma medicação que toma todos os dias?',
+                    response: item[12].startsWith('Sim') ? 'Sim' : 'Não'
+                },
+            };
+            
+            if(item[12].startsWith('Sim')) { // se toma medicações diariamente
+                resp.raw.S06.Q03 = {
+                    question: '[S06Q03] Se toma mediação diariamente, quais são?',
+                    response: item[12] === 'Sim' ? '' : item[12].substring(4).split(',').map(s => s.trim())
+                };
+            }
+            
+            resp.raw.S06.Q04 = {
                 question: '[S06Q04] Se toma medicações diariamente, está conseguindo adquiri-las?',
-                response: 'Não, meus medicamentos estão faltando'
-            },
-        };
+                response: item[13]
+            };
 
-        resp.raw.S07 = {
-            Q01: {
-                question: '[S07Q01] Esta ligação é o primeiro atendimento ou se trata de um acompanhamento?',
-                response: 'Acompanhamento'
-            },
-        };
 
-        resp.raw.S08 = {
-            Q01: {
-                question: '[S08Q01] Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?',
-                response: 'Não'
-            },
-            Q02: {
-                question: '[S08Q02] O idoso tem saído de casa?',
-                response: 'Sim'
-            },
-            Q03: {
-                question: '[S08Q03] Caso o idoso esteja saindo de casa, qual a frequência?',
-                response: ''
-            },
-            Q04: {
-                question: '[S08Q04] Caso o idoso esteja saindo de casa, para onde?',
-                response: ['Supermercado', 'outro']
-            },
-            Q05: {
-                question: '[S08Q05] Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?',
-                response: ''
-            },
-            Q06: {
-                question: '[S08Q06] Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?',
-                response: 'O idoso não recebe visitas'
-            },
-            Q07: {
-                question: '[S08Q07] Qual número de cômodos a casa do idoso possui?',
-                response: '4'
-            },
-            Q08: {
-                question: '[S08Q08] Dentro de casa, tem realizado alguma atividade prazerosa?',
-                response: 'Não'
-            },
-        };
+            resp.raw.S07 = {
+                Q01: {
+                    question: '[S07Q01] Esta ligação é o primeiro atendimento ou se trata de um acompanhamento?',
+                    response: item[14]
+                },
+            };
+    
+            if(item[14] === 'Primeiro atendimento') { // Se é o primeiro atendimento
+                resp.raw.S08 = {
+                    Q01: {
+                        question: '[S08Q01] Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?',
+                        response: item[15]
+                    },
+                    Q02: {
+                        question: '[S08Q02] O idoso tem saído de casa?',
+                        response: item[16]
+                    },
+                };
 
-        resp.raw.S09 = {
-            Q01: {
-                question: '[S09Q01] Quantas pessoas moram na casa do idoso?',
-                response: 'Somente o idoso'
-            },
-        };
+                if(item[17]) { // se sai de casa
+                    resp.raw.S08.Q03 = {
+                        question: '[S08Q03] Caso o idoso esteja saindo de casa, qual a frequência?',
+                        response: item[17]
+                    };
+                }
 
-        resp.raw.S10 = {
-            Q01: {
-                question: '[S10Q01] Na casa do idoso, alguém apresenta sintomas de gripe/COVID?',
-                response: ['Não']
-            },
-        };
+                if(item[18]) { // se sai de casa, pra onde?
+                    resp.raw.S08.Q04 = {
+                        question: '[S08Q04] Caso o idoso esteja saindo de casa, para onde?',
+                        response: item[18] ? item[18].split(',').map(s => s.trim()) : []
+                    };
+                }
 
-        resp.raw.S11 = {
-            Q01: {
-                question: '[S11Q01] As pessoas que moram com o idoso têm saído de casa?',
-                response: 'Sim'
-            },
-            Q02: {
-                question: '[S11Q02] As pessoas que moram com o idoso têm feito a higienização frequente das mãos com água e sabão ou álcool gel?',
-                response: 'Não'
-            },
-            Q03: {
-                question: '[S11Q03] O idoso costuma compartilhar utensílios com as pessoas da sua casa? Ex: copos, talheres.',
-                response: 'Sim'
-            },
-            Q04: {
-                question: '[S11Q04] Todos em casa usam máscara ao falar com o idoso?',
-                response: 'Não'
-            },
-        };
+                if(item[19]) { // tem apoio familiar ou amigo?
+                    resp.raw.S08.Q05 = {
+                        question: '[S08Q05] Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?',
+                        response: item[19]
+                    };
+                }
 
-        resp.raw.S12 = {
-            Q01: {
-                question: '[S12Q01] Após a sondagem, como você identifica o convívio do idoso com sua família?',
-                response: 'Harmonioso'
-            },
-            Q02: {
-                question: '[S12Q02] Após a sondagem, você identificou algum sinal de vulnerabilidade alimentar?',
-                response: 'Sim'
-            },
-            Q03: {
-                question: '[S12Q03] Após a sondagem, você identificou algum sinal de vulnerabilidade financeira ou abuso financeiro por parte de terceiros?',
-                response: 'Não'
-            },
-            Q04: {
-                question: '[S12Q04] Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?',
-                response: 'Não'
-            },
-            Q05: {
-                question: '[S12Q05] Observações e outras informações importantes',
-                response: ''
-            },
-        };
+                resp.raw.S08.Q06 ={
+                    question: '[S08Q06] Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?',
+                    response: item[20]
+                };
 
-        resp.raw.S13 = {
-            Q01: {
-                question: '[S13Q01] Tempo de duração da chamada',
-                response: '45:54:44'
-            },
-        };
+                resp.raw.S08.Q07 = {
+                    question: '[S08Q07] Qual número de cômodos a casa do idoso possui?',
+                    response: item[21]
+                };
+
+                if(item[22]) { // realiza atividade prazerosa
+                    resp.raw.S08.Q08 = {
+                        question: '[S08Q08] Dentro de casa, tem realizado alguma atividade prazerosa?',
+                        response: item[22]
+                    };
+                }
+            }
+    
+            resp.raw.S09 = {
+                Q01: {
+                    question: '[S09Q01] Quantas pessoas moram na casa do idoso?',
+                    response: item[23]
+                },
+            };
+    
+            if(item[23] !== 'Somente o idoso') { // Se não mora sozinho
+                resp.raw.S10 = {
+                    Q01: {
+                        question: '[S10Q01] Na casa do idoso, alguém apresenta sintomas de gripe/COVID?',
+                        response: item[24].split(',').map(s => s.trim())
+                    },
+                };
+        
+                resp.raw.S11 = {
+                    Q01: {
+                        question: '[S11Q01] As pessoas que moram com o idoso têm saído de casa?',
+                        response: item[25]
+                    },
+                };
+                
+                if(item[26]) { // higienização das mãos
+                    resp.raw.S11.Q02 = {
+                        question: '[S11Q02] As pessoas que moram com o idoso têm feito a higienização frequente das mãos com água e sabão ou álcool gel?',
+                        response: item[26]
+                    };
+                }
+                
+                if(item[27]) { // compartilha utensílios
+                    resp.raw.S11.Q03 = {
+                        question: '[S11Q03] O idoso costuma compartilhar utensílios com as pessoas da sua casa? Ex: copos, talheres.',
+                        response: item[27]
+                    };
+                }
+
+                if(item[28]) { // usam mascara
+                    resp.raw.S11.Q04 = {
+                        question: '[S11Q04] Todos em casa usam máscara ao falar com o idoso?',
+                        response: item[28] 
+                    };
+                }
+
+            }
+    
+            resp.raw.S12 = {
+                Q01: {
+                    question: '[S12Q01] Após a sondagem, como você identifica o convívio do idoso com sua família?',
+                    response: item[29]
+                },
+                Q02: {
+                    question: '[S12Q02] Após a sondagem, você identificou algum sinal de vulnerabilidade alimentar?',
+                    response: item[30]
+                },
+                Q03: {
+                    question: '[S12Q03] Após a sondagem, você identificou algum sinal de vulnerabilidade financeira ou abuso financeiro por parte de terceiros?',
+                    response: item[31]
+                },
+                Q04: {
+                    question: '[S12Q04] Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?',
+                    response: item[32]
+                },
+            };
+
+            if(item[33]) { // observações
+                resp.raw.S12.Q05 = {
+                    question: '[S12Q05] Observações e outras informações importantes',
+                    response: item[33]
+                };
+            }
+    
+            if(item[34]) { // duração da chamada
+                resp.raw.S13 = {
+                    Q01: {
+                        question: '[S13Q01] Tempo de duração da chamada',
+                        response: item[34]
+                    },
+                };
+            }
+        }
 
         respostasArray.push(resp);
 
     });
 
-    await app.server.service.v2.atendimentoService.insertOne(respostasArray[0]);
+    await app.server.service.v2.atendimentoService.insertOne(respostasArray[16]);
 
     // const atendimentosArray = respostasArray.map(resposta => {
     //     return {
