@@ -1,3 +1,5 @@
+module.exports = app => {
+
 const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'atendimentosForm';
@@ -305,6 +307,8 @@ const findById = async (id) => {
         estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
         console.log(estatisticas)
         await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
-    }
+ 
+   }
 
-module.exports = { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, convertAtendimento };
+   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, convertAtendimento };
+}
