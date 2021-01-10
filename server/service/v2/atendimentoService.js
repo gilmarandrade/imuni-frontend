@@ -1,62 +1,62 @@
 module.exports = app => {
 
-const ObjectId = require('mongodb').ObjectID;
-const dbName = process.env.MONGO_DB_NAME;
-const collectionName = 'atendimentosForm';
+    const ObjectId = require('mongodb').ObjectID;
+    const dbName = process.env.MONGO_DB_NAME;
+    const collectionName = 'atendimentosForm';
 
-/**
- * Insere um item
- * @param {*} item 
- */
-const insertOne = async (item) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            const collection = db.collection(collectionName);
+    /**
+     * Insere um item
+     * @param {*} item 
+     */
+    const insertOne = async (item) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
 
-            item.idosoId = ObjectId(item.idosoId);
-            item.vigilanteId = ObjectId(item.vigilanteId);
-            item.unidadeId = ObjectId(item.unidadeId);
+                item.idosoId = ObjectId(item.idosoId);
+                item.vigilanteId = ObjectId(item.vigilanteId);
+                item.unidadeId = ObjectId(item.unidadeId);
 
-            collection.insertOne(item, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
+                collection.insertOne(item, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
+
         });
 
-    });
-
-    return promise;
-}
+        return promise;
+    }
 
 
-const findById = async (id) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            
-            const collection = db.collection(collectionName);
+    const findById = async (id) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                
+                const collection = db.collection(collectionName);
 
-            collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
+                collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
+
         });
 
-    });
-
-    return promise;
-}
+        return promise;
+    }
 
     /**
      * Encontra a última epidemiologia preenchida de um idoso
@@ -308,7 +308,36 @@ const findById = async (id) => {
         console.log(estatisticas)
         await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
  
-   }
+    }
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, convertAtendimento };
+
+    /**
+     * Deleta todos os atendimentos que foram importados através das planilhas de uma unidade
+     * @param {*} unidadeId
+     */
+    const deleteImportedByUnidade = async (unidadeId) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+
+                collection.deleteMany({ unidadeId: ObjectId(unidadeId), origin: 'IMPORTED' }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result.deletedCount);
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
+
+
+   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, convertAtendimento, deleteImportedByUnidade };
 }

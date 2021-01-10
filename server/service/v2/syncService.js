@@ -253,9 +253,11 @@ module.exports = app => {
     }
 
     /**
-     * Atualiza pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
+     * Apaga os registros importados anterioremente, insere pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
      */
     const syncAtendimentos = async (unidade, total) => {
+        await app.server.service.v2.atendimentoService.deleteImportedByUnidade(unidade._id);
+
         // let indexRespostas = 1; // unidade.sync[0].indexed;
         const lastIndexSynced = total && (total - 10 >= 1) ? total - 10 : 1;// coloca uma margem de segurança, para atualizar os 10 ultimos 
         const firstIndex = lastIndexSynced + 1;
@@ -288,6 +290,7 @@ module.exports = app => {
             } 
 
             const atendimento = {
+                origin: 'IMPORTED',
                 raw: {},
             }
 

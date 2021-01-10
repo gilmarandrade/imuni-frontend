@@ -17,6 +17,7 @@ module.exports = app => {
 
             
             if(atendimento && atendimento.responses) {
+                atendimento.origin = 'INSERTED';
                 atendimento.raw = {};
 
                 atendimento.responses.forEach(item => {
