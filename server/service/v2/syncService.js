@@ -265,78 +265,67 @@ const syncAtendimentos = async (unidade, total) => {
     const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
     const respostasArray = [];
     rows.forEach((item, index) => {
-        //TODO criar uma função para conversao de datas string da planilha para Date
-        // 13/05/2020 13:10:19
-        var parts = item[0].split(' ');
-        var data = parts[0].split('/');
-        var hora = parts[1].split(':');
-
         // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
         const resp = {
-            idosoId: '5fd119cec807a433447f9160',
-            vigilanteId: '5fd1161fc807a433447f915e',
-            unidadeId: '5fd1065e72a8ca29ec2d700a',
-
             // row: `${unidade.collectionPrefix}-'Respostas'!A${firstIndex + index}:AI${firstIndex + index}`,
-            timestamp: new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`),
-            vigilanteNome: item[1],
+            // vigilanteNome: item[1],
             raw: {},
 
-            dadosIniciais: {
-                nome: item[2],
-                nomeLower: item[2].toLowerCase(),
-                atendeu: item[3] === 'Sim',
-            },
-            idade: item[4] === undefined ? null : +item[4],
-            fonte: item[5] ? item[5] : '',
-            sintomasIdoso: {
-                apresentaSinomasGripeCOVID: item[6] !== undefined && item[6] !== 'Não',
-                sintomas: item[6] === undefined || item[6] === 'Não' ? [] : item[6].split(',').map(s => s.trim()),
-                outrosSintomas: item[7] === undefined || item[7] === 'Não' ? [] : item[7].split(',').map(s => s.trim()),
-                detalhesAdicionais: item[8],
-                haQuantosDiasIniciaram:  item[9] === undefined ? null : +item[9],
-                contatoComCasoConfirmado: item[10] === 'Sim',
-            },
-            comorbidades: {
-                condicoesSaude: item[11] === undefined || item[11] === 'Não' ? [] : item[11].split(',').map(s => s.trim()),
-                medicacaoDiaria: {
-                    deveTomar: item[12] !== undefined && item[12].startsWith('Sim'),
-                    medicacoes: item[12] === undefined || item[12] === 'Não' || item[12] === 'Sim' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
-                    acessoMedicacao: item[13] === 'Sim, consigo adquirí-las',
-                }
-            },
-            primeiroAtendimento: item[14] === 'Primeiro atendimento',
-            epidemiologia: {
-                higienizacaoMaos: item[15] === 'Sim',
-                isolamento: {
-                    saiDeCasa: item[16] === 'Sim',
-                    frequencia: item[17] ? item[17] : '',
-                    paraOnde: item[18] ? item[18].split(',').map(s => s.trim()) : [],
-                },
-                recebeApoioFamiliarOuAmigo: item[19] === 'Sim',
-                visitas: {
-                    recebeVisitas: item[20] !== undefined && item[20] !== 'O idoso não recebe visitas',
-                    tomamCuidadosPrevencao: item[20] === 'Sim, e as visitas estão tomando os cuidados de prevenção',
-                },
-                qtdComodosCasa:  item[21] === undefined ? null : +item[21],
-                realizaAtividadePrazerosa: item[22] === 'Sim',
-            },
-            qtdAcompanhantesDomicilio: item[23] === 'Somente o idoso' ? 0 : ( item[23] === undefined ? null : +item[23]),
-            sintomasDomicilio: item[24] === undefined || item[24] === 'Não' || item[24].trim() === '' ? [] : item[24].split(',').map(s => s.trim()),
-            habitosDomiciliaresAcompanhantes: {
-                saiDeCasa: item[25] === 'Sim',
-                higienizacaoMaos: item[26] === 'Sim',
-                compartilhamentoUtensilios: item[27] === 'Sim',
-                usoMascara: item[28] === 'Sim',
-            },
-            vulnerabilidades: {
-                convivioFamilia: item[29] ? item[29] : '',
-                alimentar: item[30] === 'Sim',
-                financeira: item[31] === 'Sim',
-                violencia: item[32] === 'Sim',
-                observacoes: item[33] ? item[33] : '',
-            },
-            duracaoChamada: item[34] ? item[34] : '',
+            // dadosIniciais: {
+            //     nome: item[2],
+            //     nomeLower: item[2].toLowerCase(),
+            //     atendeu: item[3] === 'Sim',
+            // },
+            // idade: item[4] === undefined ? null : +item[4],
+            // fonte: item[5] ? item[5] : '',
+            // sintomasIdoso: {
+            //     apresentaSinomasGripeCOVID: item[6] !== undefined && item[6] !== 'Não',
+            //     sintomas: item[6] === undefined || item[6] === 'Não' ? [] : item[6].split(',').map(s => s.trim()),
+            //     outrosSintomas: item[7] === undefined || item[7] === 'Não' ? [] : item[7].split(',').map(s => s.trim()),
+            //     detalhesAdicionais: item[8],
+            //     haQuantosDiasIniciaram:  item[9] === undefined ? null : +item[9],
+            //     contatoComCasoConfirmado: item[10] === 'Sim',
+            // },
+            // comorbidades: {
+            //     condicoesSaude: item[11] === undefined || item[11] === 'Não' ? [] : item[11].split(',').map(s => s.trim()),
+            //     medicacaoDiaria: {
+            //         deveTomar: item[12] !== undefined && item[12].startsWith('Sim'),
+            //         medicacoes: item[12] === undefined || item[12] === 'Não' || item[12] === 'Sim' ? [] : item[12].substring(4).split(',').map(s => s.trim()),
+            //         acessoMedicacao: item[13] === 'Sim, consigo adquirí-las',
+            //     }
+            // },
+            // primeiroAtendimento: item[14] === 'Primeiro atendimento',
+            // epidemiologia: {
+            //     higienizacaoMaos: item[15] === 'Sim',
+            //     isolamento: {
+            //         saiDeCasa: item[16] === 'Sim',
+            //         frequencia: item[17] ? item[17] : '',
+            //         paraOnde: item[18] ? item[18].split(',').map(s => s.trim()) : [],
+            //     },
+            //     recebeApoioFamiliarOuAmigo: item[19] === 'Sim',
+            //     visitas: {
+            //         recebeVisitas: item[20] !== undefined && item[20] !== 'O idoso não recebe visitas',
+            //         tomamCuidadosPrevencao: item[20] === 'Sim, e as visitas estão tomando os cuidados de prevenção',
+            //     },
+            //     qtdComodosCasa:  item[21] === undefined ? null : +item[21],
+            //     realizaAtividadePrazerosa: item[22] === 'Sim',
+            // },
+            // qtdAcompanhantesDomicilio: item[23] === 'Somente o idoso' ? 0 : ( item[23] === undefined ? null : +item[23]),
+            // sintomasDomicilio: item[24] === undefined || item[24] === 'Não' || item[24].trim() === '' ? [] : item[24].split(',').map(s => s.trim()),
+            // habitosDomiciliaresAcompanhantes: {
+            //     saiDeCasa: item[25] === 'Sim',
+            //     higienizacaoMaos: item[26] === 'Sim',
+            //     compartilhamentoUtensilios: item[27] === 'Sim',
+            //     usoMascara: item[28] === 'Sim',
+            // },
+            // vulnerabilidades: {
+            //     convivioFamilia: item[29] ? item[29] : '',
+            //     alimentar: item[30] === 'Sim',
+            //     financeira: item[31] === 'Sim',
+            //     violencia: item[32] === 'Sim',
+            //     observacoes: item[33] ? item[33] : '',
+            // },
+            // duracaoChamada: item[34] ? item[34] : '',
         }
 
 
@@ -574,11 +563,32 @@ const syncAtendimentos = async (unidade, total) => {
             }
         }
 
+        //TODO criar uma função para conversao de datas string da planilha para Date
+        // 13/05/2020 13:10:19
+        var parts = item[0].split(' ');
+        var data = parts[0].split('/');
+        var hora = parts[1].split(':');
+
+        resp.authsecret = '';
+        resp.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
+        resp.responseId = '';
+        resp.idosoId = '5fd119cec807a433447f9160'; // TODO
+        resp.vigilanteId = '5fd1161fc807a433447f915e'; // TODO
+        resp.unidadeId = '5fd1065e72a8ca29ec2d700a'; // TODO
+        resp.atendeu = item[3] === 'Sim';
+        resp.fonte = item[5];
+        resp.tipo = item[14];
+        resp.idadeIdoso = item[4] === undefined ? null : +item[4];
+        resp.duracaoChamada = item[34];
+        resp._isDeleted = false;
+        // criterios // TODO
+        // escalas // TODO
+
         respostasArray.push(resp);
 
     });
 
-    await app.server.service.v2.atendimentoService.insertOne(respostasArray[16]);
+    await app.server.service.v2.atendimentoService.insertOne(respostasArray[18]);
 
     // const atendimentosArray = respostasArray.map(resposta => {
     //     return {
