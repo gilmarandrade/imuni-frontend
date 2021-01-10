@@ -67,7 +67,7 @@ const findByUnidade = async (unidadeId) => {
             
             const collection = db.collection(collectionName);
 
-            collection.find({ unidadeId: unidadeId, _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+            collection.find({ unidadeId: ObjectId(unidadeId), _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
@@ -116,11 +116,13 @@ const insertOne = async (usuario) => {
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
 
+            if(usuario.unidadeId) usuario.unidadeId = ObjectId(usuario.unidadeId);
+            
             collection.insertOne(usuario, function(err, result) {
                 if(err) {
                     reject(err);
                 } else {
-                    resolve(usuario._id);
+                    resolve(result.insertedId);
                 }
             });
         });
@@ -163,6 +165,8 @@ const replaceOne = async (usuario) => {
             if(err) return reject(err);
             const db = client.db(dbName);
             const collection = db.collection(collectionName);
+
+            if(usuario.unidadeId) usuario.unidadeId = ObjectId(usuario.unidadeId);
 
             collection.replaceOne({ _id : ObjectId(usuario._id) } , usuario, function(err, result) {
                 if(err) {

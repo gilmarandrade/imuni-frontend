@@ -1,7 +1,3 @@
-/**
- * @deprecated
- */
-const syncService = require('../service/syncService');
 
 module.exports = app => {
     const init = async (server) => {
@@ -44,7 +40,7 @@ module.exports = app => {
             
             try {
                 syncStatus.emit();
-                await syncService.fullSyncUnidade(data.idUnidade);
+                await app.server.service.v2.syncService.fullSyncUnidade(data.idUnidade);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
@@ -76,7 +72,7 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
-                await syncService.resetUnidade(data.idUnidade);
+                await app.server.service.v2.syncService.resetUnidade(data.idUnidade);
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
                     
@@ -108,7 +104,7 @@ module.exports = app => {
 
             try {
                 syncStatus.emit();
-                await syncService.partialSyncUnidade(data.idUnidade, data.nomeVigilante);
+                await app.server.service.v2.syncService.partialSyncUnidade(data.idUnidade, data.nomeVigilante);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();

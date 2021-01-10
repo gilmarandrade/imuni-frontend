@@ -400,5 +400,56 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, findAllByUser };
+    const bulkUpdateOne = async (idososArray) => {
+
+        const addToBatch = (batch, item) => {
+            batch.find({ nome: item.nome, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
+                $set: { 
+                    // row: item.row,
+                    dataNascimento: item.dataNascimento,
+                    nome: item.nome,
+                    telefone1: item.telefone1,
+                    telefone2: item.telefone2,
+                    agenteSaude: item.agenteSaude,
+                    anotacoes: item.anotacoes,
+                    unidadeId: ObjectId(item.unidadeId),
+                    vigilanteId: ObjectId(item.vigilanteId),
+                    _isDeleted: item._isDeleted,
+                    // stats: item.stats,
+                    // score: item.score,
+                    // epidemiologia: item.epidemiologia,
+                }
+            });
+        };
+        // console.log(idosoAtendimento);
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+    
+                // Initialize the unordered Batch
+                const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+                for(let i = 0; i < idososArray.length; i++) {
+                    addToBatch(batch, idososArray[i]);
+                };
+    
+                // Execute the operations
+                batch.execute(function(err, result) {
+                    // console.log(result)
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result.ok);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, findAllByUser, bulkUpdateOne };
 }
