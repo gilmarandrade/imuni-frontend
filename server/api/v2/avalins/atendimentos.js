@@ -52,5 +52,15 @@ module.exports = app => {
         }
     }
 
-    return { save, findAll }
+    const findById = async (req, res) => {
+
+        try {
+            const result = await app.server.service.v2.avalins.atendimentoService.findById(req.params.atendimentoId);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, findAll, findById }
 }

@@ -24,11 +24,17 @@ import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
 import Listar from '@/components/avalins/Listar'
 import Novo from '@/components/avalins/Novo'
+import Detalhar from '@/components/avalins/Detalhar'
 import CadastrarAtendimento from '@/components/atendimento/CadastrarAtendimento'
 
 Vue.use(VueRouter);
 
 const routes = [
+    {
+        name: 'Detalharavalins',
+        path: '/avalins/detalhar/:atendimentoId',
+        component: Detalhar
+    },
     {
         name: 'Novoavalins',
         path: '/avalins/novo',

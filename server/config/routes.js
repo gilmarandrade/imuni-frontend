@@ -99,6 +99,9 @@ module.exports = app => {
     app.route('/api/v2/avalins/atendimentos/all')
         .get(app.server.api.v2.avalins.atendimentos.findAll);
 
+    app.route('/api/v2/avalins/atendimentos/detalhar/:atendimentoId')
+        .get(app.server.api.v2.avalins.atendimentos.findById);
+
         
     //Handle Production routes
     if(process.env.NODE_ENV === 'production') {

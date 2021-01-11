@@ -67,5 +67,28 @@ module.exports = app => {
         return promise;
     }
 
-    return { insertOne, findAll }
+    const findById = async (id) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                
+                const collection = db.collection(collectionName);
+
+                collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
+    return { insertOne, findAll, findById }
 }

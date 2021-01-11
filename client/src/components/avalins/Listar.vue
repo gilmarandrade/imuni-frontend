@@ -1,9 +1,11 @@
 <template>
     <div v-if="atendimentos">
-         <h1>Atendimentos</h1>
-          <router-link :to="'/avalins/novo'" target="_blank">
+         <h1>Atendimentos
+
+          <router-link :to="'/avalins/novo'" target="_blank" class="btn btn-outline-primary">
                     Novo
         </router-link>
+         </h1>
 
         <b-table :items="atendimentos" :fields="fields" primary-key="_id" :busy="carregandoAtendimentos" show-empty>
             <template v-slot:table-busy>
@@ -16,7 +18,7 @@
                 <div class="text-center text-muted">Não há registros</div>
             </template>
             <template v-slot:cell(col-data)="data">
-                <router-link :to="'/unidades/atendimentos/'+ data.item._id">
+                <router-link :to="'/avalins/detalhar/'+ data.item._id">
                     {{ formatDate(data.item.timestamp) }}
                 </router-link>
             </template>
