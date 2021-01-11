@@ -30,5 +30,42 @@ module.exports = app => {
         return promise;
     }
 
-    return { insertOne }
+    const findAll = async () => {
+
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+      
+                collection.aggregate([
+                    { $match: { _isDeleted: false} },
+                    { $sort : { timestamp : -1 } },
+                    // { $skip : rowsPerPage * page },
+                    // { $limit : rowsPerPage },
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        // console.log(result);
+                        // resolve({
+                        //     data : result,
+                        //     info: {
+                        //         totalRows: result.length,
+                        //         currentPage: page,
+                        //         rowsPerPage: rowsPerPage
+                        //     }
+                        // });
+                        resolve(result);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
+    return { insertOne, findAll }
 }

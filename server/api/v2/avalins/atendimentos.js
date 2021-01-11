@@ -28,6 +28,7 @@ module.exports = app => {
 
                 // console.log(atendimento.raw);
                 delete atendimento.responses;
+                atendimento._isDeleted = false;
 
                 await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
 
@@ -41,5 +42,15 @@ module.exports = app => {
         }
     }
 
-    return { save }
+    const findAll = async (req, res) => {
+
+        try {
+            const result = await app.server.service.v2.avalins.atendimentoService.findAll();
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, findAll }
 }
