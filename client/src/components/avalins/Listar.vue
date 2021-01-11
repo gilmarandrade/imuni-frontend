@@ -22,6 +22,9 @@
                     {{ formatDate(data.item.timestamp) }}
                 </router-link>
             </template>
+            <template v-slot:cell(col-score)="data">
+                <Badge v-if="data.item.escalas" :value="data.item.escalas.score" />
+            </template>
         </b-table>
     </div>
 </template>
@@ -29,14 +32,17 @@
 <script>
     import { baseApiUrl, showError, formatDate } from '@/global';
     import axios from 'axios';
+    import Badge from '@/components/template/Badge';
 
     export default {
         name: 'Listar',
+        components: { Badge },
         data: function() {
             return {
                 atendimentos: [],
                 fields: [ 
                     { key: 'col-data', label: 'Data' },
+                    { key: 'col-score', label: 'Score' },
                 ],
                 carregandoAtendimentos: false,
             }
