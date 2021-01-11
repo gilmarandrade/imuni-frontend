@@ -136,7 +136,7 @@ module.exports = app => {
         };
 
         atendimento.criterios = criterios;
-        atendimento.escalas = calculaEscalas(atendimento);
+        atendimento.escalas = calculaEscalas(atendimento.criterios);
         await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
 
     }
