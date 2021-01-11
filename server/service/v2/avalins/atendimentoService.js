@@ -9,6 +9,11 @@ const extractResponse = (session, question, fichaVigilancia) => {
     return null;
 };
 
+const extractPontos = (session, question, fichaVigilancia) => {
+    const response = extractResponse(session, question, fichaVigilancia);
+    return response ? +(response.substring(2,3)) : 0;
+}
+
 module.exports = app => {
 
     const ObjectId = require('mongodb').ObjectID;
@@ -104,7 +109,7 @@ module.exports = app => {
     const convertAtendimento = async (atendimento) => {
 
         const criterios = {
-            c1: extractResponse('S02','Q01', atendimento.raw),
+            c1: extractPontos('S02','Q01', atendimento.raw),
         };
 
         atendimento.criterios = criterios;
