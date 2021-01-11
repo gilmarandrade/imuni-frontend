@@ -1,3 +1,14 @@
+const extractResponse = (session, question, fichaVigilancia) => {
+    if(fichaVigilancia && session && question) {
+        if(fichaVigilancia[session]) {
+            if(fichaVigilancia[session][question] && fichaVigilancia[session][question].response !== null && fichaVigilancia[session][question].response !== undefined && fichaVigilancia[session][question].response !== '') {
+                return fichaVigilancia[session][question].response;
+            }
+        }
+    }
+    return null;
+};
+
 module.exports = app => {
 
     const ObjectId = require('mongodb').ObjectID;
@@ -90,5 +101,16 @@ module.exports = app => {
         return promise;
     }
 
-    return { insertOne, findAll, findById }
+    const convertAtendimento = async (atendimento) => {
+
+        const criterios = {
+            c1: extractResponse('S02','Q01', atendimento.raw),
+        };
+
+        atendimento.criterios = criterios;
+        await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
+
+    }
+
+    return { insertOne, findAll, findById, convertAtendimento }
 }

@@ -30,7 +30,7 @@ module.exports = app => {
                 delete atendimento.responses;
                 atendimento._isDeleted = false;
 
-                await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
+                await app.server.service.v2.avalins.atendimentoService.convertAtendimento(atendimento);
 
                 return res.status(200).json(atendimento);
             }
