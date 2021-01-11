@@ -196,7 +196,7 @@ import { baseApiUrl, showError, formatDate } from '@/global';
 import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
-import FormResponse from '../template/FormResponse.vue';
+import FormResponse from '@/components/template/FormResponse';
 import UnidadeLink from '@/components/includes/UnidadeLink';
 import UsuarioLink from '@/components/includes/UsuarioLink';
 import IdosoLink from '@/components/includes/IdosoLink';
