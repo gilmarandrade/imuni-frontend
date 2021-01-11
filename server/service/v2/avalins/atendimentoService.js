@@ -118,11 +118,11 @@ module.exports = app => {
             c7: extractPontos('S02','Q07', atendimento.raw),
             c8: extractPontos('S02','Q08', atendimento.raw),
             c9: extractPontos('S02','Q09', atendimento.raw),
-            c10: extractPontos('S02','Q010', atendimento.raw),
-            c11: extractPontos('S02','Q011', atendimento.raw),
-            c12: extractPontos('S02','Q012', atendimento.raw),
-            c13: extractPontos('S02','Q013', atendimento.raw),
-            c14: extractPontos('S02','Q014', atendimento.raw),
+            c10: extractPontos('S02','Q10', atendimento.raw),
+            c11: extractPontos('S02','Q11', atendimento.raw),
+            c12: extractPontos('S02','Q12', atendimento.raw),
+            c13: extractPontos('S02','Q13', atendimento.raw),
+            c14: extractPontos('S02','Q14', atendimento.raw),
         };
 
         atendimento.criterios = criterios;
