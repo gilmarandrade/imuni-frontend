@@ -21,10 +21,26 @@ const calculaEscalas = (criterios) => {
         total += element;
     });
 
-    return { score: total }
+    let risco = null;
+
+    if(total >= 41) {
+        risco = riscoQueda.BAIXO;
+    } else if(total >= 21) {
+        risco = riscoQueda.MEDIO;
+    } else {
+        risco = riscoQueda.ELEVADO;
+    }
+
+    return { score: risco }
 }
 
 module.exports = app => {
+    
+    const riscoQueda = Object.freeze({
+        BAIXO: 'Baixo',
+        MEDIO: 'Médio',
+        ELEVADO: 'Elevado',
+    });
 
     const ObjectId = require('mongodb').ObjectID;
     const dbName = process.env.MONGO_DB_NAME;
