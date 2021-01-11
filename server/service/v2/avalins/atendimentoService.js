@@ -110,6 +110,19 @@ module.exports = app => {
 
         const criterios = {
             c1: extractPontos('S02','Q01', atendimento.raw),
+            c2: extractPontos('S02','Q02', atendimento.raw),
+            c3: extractPontos('S02','Q03', atendimento.raw),
+            c4: extractPontos('S02','Q04', atendimento.raw),
+            c5: extractPontos('S02','Q05', atendimento.raw),
+            c6: extractPontos('S02','Q06', atendimento.raw),
+            c7: extractPontos('S02','Q07', atendimento.raw),
+            c8: extractPontos('S02','Q08', atendimento.raw),
+            c9: extractPontos('S02','Q09', atendimento.raw),
+            c10: extractPontos('S02','Q010', atendimento.raw),
+            c11: extractPontos('S02','Q011', atendimento.raw),
+            c12: extractPontos('S02','Q012', atendimento.raw),
+            c13: extractPontos('S02','Q013', atendimento.raw),
+            c14: extractPontos('S02','Q014', atendimento.raw),
         };
 
         atendimento.criterios = criterios;
