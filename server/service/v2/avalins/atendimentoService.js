@@ -14,6 +14,16 @@ const extractPontos = (session, question, fichaVigilancia) => {
     return response ? +(response.substring(2,3)) : 0;
 }
 
+const calculaEscalas = (criterios) => {
+    const array = Object.values(criterios);
+    let total = 0;
+    array.forEach(element => {
+        total += element;
+    });
+
+    return { score: total }
+}
+
 module.exports = app => {
 
     const ObjectId = require('mongodb').ObjectID;
@@ -126,6 +136,7 @@ module.exports = app => {
         };
 
         atendimento.criterios = criterios;
+        atendimento.escalas = calculaEscalas(atendimento);
         await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
 
     }
