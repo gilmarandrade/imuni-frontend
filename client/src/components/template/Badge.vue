@@ -19,6 +19,7 @@ export default {
                     return 'yellow';
                 case 'alto':
                 case 'Alto':
+                case 'Elevado':
                     return 'red';
 
                 case '0 - Sem vulnerabilidades':
