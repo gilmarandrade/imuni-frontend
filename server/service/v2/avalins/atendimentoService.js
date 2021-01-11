@@ -1,40 +1,40 @@
-const extractResponse = (session, question, fichaVigilancia) => {
-    if(fichaVigilancia && session && question) {
-        if(fichaVigilancia[session]) {
-            if(fichaVigilancia[session][question] && fichaVigilancia[session][question].response !== null && fichaVigilancia[session][question].response !== undefined && fichaVigilancia[session][question].response !== '') {
-                return fichaVigilancia[session][question].response;
-            }
-        }
-    }
-    return null;
-};
-
-const extractPontos = (session, question, fichaVigilancia) => {
-    const response = extractResponse(session, question, fichaVigilancia);
-    return response ? +(response.substring(2,3)) : 0;
-}
-
-const calculaEscalas = (criterios) => {
-    const array = Object.values(criterios);
-    let total = 0;
-    array.forEach(element => {
-        total += element;
-    });
-
-    let risco = null;
-
-    if(total >= 41) {
-        risco = riscoQueda.BAIXO;
-    } else if(total >= 21) {
-        risco = riscoQueda.MEDIO;
-    } else {
-        risco = riscoQueda.ELEVADO;
-    }
-
-    return { score: risco }
-}
 
 module.exports = app => {
+    const extractResponse = (session, question, fichaVigilancia) => {
+        if(fichaVigilancia && session && question) {
+            if(fichaVigilancia[session]) {
+                if(fichaVigilancia[session][question] && fichaVigilancia[session][question].response !== null && fichaVigilancia[session][question].response !== undefined && fichaVigilancia[session][question].response !== '') {
+                    return fichaVigilancia[session][question].response;
+                }
+            }
+        }
+        return null;
+    };
+    
+    const extractPontos = (session, question, fichaVigilancia) => {
+        const response = extractResponse(session, question, fichaVigilancia);
+        return response ? +(response.substring(2,3)) : 0;
+    }
+    
+    const calculaEscalas = (criterios) => {
+        const array = Object.values(criterios);
+        let total = 0;
+        array.forEach(element => {
+            total += element;
+        });
+    
+        let risco = null;
+    
+        if(total >= 41) {
+            risco = riscoQueda.BAIXO;
+        } else if(total >= 21) {
+            risco = riscoQueda.MEDIO;
+        } else {
+            risco = riscoQueda.ELEVADO;
+        }
+    
+        return { score: risco }
+    }
     
     const riscoQueda = Object.freeze({
         BAIXO: 'Baixo',
