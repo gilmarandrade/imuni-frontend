@@ -26,6 +26,7 @@ export default {
                 case 'O - Sem Vulnerabilidade':
                     return 'blue';
                 case 'A - vulnerabilidade financeira':
+                case 'A - Vulnerabilidade financeira':
                 case 'A - Vulnerabilidade Financeira':
                 case 'B - vulnerabilidade alimentar':
                 case 'B - Vulnerabilidade Alimentar':

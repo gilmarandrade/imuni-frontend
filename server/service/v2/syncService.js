@@ -568,7 +568,7 @@ module.exports = app => {
 
         // // indexRespostas = lastIndexSynced + atendimentosArray.length;
         // if(atendimentosArray.length) {
-        //     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + atendimentosArray.length}`);
+            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
             
         //     // let i = null;
         //     // for(; i < atendimentosArray.length; i++) {
