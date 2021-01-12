@@ -194,11 +194,10 @@
                         v-for="n in tablePagination" :key="n"
                         @click="loadIdosos(n)">{{ n + 1 }}</button>
                 <button class="next btn btn-light" 
-                    :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage) - 1"
+                    :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
                     @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
             </b-button-group>
             <span class="text-muted ml-3 mt-1">({{Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)}} páginas)</span>
-            
 
             <!-- <b-button-group>
                 <button class="prev btn btn-light" 
@@ -301,7 +300,7 @@ export default {
                         this.tablePagination.push(i);
                     }
                 } else {
-                    for(let i = totalPages - 11; i < totalPages - 1; i++) {
+                    for(let i = totalPages - 10; i < totalPages; i++) {
                         this.tablePagination.push(i);
                     }
                 }
