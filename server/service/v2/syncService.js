@@ -154,7 +154,7 @@ module.exports = app => {
      * Armazena o usuário vigilante de uma planilha
      */
     const syncVigilante = async (unidade, sheetName) => {
-        console.log('get nome vigilante')
+        // console.log('get nome vigilante')
         const firstIndex = 2;
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}`);
         if(rows.length && rows[0].length) {

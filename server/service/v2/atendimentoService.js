@@ -75,7 +75,7 @@ module.exports = app => {
                     if(err) {
                         reject(err);
                     } else {
-                        console.log('GET epidemiologia', result);
+                        // console.log('GET epidemiologia', result);
                         if(result) {
                             resolve( Object.keys(result).length === 0 ? null : result.raw );
                         } else {
@@ -158,7 +158,7 @@ module.exports = app => {
                     } else {
                         // console.log(result ? { atendimentosEfetuados: result[0].atendimentosEfetuados.count, total: result[0].total.count } : null);
                         // TODO VERIFICAR O QUE ACONTECE QUANDO O ARRAY ESTÁ VAZIO
-                        console.log(result)
+                        // console.log(result)
                         const stats = {};
                         if(result.length > 0) {
                             stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
@@ -264,7 +264,7 @@ module.exports = app => {
         } else {// acompanhamento
             // copia a epidemilogia do primeiro atendimento
             const epidemiologiaRaw = await app.server.service.v2.atendimentoService.getEpidemiologia(atendimento.idosoId);
-            console.log('epidemiologiaRaw', epidemiologiaRaw)
+            // console.log('epidemiologiaRaw', epidemiologiaRaw)
             if(epidemiologiaRaw && epidemiologiaRaw['S08']) {
                 atendimento.raw['S08'] = epidemiologiaRaw['S08'];
             }
@@ -305,7 +305,7 @@ module.exports = app => {
         };
         estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimento.idosoId);
         estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
-        console.log(estatisticas)
+        // console.log(estatisticas)
         await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
  
     }
