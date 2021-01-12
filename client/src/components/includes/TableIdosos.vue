@@ -183,8 +183,24 @@
                 </div>
           </template>
         </b-table>
+
         <div class="pagination">
             <b-button-group>
+                <button class="prev btn btn-light" 
+                    :disabled="tableInfo.currentPage == 0" 
+                    @click="loadIdosos(tableInfo.currentPage - 1)">&lt;</button>
+                <button class="btn btn-light"
+                        :class="{ 'current' : n == tableInfo.currentPage}" 
+                        v-for="n in tablePagination" :key="n"
+                        @click="loadIdosos(n)">{{ n + 1 }}</button>
+                <button class="next btn btn-light" 
+                    :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage) - 1"
+                    @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
+            </b-button-group>
+            <span class="text-muted ml-3 mt-1">({{Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)}} páginas)</span>
+            
+
+            <!-- <b-button-group>
                 <button class="prev btn btn-light" 
                     :disabled="tableInfo.currentPage == 0" 
                     @click="loadIdosos(tableInfo.currentPage - 1)">&lt;</button>
@@ -195,7 +211,7 @@
                 <button class="next btn btn-light" 
                     :disabled="tableInfo.currentPage + 1 >= Math.ceil(tableInfo.totalRows / tableInfo.rowsPerPage)"
                     @click="loadIdosos(tableInfo.currentPage + 1)">&gt;</button>
-            </b-button-group>
+            </b-button-group> -->
         </div>
     </div>
 </template>
@@ -229,6 +245,7 @@ export default {
                 currentPage: 0,// por padrão é 0
                 rowsPerPage: 25,// por padrao é 25
             },
+            tablePagination: [],
             idosos: [],
             fields: [ 
                 { key: 'estatisticas.ultimaEscala.scoreOrdenacao', label: 'Score' },
@@ -265,9 +282,34 @@ export default {
             axios.get(url).then(res => {
                 this.tableInfo =  res.data.info ? res.data.info : {totalRows: 0, currentPage: 0, rowsPerPage: 25,};
                 this.idosos = res.data.data;
+                this.calcPagination();
                 this.carregando = false;
                 console.log(res.data);
             }).catch(function(e) {console.error(e);showError(e)})
+        },
+        calcPagination() {
+            this.tablePagination = [];
+            const totalPages = Math.ceil(this.tableInfo.totalRows / this.tableInfo.rowsPerPage);
+
+            if(totalPages >= 10) {
+                if(this.tableInfo.currentPage < 5) {
+                    for(let i = 0; i < 10; i++) {
+                        this.tablePagination.push(i);
+                    }
+                } else if(totalPages - this.tableInfo.currentPage >= 5 && totalPages - this.tableInfo.currentPage > 5) {
+                    for(let i = this.tableInfo.currentPage - 5; i < this.tableInfo.currentPage + 5; i++) {
+                        this.tablePagination.push(i);
+                    }
+                } else {
+                    for(let i = totalPages - 11; i < totalPages - 1; i++) {
+                        this.tablePagination.push(i);
+                    }
+                }
+            } else {
+                for(let i = 0; i < totalPages; i++ ) {
+                 this.tablePagination.push(i);
+                }
+            }
         },
         deleteIdoso(id) {
           this.$bvModal.msgBoxConfirm('Deseja realmente excluir o idoso? Todos os dados serão perdidos!', {
