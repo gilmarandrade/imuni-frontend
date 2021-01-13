@@ -91,6 +91,20 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .post(app.server.api.v2.unidades.migrate);
 
+    app.route('/api/v2/status')
+        .get(async (req, res) => {
+            try {
+                //get the number of seconds the Node.js process is running.
+                const result = {
+                    uptime: Math.floor(process.uptime()),
+                };
+                console.log(result);
+                return res.json(result);
+            } catch(err) {
+                return res.status(500).send(err);
+            }
+        });
+
     
     //avalins
     app.route('/api/v2/avalins/atendimentos')
