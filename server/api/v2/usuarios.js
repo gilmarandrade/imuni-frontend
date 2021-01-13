@@ -3,6 +3,20 @@ const crypto = require('crypto');
 module.exports = app => {
     const { existsOrError, notExistsOrError, equalsOrError } = app.server.api.validation;
 
+    /**
+     * Checa se o banco de dados está conectado
+     * TODO mover para local mais apropriado
+     */
+    const checkStatus = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.checkStatus();
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
+
     const getVigilantesAtivosByUnidadeId = async (req, res) => {
         try {
             const result = await app.server.service.v2.usuarioService.findVigilantesAtivosByUnidade(req.params.unidadeId);
@@ -241,5 +255,5 @@ module.exports = app => {
         }
     }
 
-    return { getByUnidadeId, getVigilantesAtivosByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro, getName }
+    return { getByUnidadeId, getVigilantesAtivosByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro, getName, checkStatus }
 }

@@ -6,6 +6,19 @@ module.exports = app => {
     const dbName = process.env.MONGO_DB_NAME;
     const collectionName = 'usuarios';
 
+    const checkStatus = async () => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                   
+                resolve('deu certo');
+            });
+
+        });
+
+        return promise;
+    }
     const findById = async (id) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
@@ -351,5 +364,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { findById, findVigilanteByNome, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail };
+    return { findById, findVigilanteByNome, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail, checkStatus };
 }

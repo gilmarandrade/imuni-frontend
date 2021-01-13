@@ -90,6 +90,8 @@ module.exports = app => {
     app.route('/api/v2/migracao/unidades')
         .all(app.server.config.passport.authenticate())
         .post(app.server.api.v2.unidades.migrate);
+        
+
 
     app.route('/api/v2/status')
         .get(async (req, res) => {
@@ -104,6 +106,10 @@ module.exports = app => {
                 return res.status(500).send(err);
             }
         });
+        
+    app.route('/api/v2/status/banco')
+        .get(app.server.api.v2.usuarios.checkStatus);
+
 
     
     //avalins
