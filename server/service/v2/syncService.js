@@ -269,6 +269,7 @@ module.exports = app => {
         const usuariosArray = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
         // console.log('usuariosArray', usuariosArray)
         // const respostasArray = [];
+        const atendimentosArray = [];
         for(let i = 0; i < rows.length; i++) {
 
             // encontra o id do idoso
@@ -560,22 +561,21 @@ module.exports = app => {
             // // escalas // TODO
         
             // respostasArray.push(resp);
-            await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            atendimentosArray.push(aten);
         
         }
 
-        // await app.server.service.v2.atendimentoService.insertOne(respostasArray[18]);
+        console.log('atendimentosArray ', atendimentosArray.length);
 
-        // const atendimentosArray = respostasArray.map(resposta => {
-        //     return {
-        //         fichaVigilancia: resposta,
-        //         escalas : calcularEscalas(resposta),
-        //     }
-        // });
+        if(atendimentosArray.length > 0) {
+            // TODO INSERE ATENDIMENTOS VIA BATCH
+            console.log('INSERE ATENDIMENTOS VIA BATCH');
+            await app.server.service.v2.atendimentoService.bulkUpdateOne(atendimentosArray);
+        }
 
-        // // indexRespostas = lastIndexSynced + atendimentosArray.length;
-        // if(atendimentosArray.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
+
+        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
             
         //     // let i = null;
         //     // for(; i < atendimentosArray.length; i++) {

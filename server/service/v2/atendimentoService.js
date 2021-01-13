@@ -235,7 +235,22 @@ module.exports = app => {
      * Insere um atendimento importado a partir da planilha da unidade
      */
     const importFromPlanilhaUnidade = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
-        return await convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
+        const atendimentoConvertido = convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
+
+      
+
+        // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
+        const estatisticas = {
+            ultimoAtendimento: {
+                timestamp: atendimentoConvertido.timestamp,
+                efetuado: atendimentoConvertido.atendeu,
+            },
+        };
+        estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentoConvertido.idosoId);
+        estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentoConvertido.idosoId);
+        await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
+
+        return atendimentoConvertido;
     }
 
     const convertAtendimento = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
@@ -318,21 +333,6 @@ module.exports = app => {
         atendimento.escalas = app.server.service.v2.escalaService.calcularEscalas(criterios, atendimento.timestamp);
     
         return atendimento;
-
-        // TODO para otimizar, talvez a inserção dos atendimentos possa ser feita em batch (mas aí vai ter problemas pra pegar a epidemiologia!)
-        await app.server.service.v2.atendimentoService.insertOne(atendimento);
-        
-        // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
-        const estatisticas = {
-            ultimoAtendimento: {
-                timestamp: atendimento.timestamp,
-                efetuado: atendimento.atendeu,
-            },
-        };
-        estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimento.idosoId);
-        estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
-        await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
- 
     }
 
 
@@ -362,7 +362,60 @@ module.exports = app => {
         return promise;
     }
 
+    const bulkUpdateOne = async (atendimentosArray) => {
+
+        const addToBatch = (batch, item) => {
+            batch.find({ _id: ObjectId(item._id) }).upsert().updateOne({
+                $set: { 
+                    origin: item.origin,
+                    raw: item.raw,
+                    authsecret: item.authsecret,
+                    timestamp: item.timestamp,
+                    responseId: item.responseId,
+                    idosoId: ObjectId(item.idosoId),
+                    vigilanteId: ObjectId(item.vigilanteId),
+                    unidadeId: ObjectId(item.unidadeId),
+                    atendeu: item.atendeu,
+                    fonte: item.fonte,
+                    tipo: item.tipo,
+                    idadeIdoso: item.idadeIdoso,
+                    duracaoChamada: item.duracaoChamada,
+                    _isDeleted: item._isDeleted,
+                    criterios: item.criterios,
+                    escalas: item.escalas,
+                }
+            });
+        };
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+    
+                // Initialize the unordered Batch
+                const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+                for(let i = 0; i < atendimentosArray.length; i++) {
+                    addToBatch(batch, atendimentosArray[i]);
+                };
+    
+                // Execute the operations
+                batch.execute(function(err, result) {
+                    // console.log(result)
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result.ok);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade };
+
+   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne };
 }
