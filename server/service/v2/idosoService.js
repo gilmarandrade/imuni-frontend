@@ -192,6 +192,7 @@ module.exports = app => {
      * @param {*}  
      */
     const upsertEstatisticas = async (idIdoso, estatisticas) => {
+        console.log('upsertEstatisticas ', idIdoso, estatisticas)
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {

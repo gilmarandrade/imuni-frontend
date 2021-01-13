@@ -235,20 +235,8 @@ module.exports = app => {
      * Insere um atendimento importado a partir da planilha da unidade
      */
     const importFromPlanilhaUnidade = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
-        const atendimentoConvertido = convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
-
-      
-
-        // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
-        const estatisticas = {
-            ultimoAtendimento: {
-                timestamp: atendimentoConvertido.timestamp,
-                efetuado: atendimentoConvertido.atendeu,
-            },
-        };
-        estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentoConvertido.idosoId);
-        estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentoConvertido.idosoId);
-        await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
+        const atendimentoConvertido = await convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
+        // console.log('atendimentoConvertido ', atendimentoConvertido.idosoId)
 
         return atendimentoConvertido;
     }

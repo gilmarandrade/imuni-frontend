@@ -572,6 +572,19 @@ module.exports = app => {
             // TODO INSERE ATENDIMENTOS VIA BATCH
             console.log('INSERE ATENDIMENTOS VIA BATCH');
             await app.server.service.v2.atendimentoService.bulkUpdateOne(atendimentosArray);
+
+            for(let i = 0; i< atendimentosArray.length; i++) {
+                // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
+                const estatisticas = {
+                    ultimoAtendimento: {
+                        timestamp: atendimentosArray[i].timestamp,
+                        efetuado: atendimentosArray[i].atendeu,
+                    },
+                };
+                estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentosArray[i].idosoId);
+                estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentosArray[i].idosoId);
+                await app.server.service.v2.idosoService.upsertEstatisticas(atendimentosArray[i].idosoId, estatisticas);
+            }
         }
 
 
