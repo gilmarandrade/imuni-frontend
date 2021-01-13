@@ -265,6 +265,9 @@ module.exports = app => {
 
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
+
+        const usuariosArray = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
+        // console.log('usuariosArray', usuariosArray)
         // const respostasArray = [];
         for(let i = 0; i < rows.length; i++) {
 
@@ -277,19 +280,22 @@ module.exports = app => {
             }
                 
             // encontra o id do vigilante, se não existir cria um novo vigilante
-            // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio? Mas aí teria que ter um upsertOne de vgilante... Ou seria só adicionar cada novo vigilante num array
-            const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
+            // const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
+            const vig = usuariosArray.find(usuario => usuario.name == rows[i][1].trim());
             let vigilanteId = vig ? vig._id.toString() : null;
             if(!vigilanteId) {
-                vigilanteId = await app.server.service.v2.usuarioService.insertOne({
+                const novoVigilante = {
                     name: rows[i][1].trim(),
                     role: 'VIGILANTE',
                     unidadeId: unidade._id,
                     status: 'INCOMPLETO',
                     _isDeleted: false,
-                });
+                };
+                vigilanteId = await app.server.service.v2.usuarioService.insertOne(novoVigilante);
+                novoVigilante._id = vigilanteId;
+                usuariosArray.push(novoVigilante);
                 console.error('ATENDIMENTO SEM VIGILANTE! ', rows[i], unidade._id, vig);
-            } 
+            }
 
             const atendimento = {
                 origin: 'IMPORTED',
