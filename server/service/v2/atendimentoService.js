@@ -214,7 +214,21 @@ module.exports = app => {
      * Insere um atendimento recebido através do google form
      */
     const insertFromGoogleForm = async (atendimento) => {
-        return await convertAtendimento(atendimento, null);
+        const atendimentoConvertido = await convertAtendimento(atendimento, null);
+
+        await app.server.service.v2.atendimentoService.insertOne(atendimentoConvertido);
+
+        const estatisticas = {
+            ultimoAtendimento: {
+                timestamp: atendimentoConvertido.timestamp,
+                efetuado: atendimentoConvertido.atendeu,
+            },
+        };
+        estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentoConvertido.idosoId);
+        estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentoConvertido.idosoId);
+        await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
+
+        return atendimentoConvertido;
     }
     
     /**
@@ -303,6 +317,8 @@ module.exports = app => {
     
         atendimento.escalas = app.server.service.v2.escalaService.calcularEscalas(criterios, atendimento.timestamp);
     
+        return atendimento;
+
         // TODO para otimizar, talvez a inserção dos atendimentos possa ser feita em batch (mas aí vai ter problemas pra pegar a epidemiologia!)
         await app.server.service.v2.atendimentoService.insertOne(atendimento);
         
