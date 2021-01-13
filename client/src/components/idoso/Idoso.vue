@@ -8,7 +8,7 @@
         </h1>
 
         <div class="badges" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
-                <popper v-if="idoso.estatisticas.ultimaEscala.vulnerabilidade"
+                <popper v-if="idoso.estatisticas.ultimaEscala.escalas.vulnerabilidade"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -18,10 +18,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.estatisticas.ultimaEscala.vulnerabilidade" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.vulnerabilidade" />
                 </span>
             </popper>
-            <popper v-if="idoso.estatisticas.ultimaEscala.epidemiologica"
+            <popper v-if="idoso.estatisticas.ultimaEscala.escalas.epidemiologica"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -31,10 +31,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.estatisticas.ultimaEscala.epidemiologica" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.epidemiologica" />
                 </span>
             </popper>
-            <popper v-if="idoso.estatisticas.ultimaEscala.riscoContagio"
+            <popper v-if="idoso.estatisticas.ultimaEscala.escalas.riscoContagio"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -44,10 +44,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.estatisticas.ultimaEscala.riscoContagio" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.riscoContagio" />
                 </span>
             </popper>
-            <small class="text-muted ml-2">Score {{ idoso.estatisticas.ultimaEscala.scoreOrdenacao }}</small>
+            <small class="text-muted ml-2">Score {{ idoso.estatisticas.ultimaEscala.escalas.scoreOrdenacao }}</small>
         </div>
         
         <div class="row mt-4">
@@ -85,14 +85,14 @@
                             </div>
 
                             <span slot="reference">
-                                {{ idoso.estatisticas ? idoso.estatisticas.count.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.estatisticas ? idoso.estatisticas.count.qtdTotal : 0) }}
+                                {{ idoso.estatisticas ? idoso.estatisticas.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.estatisticas ? idoso.estatisticas.qtdTotal : 0) }}
                             </span>
                         </popper>
                     </span>
                 </div>
                 <div>
                     <strong>Último atendimento:</strong>
-                    <span class="statusUltimoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimoAtendimento" :class="{ 'atendido' : idoso.estatisticas.ultimoAtendimento.efetuado }">
+                    <span class="statusUltimoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimoAtendimento" :class="{ 'atendido' : idoso.estatisticas.ultimoAtendimento.atendeu }">
                         <popper
                             trigger="hover"
                             :options="{
@@ -101,15 +101,15 @@
                             }">
                             <div class="popper">
                                 Último atendimento: 
-                                <span v-if="idoso.estatisticas.ultimoAtendimento.efetuado">Ligação atendida</span>
-                                <span v-if="!idoso.estatisticas.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                                <span v-if="idoso.estatisticas.ultimoAtendimento.atendeu">Ligação atendida</span>
+                                <span v-if="!idoso.estatisticas.ultimoAtendimento.atendeu">Não atendeu a ligação</span>
                             </div>
 
                             <span slot="reference">
-                                <span v-show="idoso.estatisticas.ultimoAtendimento.efetuado">
+                                <span v-show="idoso.estatisticas.ultimoAtendimento.atendeu">
                                     <font-awesome-icon :icon="['far', 'check-circle']"  />
                                 </span>
-                                <span v-show="!idoso.estatisticas.ultimoAtendimento.efetuado">
+                                <span v-show="!idoso.estatisticas.ultimoAtendimento.atendeu">
                                     <font-awesome-icon :icon="['far', 'times-circle']" />
                                 </span>
                                 {{ formatDate(idoso.estatisticas.ultimoAtendimento.timestamp) }}
@@ -148,7 +148,7 @@
                             </div>
 
                             <span slot="reference">
-                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.estatisticas.ultimaEscala.dataProximoAtendimento) }}
+                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.estatisticas.ultimaEscala.escalas.dataProximoAtendimento) }}
                             </span>
                         </popper>
                     </span>

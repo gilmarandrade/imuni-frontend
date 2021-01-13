@@ -24,7 +24,7 @@
                     <router-link :to="'/unidades/'+data.item.unidadeId+'/idosos/'+ data.item._id">{{ data.item.nome }}</router-link>
                 </div>
                 <div class="badges" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala">
-                     <popper v-if="data.item.estatisticas.ultimaEscala.vulnerabilidade"
+                     <popper v-if="data.item.estatisticas.ultimaEscala.escalas.vulnerabilidade"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -34,10 +34,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.estatisticas.ultimaEscala.vulnerabilidade" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.escalas.vulnerabilidade" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.estatisticas.ultimaEscala.epidemiologica"
+                    <popper v-if="data.item.estatisticas.ultimaEscala.escalas.epidemiologica"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -47,10 +47,10 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.estatisticas.ultimaEscala.epidemiologica" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.escalas.epidemiologica" />
                         </span>
                     </popper>
-                    <popper v-if="data.item.estatisticas.ultimaEscala.riscoContagio"
+                    <popper v-if="data.item.estatisticas.ultimaEscala.escalas.riscoContagio"
                         trigger="hover"
                         :options="{
                             placement: 'top'
@@ -60,7 +60,7 @@
                         </div>
 
                         <span slot="reference">
-                            <Badge :value="data.item.estatisticas.ultimaEscala.riscoContagio" />
+                            <Badge :value="data.item.estatisticas.ultimaEscala.escalas.riscoContagio" />
                         </span>
                     </popper>
                 </div>
@@ -81,12 +81,12 @@
                                     </div>
 
                                     <span slot="reference">
-                                        <font-awesome-icon :icon="['fas', 'headset']"  /> {{ data.item.estatisticas ? data.item.estatisticas.count.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.estatisticas ? data.item.estatisticas.count.qtdTotal : 0) }}
+                                        <font-awesome-icon :icon="['fas', 'headset']"  /> {{ data.item.estatisticas ? data.item.estatisticas.qtdAtendimentosEfetuados : 0 }}/{{ (data.item.estatisticas ? data.item.estatisticas.qtdTotal : 0) }}
                                     </span>
                                 </popper>
                             </span>
 
-                            <span class="statusUltimoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimoAtendimento" :class="{ 'atendido' : data.item.estatisticas.ultimoAtendimento.efetuado }">
+                            <span class="statusUltimoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimoAtendimento" :class="{ 'atendido' : data.item.estatisticas.ultimoAtendimento.atendeu }">
                                 <popper
                                     trigger="hover"
                                     :options="{
@@ -95,15 +95,15 @@
                                     }">
                                     <div class="popper">
                                     Último atendimento: 
-                                        <span v-if="data.item.estatisticas.ultimoAtendimento.efetuado">Ligação atendida</span>
-                                        <span v-if="!data.item.estatisticas.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
+                                        <span v-if="data.item.estatisticas.ultimoAtendimento.atendeu">Ligação atendida</span>
+                                        <span v-if="!data.item.estatisticas.ultimoAtendimento.atendeu">Não atendeu a ligação</span>
                                     </div>
 
                                     <span slot="reference">
-                                        <span v-show="data.item.estatisticas.ultimoAtendimento.efetuado">
+                                        <span v-show="data.item.estatisticas.ultimoAtendimento.atendeu">
                                             <font-awesome-icon :icon="['far', 'check-circle']"  />
                                         </span>
-                                        <span v-show="!data.item.estatisticas.ultimoAtendimento.efetuado">
+                                        <span v-show="!data.item.estatisticas.ultimoAtendimento.atendeu">
                                             <font-awesome-icon :icon="['far', 'times-circle']" />
                                         </span>
                                         {{ formatDate(data.item.estatisticas.ultimoAtendimento.timestamp) }}
@@ -128,7 +128,7 @@
                                 </popper>
                             </span>
 
-                            <span class="dataProximoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala && data.item.estatisticas.ultimaEscala.dataProximoAtendimento">
+                            <span class="dataProximoAtendimento" v-if="data.item.estatisticas && data.item.estatisticas.ultimaEscala && data.item.estatisticas.ultimaEscala.escalas.dataProximoAtendimento">
                                 <popper
                                     trigger="hover"
                                     :options="{
@@ -140,7 +140,7 @@
                                     </div>
 
                                     <span slot="reference">
-                                        <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(data.item.estatisticas.ultimaEscala.dataProximoAtendimento) }}
+                                        <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(data.item.estatisticas.ultimaEscala.escalas.dataProximoAtendimento) }}
                                     </span>
                                 </popper>
                             </span>
@@ -247,7 +247,7 @@ export default {
             tablePagination: [],
             idosos: [],
             fields: [ 
-                { key: 'estatisticas.ultimaEscala.scoreOrdenacao', label: 'Score' },
+                { key: 'estatisticas.ultimaEscala.escalas.scoreOrdenacao', label: 'Score' },
                 { key: 'col-1', label: 'Idoso' },
                 { key: 'col-2', label: ' ' },
             ],

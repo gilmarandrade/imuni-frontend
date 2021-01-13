@@ -16,7 +16,7 @@ export function showError(e) {
 }
 
 export function novoAtendimentoURL(idoso, user) {
-    return `/unidades/${idoso.unidadeId}/cadastrarAtendimento?idIdoso=${idoso._id}&idVigilante=${user.id}&idUnidade=${idoso.unidadeId}&nomeIdoso=${idoso.nome}&tipoAtendimento=${idoso.estatisticas && idoso.estatisticas.count.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`;
+    return `/unidades/${idoso.unidadeId}/cadastrarAtendimento?idIdoso=${idoso._id}&idVigilante=${user.id}&idUnidade=${idoso.unidadeId}&nomeIdoso=${idoso.nome}&tipoAtendimento=${idoso.estatisticas && idoso.estatisticas.qtdAtendimentosEfetuados > 0 ? 'Acompanhamento' : 'Primeiro atendimento'}`;
 }
 
 export function googleFormIframeURL(idIdoso, idVigilante, idUnidade, tipoAtendimento) {

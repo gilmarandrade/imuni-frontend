@@ -48,6 +48,7 @@ module.exports = app => {
      * @param {*} unidadeId 
      */
     const findAtivosByUnidadeId = async (unidadeId) => {
+        console.log(unidadeId)
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -192,7 +193,7 @@ module.exports = app => {
      * @param {*}  
      */
     const upsertEstatisticas = async (idIdoso, estatisticas) => {
-        console.log('upsertEstatisticas ', idIdoso, estatisticas)
+        // console.log('upsertEstatisticas ', idIdoso, estatisticas)
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -248,10 +249,10 @@ module.exports = app => {
         // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
         switch(filter) {
             case 'com-escalas':
-                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), 'estatisticas.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
                 break;
             case 'sem-escalas':
-                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), $or: [ { 'estatisticas.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
                 break;
             case 'all':
             default:
@@ -342,10 +343,10 @@ module.exports = app => {
         // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
         switch(filter) {
             case 'com-escalas':
-                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), 'estatisticas.count.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), 'estatisticas.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
                 break;
             case 'sem-escalas':
-                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), $or: [ { 'estatisticas.count.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.count.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), $or: [ { 'estatisticas.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
                 break;
             case 'all':
             default:

@@ -87,7 +87,7 @@ module.exports = app => {
                 
             }
 
-            const countAtendimentos = await app.server.service.v2.atendimentoService.count(unidade.collectionPrefix);
+            const countAtendimentos = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(unidade.collectionPrefix);
             await syncAtendimentos(unidade, countAtendimentos);
 
             console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
@@ -231,9 +231,7 @@ module.exports = app => {
             await app.server.service.v2.idosoService.bulkUpdateOne(idososPorVigilantes);
         } else {
             console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found!`);
-        }
-                
-                
+        }       
         
         // // unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
         // //atualiza lista de vigilantes da unidade
@@ -566,25 +564,23 @@ module.exports = app => {
         
         }
 
-        console.log('atendimentosArray ', atendimentosArray.length);
+        // console.log('atendimentosArray ', atendimentosArray.length);
 
         if(atendimentosArray.length > 0) {
             // TODO INSERE ATENDIMENTOS VIA BATCH
-            console.log('INSERE ATENDIMENTOS VIA BATCH');
+            // console.log('INSERE ATENDIMENTOS VIA BATCH');
             await app.server.service.v2.atendimentoService.bulkUpdateOne(atendimentosArray);
 
-            for(let i = 0; i< atendimentosArray.length; i++) {
-                // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
-                const estatisticas = {
-                    ultimoAtendimento: {
-                        timestamp: atendimentosArray[i].timestamp,
-                        efetuado: atendimentosArray[i].atendeu,
-                    },
-                };
-                estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentosArray[i].idosoId);
-                estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentosArray[i].idosoId);
-                await app.server.service.v2.idosoService.upsertEstatisticas(atendimentosArray[i].idosoId, estatisticas);
+            const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
+
+            // console.log('idososArray ', idososArray.length);
+            for(let i = 0; i < idososArray.length; i++) {
+                const stats = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(idososArray[i]._id);
+                // console.log(idososArray[i]._id, ' ', idososArray[i].nome, ' stats ', stats.total);
+                // TODO batch update!
+                await app.server.service.v2.idosoService.upsertEstatisticas(idososArray[i]._id, stats);
             }
+
         }
 
 

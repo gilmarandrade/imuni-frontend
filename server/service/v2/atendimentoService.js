@@ -119,10 +119,11 @@ module.exports = app => {
 
     /**
      * Conta a quantidade total de atendimentos (soma das ligações atendidas e não atendidas) de um idoso e também a quantidade de atendimentos efetuados.
+     * E retorna também as escalas do ultimo atendimento efetuado
      * @param {*} idosoId
      * @returns { atendimentosEfetuados: x, total: x }
      */
-    const count = async (idosoId) => {
+    const getEstatisticasByIdoso = async (idosoId) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
@@ -133,23 +134,29 @@ module.exports = app => {
 
                 collection.aggregate([
                     { $match: { "idosoId": ObjectId(idosoId), _isDeleted: false } },
+                    { $sort: { "timestamp" : -1 } },
                     {
                         $facet: {
+                            "ultimoAtendimento": [
+                                { $limit: 1 },
+                                { $project: { "timestamp": 1, "atendeu": 1 } },
+                            ],
+                            "ultimaEscala": [
+                                { $match: { "atendeu": true, } },
+                                { $limit: 1 },
+                                { $project: { "timestamp": 1, "escalas": 1 } },
+                            ],
                             "atendimentosEfetuados" : [ 
-                                {
-                                    $match: { "atendeu": true },
-                                },
-                                {
-                                    $count: "count"
-                                }
+                                { $match: { "atendeu": true }, },
+                                { $count: "count" },
                             ],
                             "total" : [ 
-                                {
-                                    $count: "count"
-                                }
+                                { $count: "count" },
                             ],
                         }
                     },
+                    { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+                    { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
                     { $unwind: { path: "$atendimentosEfetuados", preserveNullAndEmptyArrays: true } },
                     { $unwind: { path: "$total", preserveNullAndEmptyArrays: true } },
                 ]).toArray(function(err, result) {
@@ -158,12 +165,14 @@ module.exports = app => {
                     } else {
                         // console.log(result ? { atendimentosEfetuados: result[0].atendimentosEfetuados.count, total: result[0].total.count } : null);
                         // TODO VERIFICAR O QUE ACONTECE QUANDO O ARRAY ESTÁ VAZIO
-                        // console.log(result)
                         const stats = {};
                         if(result.length > 0) {
+                            stats.ultimoAtendimento = result[0].ultimoAtendimento ? result[0].ultimoAtendimento : null;
+                            stats.ultimaEscala = result[0].ultimaEscala ? result[0].ultimaEscala : null;
                             stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
                             stats.qtdTotal = result[0].total ? result[0].total.count : 0;
                         }
+                        // console.log('stat ',stats)
                         resolve(stats);
                     }
                 });
@@ -210,6 +219,62 @@ module.exports = app => {
         return promise;
     }
 
+    // const findEstatisticasByUnidade = async (unidadeId, idosoId) => {
+
+    //     const promise = new Promise( (resolve, reject) => {
+    //         var MongoClient = require( 'mongodb' ).MongoClient;
+    //         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //             if(err) return reject(err);
+    //             const db = client.db(dbName);
+    //             const collection = db.collection(collectionName);
+      
+    //             collection.aggregate([
+    //                 { $match: { unidadeId: ObjectId(unidadeId), idosoId: ObjectId(idosoId), _isDeleted: false, } },
+    //                 { $sort: { timestamp : -1 } },
+    //                 {
+    //                     $facet: {
+    //                         "ultimoAtendimento": [
+    //                             { $match: { "atendeu": true, } },
+    //                             { $limit: 1 },
+    //                             { $project: { "timestamp": 1, "escalas": 1 } },
+    //                         ],
+    //                         "atendimentosEfetuados": [
+    //                             { $match: { "atendeu": true } },
+    //                             { $count: "count" },
+    //                         ],
+    //                         "total" : [ 
+    //                             { $count: "count" },
+    //                         ],
+    //                     }
+                        
+    //                 }
+    //                 // { $group: { _id: '$idosoId', totalRows: { $sum: 1 } } },
+
+    //                 // { $skip : rowsPerPage * page },
+    //                 // { $limit : rowsPerPage },
+    //             ]).toArray(function(err, result) {
+    //                 if(err) {
+    //                     reject(err);
+    //                 } else {
+    //                     // console.log(result);
+    //                     // resolve({
+    //                     //     data : result,
+    //                     //     info: {
+    //                     //         totalRows: result.length,
+    //                     //         currentPage: page,
+    //                     //         rowsPerPage: rowsPerPage
+    //                     //     }
+    //                     // });
+    //                     resolve(result);
+    //                 }
+    //             });
+    //         });
+    
+    //     });
+    
+    //     return promise;
+    // }
+
     /**
      * Insere um atendimento recebido através do google form
      */
@@ -218,14 +283,14 @@ module.exports = app => {
 
         await app.server.service.v2.atendimentoService.insertOne(atendimentoConvertido);
 
-        const estatisticas = {
-            ultimoAtendimento: {
-                timestamp: atendimentoConvertido.timestamp,
-                efetuado: atendimentoConvertido.atendeu,
-            },
-        };
-        estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentoConvertido.idosoId);
-        estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimentoConvertido.idosoId);
+        // const estatisticas = {
+        //     ultimoAtendimento: {
+        //         timestamp: atendimentoConvertido.timestamp,
+        //         efetuado: atendimentoConvertido.atendeu,
+        //     },
+        // };
+        // estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimentoConvertido.idosoId);
+        const estatisticas = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(atendimentoConvertido.idosoId);
         await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
 
         return atendimentoConvertido;
@@ -237,7 +302,6 @@ module.exports = app => {
     const importFromPlanilhaUnidade = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
         const atendimentoConvertido = await convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
         // console.log('atendimentoConvertido ', atendimentoConvertido.idosoId)
-
         return atendimentoConvertido;
     }
 
@@ -405,5 +469,5 @@ module.exports = app => {
 
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne };
+   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne };
 }
