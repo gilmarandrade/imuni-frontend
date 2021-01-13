@@ -284,9 +284,10 @@ module.exports = app => {
     
         atendimento.escalas = app.server.service.v2.escalaService.calcularEscalas(criterios, atendimento.timestamp);
     
+        // TODO para otimizar, talvez a inserção dos atendimentos possa ser feita em batch (mas aí vai ter problemas pra pegar a epidemiologia!)
         await app.server.service.v2.atendimentoService.insertOne(atendimento);
         
-        // TODO atualizar idoso com estatisticas
+        // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
         const estatisticas = {
             // qtdAtendimentosEfetuados: null,
             // qtdTotal: null,

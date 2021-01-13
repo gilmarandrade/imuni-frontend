@@ -157,8 +157,8 @@ module.exports = app => {
         // console.log('get nome vigilante')
         const firstIndex = 2;
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}`);
+        const usuariosDaUnidade = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
         if(rows.length && rows[0].length) {
-            const usuariosDaUnidade = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
 
             // console.log('usuariosDaUnidade', usuariosDaUnidade)
             const jaExiste = usuariosDaUnidade.find(usuario => {return usuario.unidadeId == unidade._id.toString() && usuario.name == rows[0][0].trim() && usuario.role == 'VIGILANTE'});
@@ -189,12 +189,12 @@ module.exports = app => {
         const lastIndexSynced = total && (total - 10 >= 1) ? total - 10 : 1;// coloca uma margem de segurança, para atualizar os 10 ultimos 
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
-        let vigilanteNome = '';
+        // let vigilanteNome = '';
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
         const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
         rows.forEach((item, index) => {
             if(item[1]) {//se o idoso tem nome
-                vigilanteNome = item[0];
+                // vigilanteNome = item[0];
                 idososPorVigilantes.push({
                     // row: `${unidade.collectionPrefix}-'${sheetName}'!A${firstIndex + index}:N${firstIndex + index}`,
                     dataNascimento: '',
@@ -269,6 +269,7 @@ module.exports = app => {
         for(let i = 0; i < rows.length; i++) {
 
             // encontra o id do idoso
+             // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio?  Pegando um grande array contendo todos os idosos?!
             const idos = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
             const idosoId = idos ? idos._id.toString() : null;
             if(!idosoId) {
@@ -276,6 +277,7 @@ module.exports = app => {
             }
                 
             // encontra o id do vigilante, se não existir cria um novo vigilante
+            // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio? Mas aí teria que ter um upsertOne de vgilante... Ou seria só adicionar cada novo vigilante num array
             const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
             let vigilanteId = vig ? vig._id.toString() : null;
             if(!vigilanteId) {

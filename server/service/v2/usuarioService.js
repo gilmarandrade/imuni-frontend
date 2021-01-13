@@ -10,7 +10,7 @@ module.exports = app => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
             MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
+                if(err) return reject(err);//{"name":"MongoNetworkError"}
                    
                 resolve('deu certo');
             });
