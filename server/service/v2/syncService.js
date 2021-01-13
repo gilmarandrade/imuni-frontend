@@ -277,8 +277,7 @@ module.exports = app => {
             const idosoId = idos ? idos._id.toString() : null;
             if(!idosoId) {
                 console.error('ATENDIMENTO SEM IDOSO! ', rows[i], unidade._id, idos)
-            }
-                
+            }  
             // encontra o id do vigilante, se não existir cria um novo vigilante
             // const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
             const vig = usuariosArray.find(usuario => usuario.name == rows[i][1].trim());
@@ -561,7 +560,7 @@ module.exports = app => {
             // // escalas // TODO
         
             // respostasArray.push(resp);
-            await app.server.service.v2.atendimentoService.convertAtendimento(atendimento);
+            await app.server.service.v2.atendimentoService.convertAtendimento(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
         
         }
 

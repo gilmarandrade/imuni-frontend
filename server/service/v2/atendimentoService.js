@@ -210,7 +210,7 @@ module.exports = app => {
         return promise;
     }
 
-    const convertAtendimento = async (atendimento) => {
+    const convertAtendimento = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
         atendimento.idosoId = app.server.service.v2.questionarioService.extractResponse('S01','Q01', atendimento.raw);
         atendimento.vigilanteId = app.server.service.v2.questionarioService.extractResponse('S01','Q02', atendimento.raw);
         atendimento.unidadeId = app.server.service.v2.questionarioService.extractResponse('S01','Q03', atendimento.raw);
@@ -251,7 +251,9 @@ module.exports = app => {
     
         // TODO trasnformar essas strings hardcoded em constantes
         if(atendimento.tipo == 'Primeiro atendimento') {
-            // await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, atendimento.raw['S08']);
+            // insere temporariamente a epidemiologia na collection do idoso
+            await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, { 'S08': atendimento.raw['S08']});
+            // console.log(rest);
             
             criterios.epidemiologia = {
                 isolamento: {
@@ -263,7 +265,10 @@ module.exports = app => {
             };
         } else {// acompanhamento
             // copia a epidemilogia do primeiro atendimento
-            const epidemiologiaRaw = await app.server.service.v2.atendimentoService.getEpidemiologia(atendimento.idosoId);
+            let epidemiologiaRaw = epidemiologiaIdoso;
+            if(!epidemiologiaRaw) { // se não recebeu a epidemiologia como parametro, busca no primeiro atendimento do idoso
+                epidemiologiaRaw = await app.server.service.v2.atendimentoService.getEpidemiologia(atendimento.idosoId);
+            }
             // console.log('epidemiologiaRaw', epidemiologiaRaw)
             if(epidemiologiaRaw && epidemiologiaRaw['S08']) {
                 atendimento.raw['S08'] = epidemiologiaRaw['S08'];

@@ -157,35 +157,35 @@ module.exports = app => {
     }
 
 
-    // /**
-    //  * Insere ou atualiza a Epidemiologia de um idoso
-    //  * @param {*} epidemiologia 
-    //  */
-    // const upsertEpidemiologia = async (idIdoso, epidemiologia) => {
-    //     const promise = new Promise( (resolve, reject) => {
-    //         var MongoClient = require( 'mongodb' ).MongoClient;
-    //         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-    //             if(err) return reject(err);
-    //             const db = client.db(dbName);
-    //             const collection = db.collection(collectionName);
+    /**
+     * Insere ou atualiza a Epidemiologia de um idoso
+     * @param {*} epidemiologia 
+     */
+    const upsertEpidemiologia = async (idIdoso, epidemiologia) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
 
-    //             collection.updateOne({ _id: ObjectId(idIdoso) }, {
-    //                 $set: { 
-    //                     epidemiologia
-    //                 }
-    //             }, { upsert: true }, function(err, result) {
-    //                 if(err) {
-    //                     reject(err);
-    //                 } else {
-    //                     resolve(result.upsertedId === null ? idIdoso : result.upsertedId._id);
-    //                 }
-    //             });
-    //         });
+                collection.updateOne({ _id: ObjectId(idIdoso) }, {
+                    $set: { 
+                        epidemiologia
+                    }
+                }, { upsert: true }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result.upsertedId === null ? idIdoso : result.upsertedId._id);
+                    }
+                });
+            });
 
-    //     });
+        });
 
-    //     return promise;
-    // }
+        return promise;
+    }
 
     /**
      * Insere ou atualiza as Estatisticas de um idoso
@@ -478,5 +478,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, findAllByUser, bulkUpdateOne, getByNome };
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, findAllByUser, bulkUpdateOne, getByNome, upsertEpidemiologia };
 }
