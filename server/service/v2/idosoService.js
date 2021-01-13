@@ -219,6 +219,46 @@ module.exports = app => {
         return promise;
     }
 
+    const bulkUpdateEstatisticas = async (idososArray) => {
+
+        const addToBatch = (batch, item) => {
+            batch.find({ _id: ObjectId(item._id) }).updateOne({
+                $set: { 
+                    estatisticas: item.estatisticas,
+                }
+            });
+        };
+        // console.log(idosoAtendimento);
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+    
+                // Initialize the unordered Batch
+                const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+                for(let i = 0; i < idososArray.length; i++) {
+                    // console.log(idososArray[i], ' update estatisticas')
+                    addToBatch(batch, idososArray[i]);
+                };
+    
+                // Execute the operations
+                batch.execute(function(err, result) {
+                    // console.log(result)
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result.ok);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
     const findAllByUser = async (unidadeId, usuarioId, filter, sort, page, rowsPerPage) => {
         console.log(unidadeId, usuarioId, filter, sort, page, rowsPerPage)
 
@@ -480,5 +520,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, findAllByUser, bulkUpdateOne, getByNome, upsertEpidemiologia };
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, bulkUpdateOne, getByNome, upsertEpidemiologia };
 }

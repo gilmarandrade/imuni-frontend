@@ -546,19 +546,6 @@ module.exports = app => {
             atendimento.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
             atendimento.responseId = '';
                 
-            // atendimento.idosoId = idosoId;
-            // atendimento.vigilanteId = vigilanteId;
-            // atendimento.unidadeId = unidade._id; // TODO ao importar uma unidade, o nome deve ser extraido da planilha? se não não será possível encontrar o id da unidade?
-            // atendimento.atendeu = rows[i][3] === 'Sim';
-            // atendimento.fonte = rows[i][5];
-            // atendimento.tipo = rows[i][14];
-            // atendimento.idadeIdoso = rows[i][4] === undefined ? null : +rows[i][4];
-            // atendimento.duracaoChamada = rows[i][34];
-            // atendimento._isDeleted = false;
-            // // criterios // TODO
-            // // escalas // TODO
-        
-            // respostasArray.push(resp);
             const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
             atendimentosArray.push(aten);
         
@@ -575,38 +562,13 @@ module.exports = app => {
 
             // console.log('idososArray ', idososArray.length);
             for(let i = 0; i < idososArray.length; i++) {
-                const stats = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(idososArray[i]._id);
-                // console.log(idososArray[i]._id, ' ', idososArray[i].nome, ' stats ', stats.total);
-                // TODO batch update!
-                await app.server.service.v2.idosoService.upsertEstatisticas(idososArray[i]._id, stats);
+                idososArray[i].estatisticas = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(idososArray[i]._id);
             }
+            await app.server.service.v2.idosoService.bulkUpdateEstatisticas(idososArray);
 
         }
 
-
         console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
-            
-        //     // let i = null;
-        //     // for(; i < atendimentosArray.length; i++) {
-        //     //     const resultUpsert = await app.server.service.v2.atendimentoService.replaceOne(unidade.collectionPrefix, atendimentosArray[i]);
-        //     // }
-        //     await app.server.service.v2.atendimentoService.bulkReplaceOne(unidade.collectionPrefix, atendimentosArray);
-        //     console.log(`[Sync] atendimentosCollection updated`);
-
-        //     await app.server.service.v2.atendimentoService.aggregateEscalas(unidade.collectionPrefix);
-        //     console.log(`[Sync] ultimasEscalasCollection updated`);
-
-        //     await app.server.service.v2.atendimentoService.aggregateUltimosAtendimentos(unidade.collectionPrefix);
-        //     console.log(`[Sync] ultimosAtendimentosCollection updated`);
-
-        //     // unidade.sync[0].indexed = indexRespostas;
-        //     unidade.lastSyncDate = new Date();
-        //     await app.server.service.v2.unidadeService.replaceOne(unidade);
-        // } else {
-        //     console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found`);
-        //     unidade.lastSyncDate = new Date();
-        //     await app.server.service.v2.unidadeService.replaceOne(unidade);
-        // }
     }
 
     return { fullSyncUnidade, resetUnidade, partialSyncUnidade }
