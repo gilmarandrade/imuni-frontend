@@ -210,6 +210,20 @@ module.exports = app => {
         return promise;
     }
 
+    /**
+     * Insere um atendimento recebido através do google form
+     */
+    const insertFromGoogleForm = async (atendimento) => {
+        return await convertAtendimento(atendimento, null);
+    }
+    
+    /**
+     * Insere um atendimento importado a partir da planilha da unidade
+     */
+    const importFromPlanilhaUnidade = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
+        return await convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
+    }
+
     const convertAtendimento = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
         atendimento.idosoId = app.server.service.v2.questionarioService.extractResponse('S01','Q01', atendimento.raw);
         atendimento.vigilanteId = app.server.service.v2.questionarioService.extractResponse('S01','Q02', atendimento.raw);
@@ -294,24 +308,13 @@ module.exports = app => {
         
         // TODO para otimizar, talvez a atualização das estatisticas possa ser feita depois, por idoso, e não por atendimento, e usando um batch
         const estatisticas = {
-            // qtdAtendimentosEfetuados: null,
-            // qtdTotal: null,
             ultimoAtendimento: {
                 timestamp: atendimento.timestamp,
                 efetuado: atendimento.atendeu,
             },
-            // ultimaEscala: {
-            //     timestamp: null,
-            //     scoreOrdenacao: null,
-            //     vulnerabilidade: null,
-            //     epidemiologica: null,
-            //     riscoContagio: null,
-            //     dataProximoAtendimento: null,
-            // },
         };
         estatisticas.ultimaEscala = await app.server.service.v2.atendimentoService.getEscalas(atendimento.idosoId);
         estatisticas.count = await app.server.service.v2.atendimentoService.count(atendimento.idosoId);
-        // console.log(estatisticas)
         await app.server.service.v2.idosoService.upsertEstatisticas(atendimento.idosoId, estatisticas);
  
     }
@@ -345,5 +348,5 @@ module.exports = app => {
 
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, convertAtendimento, deleteImportedByUnidade };
+   return { insertOne, findById, getEpidemiologia, getEscalas, count, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade };
 }

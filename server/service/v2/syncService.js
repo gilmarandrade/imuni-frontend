@@ -560,7 +560,7 @@ module.exports = app => {
             // // escalas // TODO
         
             // respostasArray.push(resp);
-            await app.server.service.v2.atendimentoService.convertAtendimento(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
         
         }
 

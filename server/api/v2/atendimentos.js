@@ -31,7 +31,7 @@ module.exports = app => {
                 // console.log(atendimento.raw);
                 delete atendimento.responses;
 
-                await app.server.service.v2.atendimentoService.convertAtendimento(atendimento);
+                await app.server.service.v2.atendimentoService.insertFromGoogleForm(atendimento);
 
                 return res.status(200).json(atendimento);
             }
