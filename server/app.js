@@ -11,7 +11,7 @@ consign()
   .then('/server/service')
   .then('/server/api/validation.js')
   .then('/server/api')
-  .then('/server/schedule')
+  // .then('/server/schedule')
   .then('/server/config/routes.js')
   .into(app);
 

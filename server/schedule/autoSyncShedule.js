@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 const schedule = require('node-schedule');
 const unidadeService = require('../service/unidadeService');
 const syncService = require('../service/syncService');

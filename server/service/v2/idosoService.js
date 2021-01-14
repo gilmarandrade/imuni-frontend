@@ -265,7 +265,7 @@ module.exports = app => {
         const user = await app.server.service.v2.usuarioService.findById(usuarioId);
         // console.log('find all by user')
         if(user) {
-            console.log(user)
+            // console.log(user)
             switch(user.role) {
                 case 'VIGILANTE':
                     console.log('role vigilante')
@@ -450,7 +450,7 @@ module.exports = app => {
                     if(err) {
                         reject(err);
                     } else {
-                        console.log(result[0]);
+                        // console.log(result[0]);
                         // resolve({
                         //     data : result,
                         //     info: {
