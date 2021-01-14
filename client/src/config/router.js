@@ -12,7 +12,7 @@ import Unidade from '@/components/administrador/Unidade'
 import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
 import MigrarUnidade from '@/components/administrador/MigrarUnidade'
 import ConvidarUsuario from '@/components/administrador/ConvidarUsuario'
-import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
+import IdososPorUsuario from '@/components/administrador/IdososPorUsuario'
 import Auth from '@/components/auth/Auth'
 import ForgotPassword from '@/components/auth/ForgotPassword'
 import ResetPassword from '@/components/auth/ResetPassword'
@@ -68,7 +68,7 @@ const routes = [
     {
         name: 'idososPorUsuario',
         path: '/unidades/:unidadeId/usuarios/:usuarioId/idosos/:tab',
-        component: IdososPorVigilante,
+        component: IdososPorUsuario,
         meta: { requiresAdmin: true }
     },
     {

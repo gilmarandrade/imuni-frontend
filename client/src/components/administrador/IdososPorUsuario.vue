@@ -1,6 +1,6 @@
 <template>
 <!-- TODO Renomear componente para IdososPorUsuario-->
-    <div class="idososPorVigilante" v-if="unidade">
+    <div class="idososPorUsuario" v-if="unidade">
         <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos'}]" />
         <!-- <Breadcrumb :path="[{text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos', url: `/unidades/${unidade.nome}/${unidade._id}/usuarios/${$route.params.usuarioId}/${$route.params.nome}/com-escalas`}]" /> -->
 
@@ -32,7 +32,7 @@ import Breadcrumb from '@/components/includes/Breadcrumb';
 import { mapState } from 'vuex';
 
 export default {
-    name: 'IdososPorVigilante',
+    name: 'IdososPorUsuario',
     components: { TableIdosos, Breadcrumb },
     computed: mapState(['syncStatus']),
     data: function() {
@@ -87,13 +87,13 @@ export default {
 </script>
 
 <style>
-  .idososPorVigilante .sync-state {
+  .idososPorUsuario .sync-state {
     margin: 0;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.54);
   }
 
-  .idososPorVigilante .sync-state.ativo {
+  .idososPorUsuario .sync-state.ativo {
     color: #27AE60;
   }
 
@@ -101,48 +101,48 @@ export default {
         display: none;
     } */
 
-    .idososPorVigilante td:nth-child(1){
+    .idososPorUsuario td:nth-child(1){
         /* background: red; */
         width: 10%;
     }
-    .idososPorVigilante td:nth-child(2) {
+    .idososPorUsuario td:nth-child(2) {
         /* background: red; */
         width: 50%;
     }
 
-    .idososPorVigilante td:nth-child(3) {
+    .idososPorUsuario td:nth-child(3) {
         text-align: right;
         /* background: blue; */
         width: 40%;
     }
 
-    .idososPorVigilante .badges .badge {
+    .idososPorUsuario .badges .badge {
         margin-right: 8px;
     }
 
-    .idososPorVigilante .statusAtendimentos > span {
+    .idososPorUsuario .statusAtendimentos > span {
         margin-left: 15px;
     }
 
-    .idososPorVigilante .statusUltimoAtendimento {
+    .idososPorUsuario .statusUltimoAtendimento {
         /* background: red; */
         color: rgb(235, 87, 87);
     }
 
-    .idososPorVigilante .statusUltimoAtendimento.atendido {
+    .idososPorUsuario .statusUltimoAtendimento.atendido {
         color: rgb(39, 174, 96);
     }
 
-    .idososPorVigilante .statusUltimoAtendimento.atencao {
+    .idososPorUsuario .statusUltimoAtendimento.atencao {
         /* background: yellow; */
         color: rgb(235, 87, 87);
     }
 
-    .idososPorVigilante .dataProximoAtendimento {
+    .idososPorUsuario .dataProximoAtendimento {
         /* background: blue; */
     }
 
-    .idososPorVigilante .dataProximoAtendimento.atencao {
+    .idososPorUsuario .dataProximoAtendimento.atencao {
         color: rgb(235, 87, 87);
     }
 
