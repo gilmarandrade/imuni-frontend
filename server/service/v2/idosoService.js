@@ -311,13 +311,13 @@ module.exports = app => {
                 let querySort;
                 switch(sort) {
                     case 'score':
-                        querySort = { $sort : { 'estatisticas.ultimaEscala.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
+                        querySort = { $sort : { 'estatisticas.ultimaEscala.escalas.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
                     break;
                     case 'ultimo-atendimento':
                         querySort = { $sort: { 'estatisticas.ultimoAtendimento.timestamp': -1, nome: 1 } };//ultimo atendimento (tentativa) des
                         break;
                     case 'proximo-atendimento':
-                        querySort = { $sort: { 'estatisticas.ultimaEscala.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
+                        querySort = { $sort: { 'estatisticas.ultimaEscala.escalas.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
                         break;
                     case 'nome':
                     default:
@@ -405,13 +405,13 @@ module.exports = app => {
                 let querySort;
                 switch(sort) {
                     case 'score':
-                        querySort = { $sort : { 'estatisticas.ultimaEscala.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
+                        querySort = { $sort : { 'estatisticas.ultimaEscala.escalas.scoreOrdenacao': -1, nome: 1 } };//ultima escala descendente
                     break;
                     case 'ultimo-atendimento':
                         querySort = { $sort: { 'estatisticas.ultimoAtendimento.timestamp': -1, nome: 1 } };//ultimo atendimento (tentativa) des
                         break;
                     case 'proximo-atendimento':
-                        querySort = { $sort: { 'estatisticas.ultimaEscala.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
+                        querySort = { $sort: { 'estatisticas.ultimaEscala.escalas.dataProximoAtendimento': -1, nome: 1 } };//sugestão proximo atendimento desc
                         break;
                     case 'nome':
                     default:
