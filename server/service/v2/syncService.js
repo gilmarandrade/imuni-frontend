@@ -1,5 +1,5 @@
 // const { calcularEscalas } = require('../../config/helpers');
-const sheetsApi = require('../../config/sheetsApi');
+// const sheetsApi = require('../../config/sheetsApi');
 
 module.exports = app => {
 
@@ -129,7 +129,7 @@ module.exports = app => {
     const prepareDataToSync = async (unidade) => {
         const sheetsToSync = [];
         try {
-            const spreadSheetProperties = await sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
+            const spreadSheetProperties = await app.server.config.sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
 
             for(let i = 0; i < spreadSheetProperties.sheets.length; i++) {
                 const sheetName = spreadSheetProperties.sheets[i].properties.title;
@@ -156,7 +156,7 @@ module.exports = app => {
     const syncVigilante = async (unidade, sheetName) => {
         // console.log('get nome vigilante')
         const firstIndex = 2;
-        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}`);
+        const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}`);
         const usuariosDaUnidade = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
         if(rows.length && rows[0].length) {
 
@@ -191,7 +191,7 @@ module.exports = app => {
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
         // let vigilanteNome = '';
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
-        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
+        const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
         rows.forEach((item, index) => {
             if(item[1]) {//se o idoso tem nome
                 // vigilanteNome = item[0];
@@ -262,7 +262,7 @@ module.exports = app => {
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';
 
         console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
-        const rows = await sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
+        const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
 
         const usuariosArray = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
         // console.log('usuariosArray', usuariosArray)
