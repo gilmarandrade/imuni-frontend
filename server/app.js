@@ -5,6 +5,7 @@ const consign = require('consign');
 consign()
   .include('/server/config/passport.js')
   .then('/server/config/middlewares.js')
+  .then('/server/model')
   .then('/server/config/socket.js')
   .then('/server/config/mail.js')
   .then('/server/config/sheetsApi.js')

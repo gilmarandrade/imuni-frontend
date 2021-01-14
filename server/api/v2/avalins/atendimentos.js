@@ -1,4 +1,6 @@
 module.exports = app => {
+    const Instrumento = app.server.model.avalins.instrumento.Instrumento;
+
     const save = async (req, res) => {
 
         const atendimento = req.body;
@@ -46,6 +48,11 @@ module.exports = app => {
 
         try {
             const result = await app.server.service.v2.avalins.atendimentoService.findAll();
+
+            const teste  = new Instrumento('meu primeiro instrumento');
+            const teste2  = new Instrumento('meu segundo instrumento');
+            console.log(teste)
+            console.log(teste2)
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err.toString());
