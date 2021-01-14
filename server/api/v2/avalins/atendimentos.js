@@ -12,10 +12,6 @@ module.exports = app => {
         // }
 
         try {
-            // atendimento.timestamp = (new Date(atendimento.timestamp)).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
-            // console.log(atendimento);
-
-            
             if(atendimento && atendimento.responses) {
                 atendimento.origin = 'INSERTED';
                 atendimento.raw = {};
@@ -28,13 +24,18 @@ module.exports = app => {
                     atendimento.raw[item.question.substring(1,4)][item.question.substring(4,7)] = item;
                 });
 
-                // console.log(atendimento.raw);
-                delete atendimento.responses;
-                atendimento._isDeleted = false;
+                const instrumento = new Instrumento(atendimento.origin, atendimento.responseId, atendimento.timestamp, atendimento.authsecret, atendimento.raw);
 
-                await app.server.service.v2.avalins.atendimentoService.convertAtendimento(atendimento);
+                // delete atendimento.responses;
+                // atendimento._isDeleted = false;
 
-                return res.status(200).json(atendimento);
+                instrumento.calcularCriterios();
+                instrumento.calcularEscalas();
+                // console.log(instrumento.toJsonObject())
+                await app.server.service.v2.avalins.atendimentoService.insertOne(instrumento.toJsonObject());
+                // await app.server.service.v2.avalins.atendimentoService.convertAtendimento(instrumento);
+
+                return res.status(200).json(instrumento.toJsonObject());
             }
 
 
@@ -48,11 +49,6 @@ module.exports = app => {
 
         try {
             const result = await app.server.service.v2.avalins.atendimentoService.findAll();
-
-            const teste  = new Instrumento('meu primeiro instrumento');
-            const teste2  = new Instrumento('meu segundo instrumento');
-            console.log(teste)
-            console.log(teste2)
             return res.json(result);
         } catch(err) {
             return res.status(500).send(err.toString());

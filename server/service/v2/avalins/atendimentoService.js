@@ -132,28 +132,15 @@ module.exports = app => {
         return promise;
     }
 
-    const convertAtendimento = async (atendimento) => {
+    const convertAtendimento = async (instrumento) => {
 
-        const criterios = {
-            c1: extractPontos('S02','Q01', atendimento.raw),
-            c2: extractPontos('S02','Q02', atendimento.raw),
-            c3: extractPontos('S02','Q03', atendimento.raw),
-            c4: extractPontos('S02','Q04', atendimento.raw),
-            c5: extractPontos('S02','Q05', atendimento.raw),
-            c6: extractPontos('S02','Q06', atendimento.raw),
-            c7: extractPontos('S02','Q07', atendimento.raw),
-            c8: extractPontos('S02','Q08', atendimento.raw),
-            c9: extractPontos('S02','Q09', atendimento.raw),
-            c10: extractPontos('S02','Q10', atendimento.raw),
-            c11: extractPontos('S02','Q11', atendimento.raw),
-            c12: extractPontos('S02','Q12', atendimento.raw),
-            c13: extractPontos('S02','Q13', atendimento.raw),
-            c14: extractPontos('S02','Q14', atendimento.raw),
-        };
+        // instrumento.calcularCriterios();
+        // instrumento.calcularEscalas();
+        // console.log(instrumento.toJsonObject())
 
-        atendimento.criterios = criterios;
-        atendimento.escalas = calculaEscalas(atendimento.criterios);
-        await app.server.service.v2.avalins.atendimentoService.insertOne(atendimento);
+        // // atendimento.criterios = criterios;
+        // // atendimento.escalas = calculaEscalas(atendimento.criterios);
+        // await app.server.service.v2.avalins.atendimentoService.insertOne(instrumento.toJsonObject());
 
     }
 
