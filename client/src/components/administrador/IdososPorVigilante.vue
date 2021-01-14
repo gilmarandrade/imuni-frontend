@@ -4,29 +4,9 @@
         <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos'}]" />
         <!-- <Breadcrumb :path="[{text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${unidade._id}`}, {text: 'Idosos', url: `/unidades/${unidade.nome}/${unidade._id}/usuarios/${$route.params.usuarioId}/${$route.params.nome}/com-escalas`}]" /> -->
 
-         <!-- <div v-if="unidade">
-            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
-            <popper
-                trigger="hover"
-                :options="{
-                    placement: 'top'
-                }">
-                <div class="popper">
-                    Última sincronização
-                </div>
-
-                <span slot="reference">
-                    <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
-                </span>
-            </popper>
-            </div>
-            <h1>{{ unidade.nome }}</h1>
-            <p>Distrito {{ unidade.distrito }}</p>
-        </div> -->
-
         <h5>{{ unidade.nome }}</h5>
         <h1 v-if="usuario">Idosos de {{ usuario.name }}</h1>
-        <button @click="manualSync" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
+        <button @click="importFromPlanilhaUnidade" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">importar</button>
         <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
@@ -83,10 +63,10 @@ export default {
                 this.usuario = res.data
             }).catch(showError)
         },
-        manualSync() {
+        importFromPlanilhaUnidade() {
           // $socket is socket.io-client instance
-          console.log('emit syncEvent')
-          this.$socket.emit('syncEvent', { idUnidade: this.$route.params.unidadeId });
+          console.log('emit importUnidadeEvent')
+          this.$socket.emit('importUnidadeEvent', { idUnidade: this.$route.params.unidadeId });
         },
         tabActivated(newTabIndex, oldTabIndex, event){
             console.log('tab activated',newTabIndex,oldTabIndex, event)

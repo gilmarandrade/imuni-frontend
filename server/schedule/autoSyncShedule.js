@@ -19,7 +19,7 @@ module.exports = app => {
                 console.log(`[autoSyncShedule] ${i+1}/${unidadesToSync.length} -------------------------`);
                 try {
                     await syncService.resetUnidade(unidadesToSync[i]._id);
-                    await syncService.fullSyncUnidade(unidadesToSync[i]._id);
+                    await syncService.importFromPlanilhaUnidade(unidadesToSync[i]._id);
                         
                 } catch(err) {
                     console.error(`[autoSyncShedule] ${unidade.nome}: ${err.toString()}`);

@@ -19,7 +19,7 @@ module.exports = app => {
     const listenEvents = (socket) => {
 
         // sincronização completa da unidade
-        socket.on('syncEvent', async (data) => {
+        socket.on('importUnidadeEvent', async (data) => {
             
             const syncStatus = {
                 socket: socket,
@@ -40,7 +40,7 @@ module.exports = app => {
             
             try {
                 syncStatus.emit();
-                await app.server.service.v2.syncService.fullSyncUnidade(data.idUnidade);
+                await app.server.service.v2.importService.importFromPlanilhaUnidade(data.idUnidade);
 
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
@@ -53,69 +53,69 @@ module.exports = app => {
         });
 
         // apaga o banco de dados da unidade
-        socket.on('resetEvent', async (data) => {
-            const syncStatus = {
-                socket: socket,
-                payload: {
-                    mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
-                    status: 'LOADING', //null, LOADING, SUCCESS, ERROR
-                    progress: null,
-                    total: null,
-                    current: 0,
-                    msg: '',
-                },
-                emit() {
-                    this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
-                    socket.emit('syncStatusEvent', this.payload);
-                },
-            }
+        // socket.on('resetEvent', async (data) => {
+        //     const syncStatus = {
+        //         socket: socket,
+        //         payload: {
+        //             mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+        //             status: 'LOADING', //null, LOADING, SUCCESS, ERROR
+        //             progress: null,
+        //             total: null,
+        //             current: 0,
+        //             msg: '',
+        //         },
+        //         emit() {
+        //             this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
+        //             socket.emit('syncStatusEvent', this.payload);
+        //         },
+        //     }
 
-            try {
-                syncStatus.emit();
-                await app.server.service.v2.syncService.resetUnidade(data.idUnidade);
-                syncStatus.payload.status = 'SUCCESS';
-                syncStatus.emit();
+        //     try {
+        //         syncStatus.emit();
+        //         await app.server.service.v2.syncService.resetUnidade(data.idUnidade);
+        //         syncStatus.payload.status = 'SUCCESS';
+        //         syncStatus.emit();
                     
-            } catch(err) {
-                syncStatus.payload.status = 'ERROR';
-                syncStatus.payload.msg = err.toString();
-                syncStatus.emit();
-            }
-        });
+        //     } catch(err) {
+        //         syncStatus.payload.status = 'ERROR';
+        //         syncStatus.payload.msg = err.toString();
+        //         syncStatus.emit();
+        //     }
+        // });
 
         //sincronização parcial da unidade (apenas respostas)
-        socket.on('softSyncEvent', async (data) => {
-            console.log(data)
-            const syncStatus = {
-                socket: socket,
-                payload: {
-                    mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
-                    status: 'LOADING', //null, LOADING, SUCCESS, ERROR
-                    progress: null,
-                    total: null,
-                    current: 0,
-                    msg: '',
-                },
-                emit() {
-                    this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
-                    socket.emit('syncStatusEvent', this.payload);
-                },
-            }
+        // socket.on('softSyncEvent', async (data) => {
+        //     console.log(data)
+        //     const syncStatus = {
+        //         socket: socket,
+        //         payload: {
+        //             mode: 'INDETERMINATED', //INDETERMINATED, DETERMINATED
+        //             status: 'LOADING', //null, LOADING, SUCCESS, ERROR
+        //             progress: null,
+        //             total: null,
+        //             current: 0,
+        //             msg: '',
+        //         },
+        //         emit() {
+        //             this.payload.progress = this.payload.total ? Math.round(this.payload.current/this.payload.total * 100) : null;
+        //             socket.emit('syncStatusEvent', this.payload);
+        //         },
+        //     }
 
-            try {
-                syncStatus.emit();
-                await app.server.service.v2.syncService.partialSyncUnidade(data.idUnidade, data.nomeVigilante);
+        //     try {
+        //         syncStatus.emit();
+        //         await app.server.service.v2.syncService.partialSyncUnidade(data.idUnidade, data.nomeVigilante);
 
-                syncStatus.payload.status = 'SUCCESS';
-                syncStatus.emit();
+        //         syncStatus.payload.status = 'SUCCESS';
+        //         syncStatus.emit();
 
 
-            } catch(err) {
-                syncStatus.payload.status = 'ERROR';
-                syncStatus.payload.msg = err.toString();
-                syncStatus.emit();
-            }
-        });
+        //     } catch(err) {
+        //         syncStatus.payload.status = 'ERROR';
+        //         syncStatus.payload.msg = err.toString();
+        //         syncStatus.emit();
+        //     }
+        // });
     }
 
     return { init };

@@ -78,6 +78,7 @@ export default {
         },
         manualSync() {
           // $socket is socket.io-client instance
+          // TODO SONFTSYNC NÃO EXISTE MAIS
           console.log('emit softSyncEvent')
           if(this.user.role === 'VIGILANTE') {
               this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId, nomeVigilante: this.user.name });

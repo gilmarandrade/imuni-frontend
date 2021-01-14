@@ -2,45 +2,10 @@
  <div class="unidades" v-if="unidade">
    <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome}]" />
    <header class="header-page">
-        <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
-          <popper
-              trigger="hover"
-              :options="{
-                placement: 'top'
-              }">
-              <div class="popper">
-                Última sincronização
-              </div>
-
-              <span slot="reference">
-                  <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
-              </span>
-          </popper>
-        </div> -->
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
 
-        <!-- <b-checkbox v-model="unidade.autoSync" name="check-button" switch @change="toggleSync">
-          {{ unidade.autoSync ? 'Sincronização automática ativada': 'Sincronização automática desativada' }}
-        <popper
-              trigger="hover"
-              :options="{
-                placement: 'right'
-              }">
-              <div class="popper">
-                A sincronização automática acontece diariamente as 22:00 
-              </div>
-
-              <span slot="reference">
-                <span class="text-muted">
-                  <font-awesome-icon :icon="['fas', 'info-circle']" />
-                </span>
-              </span>
-          </popper>
-        </b-checkbox>
-        <button @click="manualReset" class="btn btn-secondary ml-2" :disabled="syncStatus.status==='LOADING'">resetar</button>
-         -->
-        <button @click="manualSync" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
+        <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">importar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar
         </router-link>
@@ -205,10 +170,10 @@ export default {
                 showError(err);
           })
         },
-        manualSync() {
+        importFromPlanilhaUnidade() {
           // $socket is socket.io-client instance
-          console.log('emit syncEvent')
-          this.$socket.emit('syncEvent', { idUnidade: this.unidade._id });
+          console.log('emit importUnidadeEvent')
+          this.$socket.emit('importUnidadeEvent', { idUnidade: this.unidade._id });
         },
         manualReset() {
           // $socket is socket.io-client instance

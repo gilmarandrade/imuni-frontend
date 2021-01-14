@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 const atendimentoService = require('./atendimentoService');
@@ -8,7 +11,7 @@ const unidadeService = require('./unidadeService');
  * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
  * @param {*} idUnidade 
  */
-const fullSyncUnidade = async (idUnidade) => {
+const importFromPlanilhaUnidade = async (idUnidade) => {
     const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
@@ -338,4 +341,4 @@ const syncAtendimentos = async (unidade, total) => {
     }
 }
 
-module.exports = { fullSyncUnidade, resetUnidade, partialSyncUnidade }
+module.exports = { importFromPlanilhaUnidade, resetUnidade, partialSyncUnidade }

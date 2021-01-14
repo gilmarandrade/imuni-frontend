@@ -1,5 +1,3 @@
-// const { calcularEscalas } = require('../../config/helpers');
-// const sheetsApi = require('../../config/sheetsApi');
 
 module.exports = app => {
 
@@ -7,11 +5,11 @@ module.exports = app => {
      * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
      * @param {*} idUnidade 
      */
-    const fullSyncUnidade = async (idUnidade) => {
+    const importFromPlanilhaUnidade = async (idUnidade) => {
         const unidade = await app.server.service.v2.unidadeService.getById(idUnidade);
         
         if(unidade) {
-            console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
+            console.log(`[ImportUnidade] ${unidade.nome} STARTING SYNC `);
             console.log(unidade);
             const sheets = await prepareDataToSync(unidade);
             
@@ -28,98 +26,11 @@ module.exports = app => {
             }
             
             await syncAtendimentos(unidade);
-            console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
+            console.log(`[ImportUnidade] ${unidade.nome} ENDED SYNC `);
         } else {
             throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
         }
     }
-
-    /**
-     * Sincronização parcial da unidade
-     * 
-     * Atualiza pelo menos os 10 ultimos idosos de um ou todos os vigilantes e pelo menos os 10 ultimos atendimentos,
-     * além de inserir no banco novos registros que por ventura tenham sido adicionados nas planilhas desde a sincronização anterior.
-     * 
-     * Obs: por se tratar de uma sincronização rápida, não apaga registros removidos, nem atualiza registros mais antigos que os 10 ultimos das planilhas.
-     * Por isso podem surgir inconsistencias no banco em relação as planilhas. 
-     * Por isso, o reset e resincronização completa do banco é efetuado uma vez por dia a partir das 22:00.
-     * @param {*} idUnidade 
-     * @param {*} nomeVigilante 
-     */
-    const partialSyncUnidade = async (idUnidade, nomeVigilante) => {
-        const unidade = await app.server.service.v2.unidadeService.findById(idUnidade);
-        
-        if(unidade) {
-            console.log(`[Sync] ${unidade.nome} STARTING SYNC `);
-            console.log(unidade);
-
-            // const sheets = await prepareDataToSync(unidade);
-            const sheet = unidade.vigilantes.find(element => element.nome == nomeVigilante);//FIXIT  não funciona caso tenha mais de um vigilante chamado A Substituir...
-            if(sheet) {// se existe o node do vigilante, atualiza apenas os idosos do vigilante
-                const sheets = [];
-                sheets.push({ sheetName: sheet.sheetName });
-
-                //TODO sheet contem apenas um valor, não sendo necessario um loop
-                for(let i = 0; i < sheets.length; i++) {
-                    if(sheets[i].sheetName.startsWith("Vigilante")) {
-                        const countIdosos = await app.server.service.v2.idosoService.countByVigilante(unidade.collectionPrefix, nomeVigilante);
-                        console.log('countIdosos ', countIdosos)
-                        const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, null, countIdosos);
-                        if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                            await syncIdososBySheetName(unidade, sheets[i].sheetName, null, countIdosos);
-                        }
-                    }
-                }
-            } else {//se o nome do vigilante não foi econtrado, atualiza os idosos de todos os vigilantes
-                console.log(`[Sync] vigilante ${nomeVigilante} não encontrado. Sincronizando todos os vigilantes...`)
-                const sheets = await prepareDataToSync(unidade);
-                
-                for(let i = 0; i < sheets.length; i++) {
-                    if(sheets[i].sheetName.startsWith("Vigilante")) {
-                        const sheet = unidade.vigilantes.find(element => element.sheetName == sheets[i].sheetName);
-                        const countIdosos = await app.server.service.v2.idosoService.countByVigilante(unidade.collectionPrefix, sheet.nome);
-                        const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, null, countIdosos);
-                        if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
-                            await syncIdososBySheetName(unidade, sheets[i].sheetName, null, countIdosos);
-                        }
-                    }
-                }
-                
-            }
-
-            const countAtendimentos = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(unidade.collectionPrefix);
-            await syncAtendimentos(unidade, countAtendimentos);
-
-            console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
-        } else {
-            throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
-        }
-    }
-
-    /**
-     * Apaga os bancos de dados da unidade
-     * @param {*} data 
-     */
-    const resetUnidade = async (idUnidade) => {
-        const unidade = await app.server.service.v2.unidadeService.findById(idUnidade);
-        
-        if(unidade) {
-            console.log(`[Sync] ${unidade.nome} RESETING `);
-            console.log(unidade);
-
-            unidade.vigilantes = [];
-            unidade.lastSyncDate = null;
-
-            await app.server.service.v2.unidadeService.replaceOne(unidade);
-
-            await app.server.service.v2.idosoService.deleteAll(unidade);
-
-            await app.server.service.v2.atendimentoService.deleteAll(unidade);
-        } else {
-            throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
-        }
-    }
-
 
     /**
      * Encontra o sheetName (nome das abas) que devem ser lidas na planilha
@@ -145,7 +56,7 @@ module.exports = app => {
             console.log(err);
         } finally {
             console.log(sheetsToSync);
-            console.log(`[Sync] ${sheetsToSync.length} sheets found`);
+            console.log(`[ImportUnidade] ${sheetsToSync.length} sheets found`);
             return sheetsToSync;
         }
     }
@@ -190,11 +101,10 @@ module.exports = app => {
         const firstIndex = lastIndexSynced + 1;//2
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
         // let vigilanteNome = '';
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
+        console.log(`[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
         const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
         rows.forEach((item, index) => {
             if(item[1]) {//se o idoso tem nome
-                // vigilanteNome = item[0];
                 idososPorVigilantes.push({
                     // row: `${unidade.collectionPrefix}-'${sheetName}'!A${firstIndex + index}:N${firstIndex + index}`,
                     dataNascimento: '',
@@ -207,45 +117,19 @@ module.exports = app => {
                     unidadeId: unidade._id,
                     vigilanteId: vigilanteId,
                     _isDeleted: false,
-                    // TODO deprecated?
-                    // stats: {
-                    //     qtdAtendimentosEfetuados: 0,
-                    //     qtdAtendimentosNaoEfetuados: 0,
-                    //     ultimoAtendimento: null,
-                    //     ultimaEscala: null,
-                    // },
-                    // score: 0,
-                    // epidemiologia: null,
                 });
             }
         });
         if(idososPorVigilantes.length) {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`);
+            console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`);
 
             //insere os idosos no banco
-            // let j = 0;
-            // for(; j < idososPorVigilantes.length; j++) {
-            //     const resultInsertMany = await app.server.service.v2.idosoService.updateOne(unidade.collectionPrefix, idososPorVigilantes[j]);
-            // }
-            
             await app.server.service.v2.idosoService.bulkUpdateOne(idososPorVigilantes);
         } else {
-            console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found!`);
+            console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found!`);
         }       
         
-        // // unidade.sync[vigilanteIndex].indexed = indexIdosos;//talvez essa indexação parcial seja necessária no futuro, mas atualmente, todas as sincronizações são totais, não sendo necessário armazenar essas informações
-        // //atualiza lista de vigilantes da unidade
-        // const vigilanteIndex = +sheetName.slice(-1);
-        // if(unidade.vigilantes[vigilanteIndex - 1]) {
-        //     unidade.vigilantes[vigilanteIndex - 1].nome = vigilanteNome;
-        // } else {
-        //     //atualmente, o campo usuarioId não está sendo utilizado
-        //     unidade.vigilantes[vigilanteIndex - 1] = { sheetName: `${sheetName}`, nome: vigilanteNome };
-        // }
-        // // console.log(unidade);
-        // const result = await app.server.service.v2.unidadeService.replaceOne(unidade);
-        // // console.log(result.result.n)
-        console.log(`[Sync] idososCollection updated`)
+        console.log(`[ImportUnidade] idososCollection updated`)
         // return rowsInserted;
         return idososPorVigilantes.length;
     }
@@ -261,7 +145,7 @@ module.exports = app => {
         const firstIndex = lastIndexSynced + 1;
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';
 
-        console.log(`[Sync] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
+        console.log(`[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
         const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
 
         const usuariosArray = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
@@ -554,7 +438,7 @@ module.exports = app => {
         // console.log('atendimentosArray ', atendimentosArray.length);
 
         if(atendimentosArray.length > 0) {
-            // TODO INSERE ATENDIMENTOS VIA BATCH
+            // INSERE ATENDIMENTOS VIA BATCH
             // console.log('INSERE ATENDIMENTOS VIA BATCH');
             await app.server.service.v2.atendimentoService.bulkUpdateOne(atendimentosArray);
 
@@ -568,8 +452,8 @@ module.exports = app => {
 
         }
 
-        console.log('[Sync] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
+        console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
     }
 
-    return { fullSyncUnidade, resetUnidade, partialSyncUnidade }
+    return { importFromPlanilhaUnidade }
 }
