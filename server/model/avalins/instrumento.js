@@ -19,6 +19,12 @@ module.exports = app => {
             console.log('[Instrumento] ' + this.responseId);
         }
 
+        /**
+         * Extrai uma resposta bruta do array de respostas
+         * @param {*} session identificador da seção no form. Ex: 'S03'
+         * @param {*} question identificador da questão na seção. Ex: 'Q06'
+         * @returns null ou String
+         */
         extractResponse = (session, question) => {
             if(this.raw && session && question) {
                 if(this.raw[session]) {
@@ -28,14 +34,95 @@ module.exports = app => {
                 }
             }
             return null;
+        };
+
+        /**
+         * Extrai uma resposta e converte para Number
+         * @param {*} session 
+         * @param {*} question 
+         * @returns Number ou null
+         */
+        extractNumber = (session, question) => {
+            const response = this.extractResponse(session, question);
+            return response ? +response : null;
         }
+
+        // /**
+        //  * Retorna um booleano se o valor recebido é equivalente a trueValue.
+        //  * 
+        //  * Se falseValue também for informado:
+        //  * retorna false caso o valor recebido seja equivalente a falseValue, e retorna null se o valor recebido for diferente de ambos 
+        //  * @param {*} session 
+        //  * @param {*} question 
+        //  * @param {*} trueValue 
+        //  * @param {*} falseValue 
+        //  * @return Boolean ou null
+        //  */
+        // extractBoolean = (session, question, trueValue, falseValue) => {
+        //     if(falseValue !== undefined) {
+        //         const response = this.extractResponse(session, question);
+        //         if(response == trueValue) {
+        //             return true;
+        //         } else if(response == falseValue){
+        //             return false;
+        //         } else {
+        //             return null;
+        //         }
+        //     }
+        //     return this.isEquals(session, question);
+        // }
+
+        /**
+         * Retorna true se a resposta for igual a trueValue
+         * @param {*} session 
+         * @param {*} question 
+         * @param {*} trueValue 
+         * @return Boolean
+         */
+        isEquals = (session, question, trueValue) => {
+            return this.extractResponse(session, question) == trueValue;
+        }
+
+        /**
+         * Retorna false caso a resposta seja igual ao falseValue
+         * @param {*} session 
+         * @param {*} question 
+         * @param {*} falseValue 
+         * @return Boolean
+         */
+        isNotEquals = (session, question, falseValue) => {
+            return !this.isEquals(session, question, falseValue);
+        }
+
+        // /**
+        //  * Extrai uma resposta de multipla escolha
+        //  * Retorna um array vazio se o primeiro item da lista for igual a 'Não'
+        //  * @param {*} session 
+        //  * @param {*} question 
+        //  * @return Array
+        //  */
+        // extractRequiredList = (session, question) => {
+        //     const response = this.extractResponse(session, question);
+
+        //     if(Array.isArray(response)) {
+        //         if(response.length > 0 && response[0] == 'Não') {
+        //             return [];
+        //         }
+        //         return response;
+        //     }
+
+        //     return [];
+        // }
+
 
         calcularCriterios = () => {
             console.log('[Instrumento] calcular criterios');
+            throw new TypeError("Must override method calcularCriterios");
         }
 
         calcularEscalas = () => {
             console.log('[Instrumento] calcular escalas');
+            throw new TypeError("Must override method calcularEscalas");
         }
 
         get toObject() {
@@ -124,6 +211,5 @@ module.exports = app => {
 
     return { Instrumento, EscalaEquilibrioBerg }
 }
-// module.exports.Instrumento = Instrumento; 
 
 
