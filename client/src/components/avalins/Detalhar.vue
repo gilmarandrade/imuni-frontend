@@ -1,7 +1,7 @@
 <template>
   <div v-if="atendimento">
     <h1>Atendimento</h1>
-    <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>
+    <h6 class="text-muted">{{atendimento.tipo}}</h6>
 
      <div class="row mt-5">
          <div class="col-xs-12 col-lg-8">
@@ -17,7 +17,7 @@
          </div>
          <div class="col-xs-12 col-lg-4">
             <b-card
-                title="Escala de Equilíbrio de Berg"
+                title="Resultado"
                 class="mb-4"
                 v-if="atendimento.escalas"
             >
@@ -27,6 +27,15 @@
                     <br/>
                     <strong>Score: </strong>
                     {{ atendimento.escalas.score }}
+                </b-card-text>
+            </b-card>
+            <b-card
+                title="Saiba mais"
+                class="mb-4"
+                v-if="atendimento.descricao"
+            >
+                <b-card-text>
+                    <div v-html="atendimento.descricao"></div>
                 </b-card-text>
             </b-card>
          </div>

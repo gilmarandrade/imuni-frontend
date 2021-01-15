@@ -42,7 +42,7 @@
                 atendimentos: [],
                 fields: [ 
                     { key: 'col-data', label: 'Data' },
-                    { key: 'col-score', label: 'Score' },
+                    { key: 'col-score', label: 'Risco de queda' },
                 ],
                 carregandoAtendimentos: false,
             }

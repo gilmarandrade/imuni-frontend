@@ -17,6 +17,8 @@ module.exports = app => {
 
             this.criterios = {};
             this.escalas = {};
+            this.descricao = '';
+
             console.log('[Instrumento] ' + this.responseId);
         }
 
@@ -137,6 +139,7 @@ module.exports = app => {
                 raw: this.raw,
                 criterios: this.criterios,
                 escalas: this.escalas,
+                descricao: this.descricao,
             }
         }
 
@@ -152,6 +155,34 @@ module.exports = app => {
         constructor(tipo, origin, responseId, timestamp, authsecret, raw) {
             super(tipo, origin, responseId, timestamp, authsecret, raw);
             this.name = 'EscalaEquilibrioBerg';
+
+            this.descricao = `
+            <h1>Escala de Equilíbrio de Berg</h1>
+            <p>A Escala de Equilíbrio de Berg (Berg Balance Scale) é um teste clínico amplamente usado para verificação das habilidades de equilíbrio estático e dinâmico de uma pessoa, seu nome é uma homenagem à Katherine Berg, uma das desenvolvedoras desta escala.</p>
+            <p>O BBS é considerado o padrão para testes de equilíbrio funcional.</p>
+            
+            <h2>Como funciona</h2>
+            <p>O teste leva de 15 a 20 minutos e compreende um conjunto de 14 tarefas relacionadas ao equilíbrio simples, que vão desde levantar-se de uma posição sentada até ficar de pé com um pé.</p>
+            <p>O grau de sucesso em alcançar cada tarefa recebe uma pontuação de zero (incapaz) a quatro (independente) e a medida final é a soma de todas as pontuações.</p>
+            <p>Os resultados finais podem ser interpretados da seguinte maneira:</p>
+            <table class="table">
+                <tr>
+                    <td>Entre 41 e 56 pontos</td>
+                    <td><div class="badge green">baixo risco de queda</div></td>
+                </tr>
+                <tr>
+                    <td>Entre 21 e 40 pontos</td>
+                    <td><div class="badge yellow">médio risco de queda</div></td>
+                </tr>
+                <tr>
+                    <td>Entre 0 e 20 pontos</td>
+                    <td><div class="badge red">elevado risco de queda</div></td>
+                </tr>
+            </table>
+
+            <h2>Como aplicar</h2>
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/O_KwLYl_TEc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            `;
  
             console.log('[' + this.name + '] ' + this.responseId);
         }
