@@ -1,57 +1,41 @@
 <template>
   <div v-if="atendimento">
-    <h1>Atendimento</h1>
-    <h6 class="text-muted">{{atendimento.tipo}}</h6>
+      <h1>Atendimento - Escala de Equilibrio de Berg</h1>
+      <p>{{formatDate(atendimento.timestamp)}}</p>
+    <!-- <h6 class="text-muted">{{atendimento.tipo}}</h6> -->
 
-     <div class="row mt-5">
-         <div class="col-xs-12 col-lg-8">
+    <div class="row mt-5">
+        <div class="col-12">
             <b-card
-                    title="Respostas"
-                    class="mb-4"
+                title="Paciente"
+                    class=""
                 >
                 <b-card-text>
-                    <FormResponse v-for="item in atendimento.raw['S02']" :key="item.question" :item="item" />
+                    <div>
+                        <strong>Nome:</strong> Seu João
+                    </div>
+                    <div>
+                        <strong>Idade:</strong> 76 anos
+                    </div>
                 </b-card-text>
             </b-card>
             
-         </div>
-         <div class="col-xs-12 col-lg-4">
-            <b-card
-                title="Resultado"
-                class="mb-4"
-                v-if="atendimento.escalas"
-            >
-                <b-card-text>
-                    <strong>Risco de Queda: </strong>
-                    <Badge :value="atendimento.escalas.risco" /> 
-                    <br/>
-                    <strong>Score: </strong>
-                    {{ atendimento.escalas.score }}
-                </b-card-text>
-            </b-card>
-            <b-card
-                title="Saiba mais"
-                class="mb-4"
-                v-if="atendimento.descricao"
-            >
-                <b-card-text>
-                    <div v-html="atendimento.descricao"></div>
-                </b-card-text>
-            </b-card>
-         </div>
-     </div>
+        </div>
+    </div>
+
+    <EscalaEquilibrioBerg v-if="atendimento.tipo === 'EscalaEquilibrioBerg'" :atendimento="atendimento" />
+    <div v-else>Escala não encontrada!</div>
   </div>
 </template>
 
 <script>
 import { baseApiUrl, showError, formatDate } from '@/global';
-import Badge from '@/components/template/Badge';
 import axios from 'axios';
-import FormResponse from '@/components/template/FormResponse';
+import EscalaEquilibrioBerg from '@/components/avalins/escalas/EscalaEquilibrioBerg';
 
 export default {
     name: 'Detalhar',
-    components: { Badge, FormResponse },
+    components: { EscalaEquilibrioBerg },
     data: function() {
         return {
             atendimento: null
