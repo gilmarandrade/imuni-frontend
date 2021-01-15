@@ -23,7 +23,10 @@
             >
                 <b-card-text>
                     <strong>Risco de Queda: </strong>
-                    <Badge :value="atendimento.escalas.score" />
+                    <Badge :value="atendimento.escalas.risco" /> 
+                    <br/>
+                    <strong>Score: </strong>
+                    {{ atendimento.escalas.score }}
                 </b-card-text>
             </b-card>
          </div>

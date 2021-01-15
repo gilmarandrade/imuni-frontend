@@ -1,11 +1,12 @@
 
 module.exports = app => {
     class Instrumento {
-        constructor(origin, responseId, timestamp, authsecret, raw) {
+        constructor(tipo, origin, responseId, timestamp, authsecret, raw) {
             if (new.target === Instrumento) {
                 throw new TypeError("Cannot construct " + new.target.name + " instances directly");
             }
 
+            this.tipo = tipo;
             this.origin = origin;
             this.authsecret = authsecret;
             this.timestamp = new Date(timestamp);
@@ -127,6 +128,7 @@ module.exports = app => {
 
         get toObject() {
             return {
+                tipo: this.tipo,
                 origin: this.origin,
                 authsecret: this.authsecret,
                 timestamp: this.timestamp,
@@ -147,8 +149,8 @@ module.exports = app => {
     }
 
     class EscalaEquilibrioBerg extends Instrumento {
-        constructor(origin, responseId, timestamp, authsecret, raw) {
-            super(origin, responseId, timestamp, authsecret, raw);
+        constructor(tipo, origin, responseId, timestamp, authsecret, raw) {
+            super(tipo, origin, responseId, timestamp, authsecret, raw);
             this.name = 'EscalaEquilibrioBerg';
  
             console.log('[' + this.name + '] ' + this.responseId);
@@ -197,8 +199,8 @@ module.exports = app => {
                 risco = EscalaEquilibrioBerg.riscoQueda.ELEVADO;
             }
         
-            // console.log(total)
-            this.escalas = { score: risco };
+            this.escalas = { risco: risco, score: total };
+            console.log(this.escalas)
         }
         
         static riscoQueda = Object.freeze({

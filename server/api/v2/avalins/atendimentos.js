@@ -24,10 +24,10 @@ module.exports = app => {
                     atendimento.raw[item.question.substring(1,4)][item.question.substring(4,7)] = item;
                 });
 
-                const instrumento = new EscalaEquilibrioBerg(atendimento.origin, atendimento.responseId, atendimento.timestamp, atendimento.authsecret, atendimento.raw);
+                const instrumento = new EscalaEquilibrioBerg('EscalaEquilibrioBerg', atendimento.origin, atendimento.responseId, atendimento.timestamp, atendimento.authsecret, atendimento.raw);
 
                 instrumento.calcular();
-                console.log(instrumento);
+                console.log(instrumento.toObject);
                 await app.server.service.v2.avalins.atendimentoService.insertOne(instrumento.toObject);
                 // await app.server.service.v2.avalins.atendimentoService.convertAtendimento(instrumento);
 

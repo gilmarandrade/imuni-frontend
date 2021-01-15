@@ -23,7 +23,7 @@
                 </router-link>
             </template>
             <template v-slot:cell(col-score)="data">
-                <Badge v-if="data.item.escalas" :value="data.item.escalas.score" />
+                <Badge v-if="data.item.escalas" :value="data.item.escalas.risco" />
             </template>
         </b-table>
     </div>
