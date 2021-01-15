@@ -1,5 +1,5 @@
 module.exports = app => {
-    const Instrumento = app.server.model.avalins.instrumento.Instrumento;
+    const EscalaEquilibrioBerg = app.server.model.avalins.instrumento.EscalaEquilibrioBerg;
 
     const save = async (req, res) => {
 
@@ -24,18 +24,14 @@ module.exports = app => {
                     atendimento.raw[item.question.substring(1,4)][item.question.substring(4,7)] = item;
                 });
 
-                const instrumento = new Instrumento(atendimento.origin, atendimento.responseId, atendimento.timestamp, atendimento.authsecret, atendimento.raw);
+                const instrumento = new EscalaEquilibrioBerg(atendimento.origin, atendimento.responseId, atendimento.timestamp, atendimento.authsecret, atendimento.raw);
 
-                // delete atendimento.responses;
-                // atendimento._isDeleted = false;
-
-                instrumento.calcularCriterios();
-                instrumento.calcularEscalas();
-                // console.log(instrumento.toJsonObject())
-                await app.server.service.v2.avalins.atendimentoService.insertOne(instrumento.toJsonObject());
+                instrumento.calcular();
+                console.log(instrumento);
+                await app.server.service.v2.avalins.atendimentoService.insertOne(instrumento.toObject);
                 // await app.server.service.v2.avalins.atendimentoService.convertAtendimento(instrumento);
 
-                return res.status(200).json(instrumento.toJsonObject());
+                return res.status(200).json(instrumento.toObject);
             }
 
 

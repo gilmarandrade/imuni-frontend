@@ -2,6 +2,10 @@
 module.exports = app => {
     class Instrumento {
         constructor(origin, responseId, timestamp, authsecret, raw) {
+            if (new.target === Instrumento) {
+                throw new TypeError("Cannot construct " + new.target.name + " instances directly");
+            }
+
             this.origin = origin;
             this.authsecret = authsecret;
             this.timestamp = new Date(timestamp);
@@ -12,7 +16,7 @@ module.exports = app => {
 
             this.criterios = {};
             this.escalas = {};
-            // console.log('Hello World ' + this.responseId);
+            console.log('[Instrumento] ' + this.responseId);
         }
 
         extractResponse = (session, question) => {
@@ -25,6 +29,43 @@ module.exports = app => {
             }
             return null;
         }
+
+        calcularCriterios = () => {
+            console.log('[Instrumento] calcular criterios');
+        }
+
+        calcularEscalas = () => {
+            console.log('[Instrumento] calcular escalas');
+        }
+
+        get toObject() {
+            return {
+                origin: this.origin,
+                authsecret: this.authsecret,
+                timestamp: this.timestamp,
+                responseId: this.responseId,
+                _isDeleted: this._isDeleted,
+                raw: this.raw,
+                criterios: this.criterios,
+                escalas: this.escalas,
+            }
+        }
+
+        calcular = () => {
+            console.log('[Instrumento] calcular');
+            this.calcularCriterios();
+            this.calcularEscalas();
+        }
+
+    }
+
+    class EscalaEquilibrioBerg extends Instrumento {
+        constructor(origin, responseId, timestamp, authsecret, raw) {
+            super(origin, responseId, timestamp, authsecret, raw);
+            this.name = 'EscalaEquilibrioBerg';
+ 
+            console.log('[' + this.name + '] ' + this.responseId);
+        }
         
         extractPontos = (session, question) => {
             const response = this.extractResponse(session, question);
@@ -32,6 +73,7 @@ module.exports = app => {
         }
 
         calcularCriterios = () => {
+            console.log('[' + this.name + '] ' + ' calcular criterios');
             this.criterios = {
                 c1: this.extractPontos('S02','Q01'),
                 c2: this.extractPontos('S02','Q02'),
@@ -49,8 +91,9 @@ module.exports = app => {
                 c14: this.extractPontos('S02','Q14'),
             };
         }
-
+        
         calcularEscalas = () => {
+            console.log('[' + this.name + '] ' + ' calcular escalas');
             const array = Object.values(this.criterios);
             let total = 0;
             array.forEach(element => {
@@ -59,40 +102,27 @@ module.exports = app => {
         
             let risco = null;
         
-            if(total >= 41) {
-                risco = this.riscoQueda.BAIXO;
-            } else if(total >= 21) {
-                risco = this.riscoQueda.MEDIO;
+            if (total >= 41) {
+                risco = EscalaEquilibrioBerg.riscoQueda.BAIXO;
+            } else if (total >= 21) {
+                risco = EscalaEquilibrioBerg.riscoQueda.MEDIO;
             } else {
-                risco = this.riscoQueda.ELEVADO;
+                risco = EscalaEquilibrioBerg.riscoQueda.ELEVADO;
             }
         
             // console.log(total)
             this.escalas = { score: risco };
         }
         
-        riscoQueda = Object.freeze({
+        static riscoQueda = Object.freeze({
             BAIXO: 'Baixo',
             MEDIO: 'Médio',
             ELEVADO: 'Elevado',
         });
 
-        toJsonObject = () => {
-            return {
-                origin: this.origin,
-                authsecret: this.authsecret,
-                timestamp: this.timestamp,
-                responseId: this.responseId,
-                _isDeleted: this._isDeleted,
-                raw: this.raw,
-                criterios: this.criterios,
-                escalas: this.escalas,
-            }
-        }
-
     }
 
-    return { Instrumento }
+    return { Instrumento, EscalaEquilibrioBerg }
 }
 // module.exports.Instrumento = Instrumento; 
 
