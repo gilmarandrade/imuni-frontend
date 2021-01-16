@@ -46,6 +46,14 @@ module.exports = app => {
                 syncStatus.emit();
                     
             } catch(err) {
+
+                await app.server.config.mail.send(
+                    `<h1>Erro fatal ao importar unidade</h1>
+                    id unidade: ${data.idUnidade}<br/>
+                    ${err.toString()}`,
+                    `Erro fatal ao importar unidade`,
+                    process.env.DEVELOPER_MAIL);
+
                 syncStatus.payload.status = 'ERROR';
                 syncStatus.payload.msg = err.toString();
                 syncStatus.emit();

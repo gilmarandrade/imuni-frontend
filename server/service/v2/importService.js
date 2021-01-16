@@ -159,7 +159,7 @@ module.exports = app => {
         // const respostasArray = [];
         const atendimentosArray = [];
         for(let i = 0; i < rows.length; i++) {
-
+            // console.log(i+2, ' ', rows[i][2])
             // encontra o id do idoso
              // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio?  Pegando um grande array contendo todos os idosos?!
             const idososByNome = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
@@ -243,14 +243,14 @@ module.exports = app => {
                 atendimento.raw.S05 = {
                     Q01: {
                         question: '[S05Q01] O idoso apresenta sintomas de gripe/COVID?',
-                        response: rows[i][6].split(',').map(s => s.trim())
+                        response: rows[i][6] ? rows[i][6].split(',').map(s => s.trim()) : []
                     },
                 };
                 
                 if(rows[i][7]) { // apresenta também outros sintomas?
                     atendimento.raw.S05.Q02 = {
                         question: '[S05Q02] Apresenta também outros sintomas?',
-                        response: rows[i][7].split(',').map(s => s.trim())
+                        response: rows[i][7] ? rows[i][7].split(',').map(s => s.trim()) : []
                     };
                 }
                 
@@ -277,18 +277,18 @@ module.exports = app => {
                 atendimento.raw.S06 = {
                     Q01: {
                         question: '[S06Q01] Tem alguma condição de saúde?',
-                        response: rows[i][11].split(',').map(s => s.trim())
+                        response: rows[i][11] ? rows[i][11].split(',').map(s => s.trim()) : []
                     },
                     Q02: {
                         question: '[S06Q02] Tem alguma medicação que toma todos os dias?',
-                        response: rows[i][12].startsWith('Sim') ? 'Sim' : 'Não'
+                        response: rows[i][12] ? (rows[i][12].startsWith('Sim') ? 'Sim' : 'Não') : ''
                     },
                 };
                 
-                if(rows[i][12].startsWith('Sim')) { // se toma medicações diariamente
+                if(rows[i][12] && rows[i][12].startsWith('Sim')) { // se toma medicações diariamente
                     atendimento.raw.S06.Q03 = {
                         question: '[S06Q03] Se toma mediação diariamente, quais são?',
-                        response: rows[i][12] === 'Sim' ? '' : rows[i][12].substring(4).split(',').map(s => s.trim())
+                        response: rows[i][12] === 'Sim' ? '' : (rows[i][12] ? rows[i][12].substring(4).split(',').map(s => s.trim()) : [] )
                     };
                 }
                 
@@ -367,7 +367,7 @@ module.exports = app => {
                     atendimento.raw.S10 = {
                         Q01: {
                             question: '[S10Q01] Na casa do idoso, alguém apresenta sintomas de gripe/COVID?',
-                            response: rows[i][24].split(',').map(s => s.trim())
+                            response: rows[i][24] ? rows[i][24].split(',').map(s => s.trim()) : []
                         },
                     };
             
