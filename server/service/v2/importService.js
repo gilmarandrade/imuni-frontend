@@ -522,8 +522,8 @@ module.exports = app => {
                 <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>
 
                 <h1>Relatório de falhas</h1>
-                <h2>Idosos não encontrados (${atendimentosSemIdoso.length})</h2>
-                <p>Os seguintes idosos não foram encontrados!</p>
+                <h2>Atendimentos com idosos não encontrados (${atendimentosSemIdoso.length})</h2>
+                <p>Os seguintes atendimentos se referem a idosos cujos dados cadastrais não foram encontrados!</p>
                 <table border>${atendimentosSemIdosoString}</table>
 
                 <h2>Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})</h2>
