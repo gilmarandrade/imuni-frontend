@@ -138,6 +138,11 @@ module.exports = app => {
      * Apaga os registros importados anterioremente, insere pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
      */
     const syncAtendimentos = async (unidade, total) => {
+
+        const atendimentosSemIdoso = [];
+        // const atendimentosSemVigilante = [];
+
+
         await app.server.service.v2.atendimentoService.deleteImportedByUnidade(unidade._id);
 
         // let indexRespostas = 1; // unidade.sync[0].indexed;
@@ -160,6 +165,7 @@ module.exports = app => {
             const idosoId = idos ? idos._id.toString() : null;
             if(!idosoId) {
                 console.error('ATENDIMENTO SEM IDOSO! ', rows[i], unidade._id, idos)
+                atendimentosSemIdoso.push({index: i, row: rows[i]});
             }  
             // encontra o id do vigilante, se não existir cria um novo vigilante
             // const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
@@ -177,6 +183,7 @@ module.exports = app => {
                 novoVigilante._id = vigilanteId;
                 usuariosArray.push(novoVigilante);
                 console.error('ATENDIMENTO SEM VIGILANTE! ', rows[i], unidade._id, vig);
+                // atendimentosSemVigilante.push({index: i, row: rows[i]});
             }
 
             const atendimento = {
@@ -450,7 +457,73 @@ module.exports = app => {
             }
             await app.server.service.v2.idosoService.bulkUpdateEstatisticas(idososArray);
 
+            //envio relatoriop por email
+            
+
+            
+            atendimentosSemIdosoString = `
+            <tr>
+                <th>localização</th>
+                <th>data</th>
+                <th>idoso</th>
+                <th>atendente</th>
+                <th>duração</th>
+            </tr>`;
+    
+            atendimentosSemIdoso.forEach(atendimento => {
+                atendimentosSemIdosoString += `
+                <tr>
+                    <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
+                    <td>${atendimento.row[0]}</td>
+                    <td>${atendimento.row[2]}</td>
+                    <td>${atendimento.row[1]}</td>
+                    <td>${atendimento.row[34]}</td>
+                </tr>`;
+            });
+    
+            // atendimentosSemVigilanteString = `
+            // <tr>
+            //     <th>localização</th>
+            //     <th>data</th>
+            //     <th>idoso</th>
+            //     <th>atendente</th>
+            //     <th>duração</th>
+            // </tr>`;
+            // atendimentosSemVigilante.forEach(atendimento => {
+            //     atendimentosSemVigilanteString += `
+            //     <tr>
+            //         <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
+            //         <td>${atendimento.row[0]}</td>
+            //         <td>${atendimento.row[2]}</td>
+            //         <td>${atendimento.row[1]}</td>
+            //         <td>${atendimento.row[34]}</td>
+            //     </tr>`;
+            // });
+    
+            const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
+            administradores.forEach(administrador => {
+                app.server.config.mail.send(
+                    `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
+                    <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
+                    <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
+                    <p><strong>Atendentes encontrados</strong>: ${usuariosArray.length}</p>
+                    <h1>Relatório de falhas</h1>
+                    <h2>Atendimentos sem idosos (${atendimentosSemIdoso.length})</h2>
+                    <table border>${atendimentosSemIdosoString}</table>`,
+                    `[${unidade.nome}] Importação finalizada`,
+                    administrador.email);
+            });
+        } else {
+            const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
+            app.server.config.mail.send(
+                `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
+                <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
+                <p><strong>Atendimentos encontrados:</strong> 0</p>
+                <p><strong>Atendentes encontrados</strong>: ${usuariosArray.length}</p>`,
+                `[${unidade.nome}] Importação finalizada`,
+                'gilmar-andrade@outlook.com');
         }
+
 
         console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
     }

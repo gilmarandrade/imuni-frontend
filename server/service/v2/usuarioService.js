@@ -194,6 +194,32 @@ module.exports = app => {
         return promise;
     }
 
+    /**
+     * Encontra apenas os adminstradores não bloqueados
+     */
+    const findAdministradoresAtivos = async () => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                
+                const collection = db.collection(collectionName);
+
+                collection.find({ role: 'ADMINISTRADOR', status: 'ATIVO', _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
     const replaceOne = async (usuario) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;
@@ -364,5 +390,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { findById, findVigilanteByNome, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail, checkStatus };
+    return { findById, findVigilanteByNome, findVigilantesAtivosByUnidade, findByUnidade, findByEmail, findAdministradores, findAdministradoresAtivos, insertOne, replaceOne, validateResetToken, validateInvitationToken, softDeleteOne, updateStatus, updateEmail, checkStatus };
 }
