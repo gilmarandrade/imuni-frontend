@@ -99,7 +99,7 @@ module.exports = app => {
     }
 
     /**
-     * Encontra um idoso pelo nome dele e id da unidade ao qual pertence
+     * Encontra idosos pelo nome dele e id da unidade ao qual pertence
      * @param {*} id 
      */
     const getByNome = async (nome, unidadeId) => {
@@ -111,7 +111,7 @@ module.exports = app => {
                 
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ nome: nome, unidadeId: ObjectId(unidadeId), _isDeleted: false  }, function(err, result) {
+                collection.find({ nome: nome, unidadeId: ObjectId(unidadeId), _isDeleted: false  }).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {

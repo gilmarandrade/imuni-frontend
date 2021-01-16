@@ -140,6 +140,7 @@ module.exports = app => {
     const syncAtendimentos = async (unidade, total) => {
 
         const atendimentosSemIdoso = [];
+        const atendimentosIdososMesmoNome = [];
         // const atendimentosSemVigilante = [];
 
 
@@ -161,12 +162,22 @@ module.exports = app => {
 
             // encontra o id do idoso
              // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio?  Pegando um grande array contendo todos os idosos?!
-            const idos = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
-            const idosoId = idos ? idos._id.toString() : null;
-            if(!idosoId) {
+            const idososByNome = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
+            let idosoId = null;
+            // const idosoId = idos ? idos._id.toString() : null;
+            let idos = null;
+            if(idososByNome.length == 0) { // atendimento sem idoso
                 console.error('ATENDIMENTO SEM IDOSO! ', rows[i], unidade._id, idos)
                 atendimentosSemIdoso.push({index: i, row: rows[i]});
-            }  
+            } else if(idososByNome.length == 1) { // atendimento com idoso
+                idos = idososByNome[0];
+                idosoId = idos._id.toString();
+            } else { // mais de um idoso encontrado com o mesmo nome! Ambiguo, não da pra saber de que idoso é esse atendimento
+                idosoId = null;
+                idos = null;
+                console.error('MAIS DE UM IDOSO ENCONTRADO COM O MESMO NOME! ', rows[i], unidade._id, idos)
+                atendimentosIdososMesmoNome.push({index: i, row: rows[i]});
+            }
             // encontra o id do vigilante, se não existir cria um novo vigilante
             // const vig = await app.server.service.v2.usuarioService.findVigilanteByNome(rows[i][1], unidade._id);
             const vig = usuariosArray.find(usuario => usuario.name == rows[i][1].trim());
@@ -435,7 +446,7 @@ module.exports = app => {
             atendimento.authsecret = '';
             // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
             atendimento.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
-            atendimento.responseId = '';
+            atendimento.responseId = `'Respostas'!A${i + 2}:AI${i + 2}`;
                 
             const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
             atendimentosArray.push(aten);
@@ -481,24 +492,24 @@ module.exports = app => {
                 </tr>`;
             });
     
-            // atendimentosSemVigilanteString = `
-            // <tr>
-            //     <th>localização</th>
-            //     <th>data</th>
-            //     <th>idoso</th>
-            //     <th>atendente</th>
-            //     <th>duração</th>
-            // </tr>`;
-            // atendimentosSemVigilante.forEach(atendimento => {
-            //     atendimentosSemVigilanteString += `
-            //     <tr>
-            //         <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
-            //         <td>${atendimento.row[0]}</td>
-            //         <td>${atendimento.row[2]}</td>
-            //         <td>${atendimento.row[1]}</td>
-            //         <td>${atendimento.row[34]}</td>
-            //     </tr>`;
-            // });
+            atendimentosIdososMesmoNomeString = `
+            <tr>
+                <th>idoso</th>
+                <th>localização</th>
+                <th>atendente</th>
+                <th>data atendimento</th>
+                <th>duração chamada</th>
+            </tr>`;
+            atendimentosIdososMesmoNome.forEach(atendimento => {
+                atendimentosIdososMesmoNomeString += `
+                <tr>
+                    <td>${atendimento.row[2]}</td>
+                    <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
+                    <td>${atendimento.row[1]}</td>
+                    <td>${atendimento.row[0]}</td>
+                    <td>${atendimento.row[34]}</td>
+                </tr>`;
+            });
     
             const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
             const toArray = administradores.map((admin) => admin.email);
@@ -509,10 +520,15 @@ module.exports = app => {
                 <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
                 <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
                 <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>
+
                 <h1>Relatório de falhas</h1>
-                <h2>Atendimentos sem idosos (${atendimentosSemIdoso.length})</h2>
+                <h2>Idosos não encontrados (${atendimentosSemIdoso.length})</h2>
                 <p>Os seguintes idosos não foram encontrados!</p>
-                <table border>${atendimentosSemIdosoString}</table>`,
+                <table border>${atendimentosSemIdosoString}</table>
+
+                <h2>Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})</h2>
+                <p>Não foi possível identificar a quais idosos pertencem os seguintes atendimentos, pois há mais de um idoso com o mesmo nome na unidade!</p>
+                <table border>${atendimentosIdososMesmoNomeString}</table>`,
                 `[${unidade.nome}] Importação finalizada`,
                 toArray);
         } else {
