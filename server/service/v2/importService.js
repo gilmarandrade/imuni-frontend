@@ -16,8 +16,12 @@ module.exports = app => {
             for(let i = 0; i < sheets.length; i++) {
                 if(sheets[i].sheetName.startsWith("Vigilante")) {
                     // TODO e se a planilha estiver vazia?
-                    const idVigilante = await syncVigilante(unidade, sheets[i].sheetName);
+                    let idVigilante = await syncVigilante(unidade, sheets[i].sheetName);
                     console.log('idVigilante', idVigilante);
+                    if(!idVigilante) {
+                        let idVigilante = await syncVigilante(unidade, sheets[i].sheetName);
+                        console.log('idVigilante (2ª tentativa)', idVigilante);
+                    }
                     const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, idVigilante);
                     // if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
                     //     await syncIdososBySheetName(unidade, sheets[i].sheetName, idVigilante);
