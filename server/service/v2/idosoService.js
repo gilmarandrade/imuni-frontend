@@ -469,10 +469,16 @@ module.exports = app => {
         return promise;
     }
 
+    /**
+     * Atualiza em lote os idosos da unidade
+     * 
+     * Considera iguais idosos com mesmo nome & telefones. Pois podem haver idosos diferentes com nomes identicos, por isso usa o telefone para identificá-los
+     * @param {*} idososArray 
+     */
     const bulkUpdateOne = async (idososArray) => {
 
         const addToBatch = (batch, item) => {
-            batch.find({ nome: item.nome, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
+            batch.find({ nome: item.nome, telefone1: item.telefone1, telefone2: item.telefone2, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
                 $set: { 
                     // row: item.row,
                     dataNascimento: item.dataNascimento,
