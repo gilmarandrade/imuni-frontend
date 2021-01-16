@@ -38,6 +38,10 @@ module.exports = app => {
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
   }
+
+  async function sendToMany(message, subject, toArray) {
+      await send(message, subject, toArray.join(', '));
+  }
   
-  return { send };
+  return { send, sendToMany };
 };

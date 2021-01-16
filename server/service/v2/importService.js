@@ -463,20 +463,20 @@ module.exports = app => {
             
             atendimentosSemIdosoString = `
             <tr>
-                <th>localização</th>
-                <th>data</th>
                 <th>idoso</th>
+                <th>localização</th>
                 <th>atendente</th>
-                <th>duração</th>
+                <th>data atendimento</th>
+                <th>duração chamada</th>
             </tr>`;
     
             atendimentosSemIdoso.forEach(atendimento => {
                 atendimentosSemIdosoString += `
                 <tr>
-                    <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
-                    <td>${atendimento.row[0]}</td>
                     <td>${atendimento.row[2]}</td>
+                    <td>'Respostas'!A${atendimento.index + 2}:AI${atendimento.index + 2}</td>
                     <td>${atendimento.row[1]}</td>
+                    <td>${atendimento.row[0]}</td>
                     <td>${atendimento.row[34]}</td>
                 </tr>`;
             });
@@ -501,27 +501,33 @@ module.exports = app => {
             // });
     
             const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
-            administradores.forEach(administrador => {
-                app.server.config.mail.send(
-                    `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
-                    <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
-                    <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
-                    <p><strong>Atendentes encontrados</strong>: ${usuariosArray.length}</p>
-                    <h1>Relatório de falhas</h1>
-                    <h2>Atendimentos sem idosos (${atendimentosSemIdoso.length})</h2>
-                    <table border>${atendimentosSemIdosoString}</table>`,
-                    `[${unidade.nome}] Importação finalizada`,
-                    administrador.email);
-            });
-        } else {
-            const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
-            app.server.config.mail.send(
+            const toArray = administradores.map((admin) => admin.email);
+            toArray.push(process.env.DEVELOPER_MAIL);
+            
+            await app.server.config.mail.sendToMany(
                 `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
                 <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
-                <p><strong>Atendimentos encontrados:</strong> 0</p>
-                <p><strong>Atendentes encontrados</strong>: ${usuariosArray.length}</p>`,
+                <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
+                <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>
+                <h1>Relatório de falhas</h1>
+                <h2>Atendimentos sem idosos (${atendimentosSemIdoso.length})</h2>
+                <p>Os seguintes idosos não foram encontrados!</p>
+                <table border>${atendimentosSemIdosoString}</table>`,
                 `[${unidade.nome}] Importação finalizada`,
-                'gilmar-andrade@outlook.com');
+                toArray);
+        } else {
+            const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
+            const toArray = administradores.map((admin) => admin.email);
+            toArray.push(process.env.DEVELOPER_MAIL);
+
+            const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
+            await app.server.config.mail.send(
+                `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
+                <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
+                <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
+                <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>`,
+                `[${unidade.nome}] Importação finalizada`,
+                toArray);
         }
 
 
