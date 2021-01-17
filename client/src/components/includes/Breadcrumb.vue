@@ -20,10 +20,10 @@ export default {
 
 <style>
     .breadcrumb {
-        background-color: transparent;
+        background-color: transparent !important;
         color: black;
         font-size: 12px;
-        padding: 0;
+        padding: 0 !important;
         margin: 0;
         opacity: .6;
     }

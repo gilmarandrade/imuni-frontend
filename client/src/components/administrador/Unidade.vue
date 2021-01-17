@@ -154,7 +154,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'Unidade',
-    components: { Breadcrumb,CounterIdosos },
+    components: { Breadcrumb, CounterIdosos },
     data: function() {
         return {
             unidade: null,

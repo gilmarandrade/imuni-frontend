@@ -91,7 +91,7 @@ module.exports = app => {
         .get(app.server.api.v2.usuarios.getName);
 
     
-    app.route('/api/v2/migracao/unidades')
+    app.route('/api/v2/importacao/unidades')
         .all(app.server.config.passport.authenticate())
         .post(app.server.api.v2.unidades.migrate);
         
