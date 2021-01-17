@@ -2,7 +2,7 @@ module.exports = app => {
 
     const ObjectId = require('mongodb').ObjectID;
     const dbName = process.env.MONGO_DB_NAME;
-    const collectionName = 'atendimentosForm';
+    const collectionName = 'atendimentos';
 
     /**
      * Insere um item
