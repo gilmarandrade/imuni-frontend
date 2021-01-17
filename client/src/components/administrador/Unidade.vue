@@ -1,15 +1,28 @@
 <template>
  <div class="unidades" v-if="unidade">
    <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome}]" />
-   <header class="header-page">
+   <header class="header-page row justify-content-between">
+     <div class="col-10">
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
-
-        <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">importar</button>
+     </div>
+     <div class="col-2 text-right">
+        <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar
         </router-link>
-        <b-button @click="confirmDeletion(unidade._id)" class="btn btn-danger ml-2">excluir</b-button>
+        <b-button class="btn btn-danger ml-2">excluir</b-button> -->
+
+        <b-dropdown right no-caret variant="light" title="Opções">
+            <template #button-content>
+                <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+            </template>
+            <b-dropdown-item :href="'/adicionarUnidade?id='+unidade._id">Editar</b-dropdown-item>
+            <b-dropdown-item  @click="confirmDeletion(unidade._id)">Excluir</b-dropdown-item>
+            <b-dropdown-item  @click="importFromPlanilhaUnidade" :disabled="!unidade.idPlanilhaGerenciamento || syncStatus.status==='LOADING'">Reimportar de planilhas</b-dropdown-item>
+        </b-dropdown>
+     </div>
+
 
         <div v-if="loading">carregando...</div>
         

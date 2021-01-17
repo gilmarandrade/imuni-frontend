@@ -98,6 +98,7 @@
             id="vigilante"
             v-model="form.vigilanteId"
             :options="vigilantes"
+            :disabled="user.role === 'PRECEPTOR'"
             ></b-form-select>
         </b-form-group>
 
@@ -110,10 +111,12 @@
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 import Breadcrumb from '@/components/includes/Breadcrumb';
+import { mapState } from 'vuex';
 
 export default {
     name: 'CadastrarIdoso',
     components: { Breadcrumb },
+    computed: mapState(['user']),
     data: function() {
         return {
             form: {
@@ -134,26 +137,41 @@ export default {
     },
      methods: {
         loadUnidades() {
-            const url = `${baseApiUrl}/v2/unidades`;
-            console.log(url);
+            if(this.user.role === 'PRECEPTOR') { // carrega no select apenas a unidade do preceptor
+                const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
+                console.log(url);
 
-            axios.get(url).then(res => {
-                this.unidades = [ 
-                    { text: 'Selecione...', value: '' }, 
-                    ...res.data.map(item => { return { text: item.nome, value: item._id } } ) 
-                ];
-            }).catch(showError)
+                axios.get(url).then(res => {
+                    this.unidades = [ 
+                        // { text: 'Selecione...', value: '' }, 
+                        { text: res.data.nome, value: res.data._id }
+                    ];
+                }).catch(showError)
+            } else { // carrega no select todas as unidades
+                const url = `${baseApiUrl}/v2/unidades`;
+                console.log(url);
+
+                axios.get(url).then(res => {
+                    this.unidades = [ 
+                        { text: 'Selecione...', value: '' }, 
+                        ...res.data.map(item => { return { text: item.nome, value: item._id } } ) 
+                    ];
+                }).catch(showError)
+            }
         },
         loadVigilantes(unidadeId) {
-            const url = `${baseApiUrl}/v2/unidades/${unidadeId}/vigilantes`;
-            console.log(url);
+            if(this.user.role !== 'PRECEPTOR') { // não carrega o select de vigilantes, caso o usuario cadastrando seja um preceptor
+                const url = `${baseApiUrl}/v2/unidades/${unidadeId}/vigilantes`;
+                console.log(url);
 
-            axios.get(url).then(res => {
-                this.vigilantes = [ 
-                    { text: 'Selecione...', value: '' }, 
-                    ...res.data.map(item => { return { text: item.name, value: item._id } } ) 
-                ];
-            }).catch(showError)
+                axios.get(url).then(res => {
+                    console.log(res.data)
+                    this.vigilantes = [ 
+                        { text: 'Selecione...', value: '' }, 
+                        ...res.data.map(item => { return { text: item.name, value: item._id } } ) 
+                    ];
+                }).catch(showError)
+            }
         },
         onSubmit(evt) {
             //TODO validação: a data de nascimento deve ter formato xx/xx/xxxx, usar um componente de calendário
@@ -162,9 +180,10 @@ export default {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/idosos`;
             console.log(url, this.form);
 
-            axios.post(url, this.form).then( () => {
-                // this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
-                window.history.length > 1 ? this.$router.go(-1) : null;
+            axios.post(url, this.form).then( (res) => {
+                console.log(res.data)
+                this.$router.push({ name: 'idoso', params: { unidadeId: res.data.unidadeId, idosoId: res.data._id } })
+                // window.history.length > 1 ? this.$router.go(-1) : null;
                 this.$toasted.global.defaultSuccess({ msg: 'Registro salvo com sucesso'});
             }).catch(showError)
         },

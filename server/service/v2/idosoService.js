@@ -33,7 +33,10 @@ module.exports = app => {
                     if(err) {
                         reject(err);
                     } else {
-                        resolve(result.upsertedId === null ? idoso._id : result.upsertedId._id);
+                        if( result.upsertedId) {
+                            idoso._id = result.upsertedId._id;
+                        }
+                        resolve(idoso);
                     }
                 });
             });

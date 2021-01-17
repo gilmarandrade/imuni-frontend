@@ -22,11 +22,18 @@
             <p>Distrito {{ unidade.distrito }}</p> -->
         <!-- </div> -->
 
-        <h5>{{ unidade.nome }}</h5>
-        <h1>Meus Idosos</h1>
         <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
         <!-- <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a> -->
-
+        <div class="row">
+            <div class="col-9">
+                <h5>{{ unidade.nome }}</h5>
+                <h1>Meus Idosos</h1>
+            </div>
+            <div class="col-3 text-right">
+                <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">importar</button> -->
+                <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary mt-4" title="Adicionar idoso">Adicionar</router-link>
+            </div>
+        </div>
 
          <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>

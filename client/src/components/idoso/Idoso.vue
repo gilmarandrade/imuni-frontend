@@ -3,9 +3,22 @@
         <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome}]" />
         <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/idosos/com-escalas`}, {text: idoso.nome}]" />
 
-        <h1>
-            {{ idoso.nome }}
-        </h1>
+        <div class="row">
+            <div class="col-10">
+                <h1>
+                    {{ idoso.nome }}
+                </h1>
+            </div>
+            <div class="col-2 text-right">
+                <b-dropdown right no-caret variant="light" title="Opções">
+                    <template #button-content>
+                        <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+                    </template>
+                    <b-dropdown-item :href="'/unidades/'+idoso.unidadeId+'/cadastrarIdoso?id='+idoso._id">Editar</b-dropdown-item>
+                    <b-dropdown-item v-if="user.role === 'ADMINISTRADOR'" @click="deleteIdoso(idoso._id)">Excluir</b-dropdown-item>
+                </b-dropdown>
+            </div>
+        </div>
 
         <div class="badges" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
                 <popper v-if="idoso.estatisticas.ultimaEscala.escalas.vulnerabilidade"
@@ -69,7 +82,8 @@
             <div class="col">
                 <div>
                     <strong>Vigilante: </strong>
-                    <UsuarioLink :id="idoso.vigilanteId" />
+                    <UsuarioLink v-if="idoso.vigilanteId" :id="idoso.vigilanteId" />
+                    <span v-else class="atencao">Sem vigilante</span>
                 </div>
                 <div>
                     <strong>Atendimentos efetuados:</strong> 
@@ -329,6 +343,31 @@ export default {
                 console.log(this.unidade)
             }).catch(showError)
         },
+        deleteIdoso(id) {
+          this.$bvModal.msgBoxConfirm('Deseja realmente excluir o idoso? Todos os dados serão perdidos!', {
+            okVariant: 'danger',
+            okTitle: 'excluir',
+            cancelTitle: 'cancelar',
+          })
+            .then(value => {
+              console.log(value);
+              if(value === true) {
+                  const url = `${baseApiUrl}/v2/idosos/${id}`;
+                  console.log(url);
+
+                  axios.delete(url).then(res => {
+                      console.log(res.data)
+                      console.log(`/unidades/${this.unidade._id}/usuarios/${this.user._id}/idosos/all`)
+                      this.$router.push({ path: `/unidades/${this.unidade._id}/usuarios/${this.user.id}/idosos/all` })
+                      this.$toasted.global.defaultSuccess({ msg: 'Idoso removido com sucesso'});
+                  }).catch(showError)
+              }
+            })
+            .catch(err => {
+              // An error occurred
+              console.error(err.toString())
+            })
+        },
     },
     mounted() {
       this.loadIdoso();
@@ -357,6 +396,10 @@ export default {
     }
 
     .idoso .dataProximoAtendimento.atencao {
+        color: rgb(235, 87, 87);
+    }
+    
+    .atencao {
         color: rgb(235, 87, 87);
     }
 </style>

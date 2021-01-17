@@ -171,13 +171,13 @@
                             <font-awesome-icon :icon="['fas', 'comment-medical']" />
                         </a>
                     </div>
-                    <div class="table-actions ml-2" v-if="user.role == 'ADMINISTRADOR'">
+                    <div class="table-actions ml-2" v-if="user.role == 'ADMINISTRADOR' || user.role == 'PRECEPTOR'">
                         <b-dropdown right no-caret variant="light" title="Opções">
                             <template #button-content>
                                 <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
                             </template>
                             <b-dropdown-item :href="'/unidades/'+unidadeId+'/cadastrarIdoso?id='+data.item._id">Editar</b-dropdown-item>
-                            <b-dropdown-item @click="deleteIdoso(data.item._id)">Excluir</b-dropdown-item>
+                            <b-dropdown-item v-if="user.role == 'ADMINISTRADOR'" @click="deleteIdoso(data.item._id)">Excluir</b-dropdown-item>
                         </b-dropdown>
                     </div>
                 </div>

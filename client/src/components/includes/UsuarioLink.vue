@@ -34,7 +34,7 @@ export default {
                     this.usuarioUrl = `/unidades/${response.data.unidadeId}/usuarios/${this.id}/idosos/com-escalas`;
                 }
             } catch (error) {
-                this.usuarioName = this.id;
+                this.usuarioName = 'Não encontrado';
                 console.error(error);
             }
         },

@@ -77,10 +77,11 @@ module.exports = app => {
                 
                 const collection = db.collection(collectionName);
 
-                collection.find({ unidadeId: unidadeId, role: "VIGILANTE", status: "ATIVO", _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
+                collection.find({ unidadeId: ObjectId(unidadeId), role: "VIGILANTE", status: "ATIVO", _isDeleted: false }, { projection: { password: 0 } }).toArray(function(err, result) {
                     if(err) {
                         reject(err);
                     } else {
+                        console.log(unidadeId, result)
                         resolve(result);
                     }
                 });
