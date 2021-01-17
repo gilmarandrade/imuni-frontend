@@ -129,6 +129,33 @@ module.exports = app => {
     }
 
     /**
+     * Conta quantos idosos a unidade possui
+     * @param {*} id 
+     */
+    const countByUnidade = async (unidadeId) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                
+                const collection = db.collection(collectionName);
+
+                collection.count({ unidadeId: ObjectId(unidadeId), _isDeleted: false  }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
+    /**
      * Exclusão lógica de registro
      * 
      * Seta _isDeleted para true
@@ -608,5 +635,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia, transferirIdosos };
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia, transferirIdosos, countByUnidade };
 }

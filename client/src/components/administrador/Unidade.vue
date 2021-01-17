@@ -30,10 +30,8 @@
    <div class="container">
       <div class="card mb-4">
          <div class="card-body">
-            <h5 class="card-title mb-4">
-              Idosos
-            </h5>
-            <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ user.id +'/idosos/all'">Ver todos</router-link>
+            <span class="display-4">{{qtdIdosos}}</span> <strong>Idosos</strong>
+            <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ user.id +'/idosos/all'" class="btn btn-primary float-right mt-3">Ver todos</router-link>
           </div>
       </div>
 
@@ -41,13 +39,13 @@
          <div class="card-body">
             <h5 class="card-title">
               Usuários
-              <router-link :to="'/unidades/'+unidade._id+'/addUsuario'" class="btn btn-primary float-right mb-3">convidar</router-link>
+              <router-link :to="'/unidades/'+unidade._id+'/addUsuario'" class="btn btn-primary float-right mb-3">Convidar</router-link>
             </h5>
             
             <h6 class="card-subtitle">Ativos</h6>
             <b-table :items="usuariosAtivos" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'" title="Clique para ver os idosos do usuário">{{ data.item.name }}</router-link>
                 <div class="text-muted">
                   {{data.item.role}} 
                   <span v-if="data.item.role === 'VIGILANTE'">
@@ -90,7 +88,7 @@
             <h6 class="card-subtitle">Inativos</h6>
             <b-table :items="usuariosInativos" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
-                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
+                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'" title="Clique para ver os idosos do usuário">{{ data.item.name }}</router-link>
                 <div class="text-muted">
                   {{data.item.role}} 
                   <span v-if="data.item.role === 'VIGILANTE'">
@@ -206,6 +204,7 @@ export default {
               emailState: null,
               emailInvalidFeedback: '',
             },
+            qtdIdosos: 0,
         }
     },
     computed: mapState(['syncStatus', 'user']),
@@ -217,6 +216,15 @@ export default {
             axios.get(url).then(res => {
                 this.unidade = res.data
                 console.log(this.unidade)
+                this.countIdososByUnidade();
+            }).catch(showError)
+        },
+        countIdososByUnidade() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/idosos/count`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.qtdIdosos = res.data
             }).catch(showError)
         },
         loadUsuarios() {

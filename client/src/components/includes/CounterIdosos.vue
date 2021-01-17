@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         async countIdosos() {
-            const url = `${baseApiUrl}/v2/unidades/${this.idUnidade}/usuarios/${this.idVigilante}/idosos/count`;
+            const url = `${baseApiUrl}/v2/unidades/${this.idUnidade}/vigilantes/${this.idVigilante}/idosos/count`;
             console.log(url);
 
             try {

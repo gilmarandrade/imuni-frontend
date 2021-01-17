@@ -47,7 +47,7 @@ module.exports = app => {
         // .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.idosos.idososByUser);
 
-    app.route('/api/v2/unidades/:unidadeId/usuarios/:usuarioId/idosos/count')
+    app.route('/api/v2/unidades/:unidadeId/vigilantes/:usuarioId/idosos/count')
         // .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.idosos.countByVigilante);
 
@@ -68,6 +68,10 @@ module.exports = app => {
     app.route('/api/v2/unidades/:unidadeId/idosos/transferir')
         .all(app.server.config.passport.authenticate())
         .post(role(app.server.api.v2.idosos.transferirIdosos, 'ADMINISTRADOR'));
+
+    app.route('/api/v2/unidades/:unidadeId/idosos/count')
+        .all(app.server.config.passport.authenticate())
+        .get(role(app.server.api.v2.idosos.countByUnidade, 'ADMINISTRADOR'));
 
     app.route('/api/v2/unidades/:unidadeId/idosos')// TODO esse endpoint está sendo usado? cadastro de idoso
         .all(app.server.config.passport.authenticate())

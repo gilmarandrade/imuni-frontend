@@ -91,6 +91,17 @@ module.exports = app => {
         }
     }
 
+    const countByUnidade = async (req, res) => {
+        const unidadeId = req.params.unidadeId;
+
+        try {
+            const result = await app.server.service.v2.idosoService.countByUnidade(unidadeId);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
     const transferirIdosos = async (req, res) => {
         const unidadeId = req.params.unidadeId;
         const from = req.body.from;
@@ -108,5 +119,5 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante, transferirIdosos };
+    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante, transferirIdosos, countByUnidade };
 };
