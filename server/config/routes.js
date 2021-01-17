@@ -56,6 +56,11 @@ module.exports = app => {
         .get(role(app.server.api.v2.usuarios.getByUnidadeId, 'ADMINISTRADOR'))
         .post(role(app.server.api.v2.usuarios.sendInvitation, 'ADMINISTRADOR'));
 
+    app.route('/api/v2/idosos/:idosoId/anotacoes')
+        .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.anotacoes.findByIdoso)
+        .post(app.server.api.v2.anotacoes.insert);
+
     app.route('/api/v2/idosos/:idosoId/atendimentos')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.atendimentos.getByIdoso);
