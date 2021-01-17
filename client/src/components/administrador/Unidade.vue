@@ -37,20 +37,27 @@
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch disabled="true" class="d-inline-block">
+                  </b-form-checkbox>
                   INCOMPLETO
-                  <button @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
+                  <!-- <button @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button> -->
                 </span>
                 <span v-else-if="data.item.status == 'CONVIDADO'">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch disabled="true" class="d-inline-block">
+                  </b-form-checkbox>
                    CONVITE ENVIADO 
-                  <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
+                  <!-- <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button> -->
                 </span>
                 <span v-else>
-                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id" class="d-inline-block">
                   </b-form-checkbox>
+                  {{ data.item.status }}
                 </span>
               </template>
               <template v-slot:cell(acoes)="data">
-                <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button>
+                  <button v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
+                  <button v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
+                <!-- <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button> -->
               </template>
             </b-table>
          </div>
