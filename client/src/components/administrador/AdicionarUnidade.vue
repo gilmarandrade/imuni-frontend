@@ -1,7 +1,8 @@
 <template>
   <div class="adicionarUnidade">
-      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Adicionar Unidade'}]" />
-    <h1>Adicionar/Editar Unidade</h1>
+    <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Adicionar Unidade'}]" />
+    <h1 v-if="$route.query.id">Editar Unidade</h1>
+    <h1 v-else>Adicionar Unidade</h1>
   
     <b-form @submit="onSubmit">
         <b-form-group

@@ -1,8 +1,9 @@
 <template>
   <div class="adicionarIdoso">
       <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Adicionar idoso'}]" />
-    <h1>Adicionar/Editar Idoso</h1>
-
+    <h1 v-if="$route.query.id">Editar Idoso</h1>
+    <h1 v-else>Adicionar Idoso</h1>
+    
     <b-form @submit="onSubmit">
         <b-form-group
             id="input-group-nome"
