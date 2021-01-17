@@ -31,7 +31,43 @@
               <router-link :to="'/unidades/'+unidade._id+'/addUsuario'" class="btn btn-primary float-right mb-3">convidar</router-link>
             </h5>
             
-            <b-table :items="usuarios" :fields="fieldsUsuarios">
+            <h6 class="card-subtitle">Ativos</h6>
+            <b-table :items="usuariosAtivos" :fields="fieldsUsuarios">
+              <template v-slot:cell(link)="data">
+                <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
+                <div class="text-muted">
+                  {{data.item.role}} 
+                  <CounterIdosos v-if="data.item.role === 'VIGILANTE'" :idVigilante="data.item._id" />
+                </div>
+              </template>
+              <template v-slot:cell(status)="data">
+                <span v-if="data.item.status == 'INCOMPLETO'">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch :disabled="true" class="d-inline-block">
+                  </b-form-checkbox>
+                  INCOMPLETO
+                  <!-- <button @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button> -->
+                </span>
+                <span v-else-if="data.item.status == 'CONVIDADO'">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch :disabled="true" class="d-inline-block">
+                  </b-form-checkbox>
+                   CONVITE ENVIADO 
+                  <!-- <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button> -->
+                </span>
+                <span v-else>
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch @change="toggleAtivo(data.item)" :disabled="data.item._id == user.id" class="d-inline-block">
+                  </b-form-checkbox>
+                  {{ data.item.status }}
+                </span>
+              </template>
+              <template v-slot:cell(acoes)="data">
+                  <button v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
+                  <button v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
+                <!-- <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button> -->
+              </template>
+            </b-table>
+
+            <h6 class="card-subtitle">Inativos</h6>
+            <b-table :items="usuariosInativos" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
                 <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
                 <div class="text-muted">
@@ -124,6 +160,8 @@ export default {
             unidade: null,
             loading: false,
             usuarios: [],
+            usuariosAtivos: [],
+            usuariosInativos: [],
             fieldsUsuarios: [ 
                 { key: 'link', label: 'nome' },
                 { key: 'email', label: 'email' },
@@ -157,6 +195,8 @@ export default {
 
             axios.get(url).then(res => {
                 this.usuarios = res.data
+                this.usuariosAtivos = res.data.filter((user) => user.status === 'ATIVO')
+                this.usuariosInativos = res.data.filter((user) => user.status != 'ATIVO')
                 console.log(this.usuarios)
             }).catch(showError)
         },
@@ -350,5 +390,12 @@ export default {
 
   .card .card-title {
     font-weight: 600;
+  }
+  .card .card-subtitle {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 18px;
+    margin: 28px 0;
+    opacity: .85;
   }
 </style>

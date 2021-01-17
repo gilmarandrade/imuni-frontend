@@ -7,7 +7,7 @@
         <h5>{{ unidade.nome }}</h5>
         <h1 v-if="usuario">Idosos de {{ usuario.name }}</h1>
         <button @click="importFromPlanilhaUnidade" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">importar</button>
-        <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right">cadastrar</router-link>
+        <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary float-right" title="Adicionar idoso">Adicionar</router-link>
         <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
                 <TableIdosos :unidadeId="$route.params.unidadeId" :userId="$route.params.usuarioId" filter="com-escalas" orderBy="score"></TableIdosos>
