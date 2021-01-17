@@ -1,13 +1,15 @@
 <template>
   <header class="header">
-        <h1 class="title"> {{ title }} </h1>
+        <h1 class="title"> {{ title }} 
+            <span v-if="appMode == 'TEST'" class="badge bg-danger">MODO TESTE</span>
+        </h1>
         <UserDropdown v-if="!hideUserDropdown" />
   </header>
 </template>
 
 <script>
 import UserDropdown from './UserDropdown';
-// import { baseApiUrl, showError } from '@/global';
+import { appMode } from '@/global';
 // import axios from 'axios';
 
 export default {
@@ -15,6 +17,7 @@ export default {
     components: { UserDropdown },
     data: function() {
         return {
+            appMode: appMode,
             syncState: 'synced',
             lastSync: '00/00/0000 00:00',
         }

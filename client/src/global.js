@@ -2,6 +2,7 @@ import Vue from 'vue';
 
 export const userKey = '__frente_prevencao_covid_rn';
 export const baseApiUrl = process.env.VUE_APP_API;
+export const appMode = process.env.VUE_APP_MODE;
 
 export function showError(e) {
     if(e && e.response && e.response.data) {
