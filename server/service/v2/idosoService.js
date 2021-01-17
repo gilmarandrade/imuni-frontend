@@ -574,5 +574,39 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia };
+    /**
+     * Transfere todos os idosos de um vigilante para outro
+     * @param {*} idVigilanteFrom de
+     * @param {*} idVigilanteTo para
+     */
+    const transferirIdosos = async (idVigilanteFrom, idVigilanteTo) => {
+        console.log('transferirIdosos ', idVigilanteFrom, idVigilanteTo)
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+
+                collection.updateMany({ vigilanteId: ObjectId(idVigilanteFrom) }, {
+                    $set: { 
+                        vigilanteId: ObjectId(idVigilanteTo)
+                    }
+                }, function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        console.log(result.modifiedCount)
+                        // resolve(result.upsertedId === null ? idIdoso : result.upsertedId._id);
+                        resolve(result.modifiedCount);
+                    }
+                });
+            });
+
+        });
+
+        return promise;
+    }
+
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia, transferirIdosos };
 }

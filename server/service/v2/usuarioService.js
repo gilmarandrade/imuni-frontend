@@ -19,6 +19,8 @@ module.exports = app => {
 
         return promise;
     }
+    
+    // TODO presta atenção nas falhas de segurança
     const findById = async (id) => {
         const promise = new Promise( (resolve, reject) => {
             var MongoClient = require( 'mongodb' ).MongoClient;

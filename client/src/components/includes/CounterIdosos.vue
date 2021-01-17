@@ -1,7 +1,7 @@
 <template>
-  <small class="counterIdosos">
-    &#8226; {{ qtdIdosos }} idosos
-  </small>
+  <span class="counterIdosos">
+    {{ qtdIdosos }} idosos
+  </span>
 </template>
 
 <script>
@@ -11,7 +11,7 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'CounterIdosos',
-    props: ['idVigilante'],
+    props: ['idUnidade', 'idVigilante'],
     computed: mapState(['user']),
     data: function() {
         return {
@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         async countIdosos() {
-            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/usuarios/${this.idVigilante}/idosos/count`;
+            const url = `${baseApiUrl}/v2/unidades/${this.idUnidade}/usuarios/${this.idVigilante}/idosos/count`;
             console.log(url);
 
             try {

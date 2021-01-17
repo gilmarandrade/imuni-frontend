@@ -20,6 +20,7 @@ import AcceptInvitation from '@/components/auth/AcceptInvitation'
 import Administradores from '@/components/administrador/Administradores'
 import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
 import CadastrarIdoso from '@/components/administrador/CadastrarIdoso'
+import TransferirIdosos from '@/components/administrador/TransferirIdosos'
 import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
 import Listar from '@/components/avalins/Listar'
@@ -64,6 +65,12 @@ const routes = [
         name: 'meusIdosos',
         path: '/meusIdosos/:tab',
         component: VigilanteHome,
+    },
+    {
+        name: 'transferirIdosos',
+        path: '/unidades/:unidadeId/usuarios/:usuarioId/transferirIdosos',
+        component: TransferirIdosos,
+        meta: { requiresAdmin: true }
     },
     {
         name: 'idososPorUsuario',

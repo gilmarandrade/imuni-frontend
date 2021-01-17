@@ -50,7 +50,9 @@
                 <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
                 <div class="text-muted">
                   {{data.item.role}} 
-                  <CounterIdosos v-if="data.item.role === 'VIGILANTE'" :idVigilante="data.item._id" />
+                  <span v-if="data.item.role === 'VIGILANTE'">
+                    &#8226; <CounterIdosos :idUnidade="data.item.unidadeId" :idVigilante="data.item._id" class="small" />
+                  </span>
                 </div>
               </template>
               <template v-slot:cell(status)="data">
@@ -73,9 +75,15 @@
                 </span>
               </template>
               <template v-slot:cell(acoes)="data">
-                  <button v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
-                  <button v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 <!-- <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button> -->
+                <b-dropdown right no-caret variant="light" title="Opções">
+                    <template #button-content>
+                        <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+                    </template>
+                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Convidar</b-dropdown-item>
+                    <b-dropdown-item v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)">Reenviar convite</b-dropdown-item>
+                    <b-dropdown-item :disabled="data.item.role !== 'VIGILANTE'" :href="'/unidades/'+data.item.unidadeId+'/usuarios/'+ data.item._id +'/transferirIdosos'">Transferir idosos</b-dropdown-item>
+                </b-dropdown>
               </template>
             </b-table>
 
@@ -85,7 +93,9 @@
                 <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
                 <div class="text-muted">
                   {{data.item.role}} 
-                  <CounterIdosos v-if="data.item.role === 'VIGILANTE'" :idVigilante="data.item._id" />
+                  <span v-if="data.item.role === 'VIGILANTE'">
+                    &#8226; <CounterIdosos  :idUnidade="data.item.unidadeId" :idVigilante="data.item._id" class="small" />
+                  </span>
                 </div>
               </template>
               <template v-slot:cell(status)="data">
@@ -108,9 +118,16 @@
                 </span>
               </template>
               <template v-slot:cell(acoes)="data">
-                  <button v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button>
-                  <button v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button>
                 <!-- <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button> -->
+                 
+                <b-dropdown right no-caret variant="light" title="Opções">
+                    <template #button-content>
+                        <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+                    </template>
+                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Convidar</b-dropdown-item>
+                    <b-dropdown-item v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)">Reenviar convite</b-dropdown-item>
+                    <b-dropdown-item :disabled="data.item.role !== 'VIGILANTE'" :href="'/unidades/'+data.item.unidadeId+'/usuarios/'+ data.item._id +'/transferirIdosos'">Transferir idosos</b-dropdown-item>
+                </b-dropdown>
               </template>
             </b-table>
          </div>

@@ -91,5 +91,22 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante };
+    const transferirIdosos = async (req, res) => {
+        const unidadeId = req.params.unidadeId;
+        const from = req.body.from;
+        const to = req.body.to;
+
+        if(from === to) {
+            return res.status(400).send('Não é possível transferir de um vigilante para ele mesmo!');
+        }
+
+        try {
+            const result = await app.server.service.v2.idosoService.transferirIdosos(from, to);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante, transferirIdosos };
 };

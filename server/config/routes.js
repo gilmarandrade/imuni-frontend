@@ -26,6 +26,7 @@ module.exports = app => {
 
     app.route('/api/v2/usuarios/:usuarioId')
     .all(app.server.config.passport.authenticate())
+    .get(app.server.api.v2.usuarios.getById)
     .delete(role(app.server.api.v2.usuarios.remove, 'ADMINISTRADOR'));
 
     app.route('/api/v2/administradores')
@@ -64,7 +65,11 @@ module.exports = app => {
         .get(app.server.api.v2.idosos.getById)
         .delete(role(app.server.api.v2.idosos.remove, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/unidades/:unidadeId/idosos')// TODO esse endpoint está sendo usado?
+    app.route('/api/v2/unidades/:unidadeId/idosos/transferir')
+        .all(app.server.config.passport.authenticate())
+        .post(role(app.server.api.v2.idosos.transferirIdosos, 'ADMINISTRADOR'));
+
+    app.route('/api/v2/unidades/:unidadeId/idosos')// TODO esse endpoint está sendo usado? cadastro de idoso
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));

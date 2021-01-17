@@ -37,15 +37,18 @@ module.exports = app => {
         }
     }
 
-    // const getById = async (req, res) => {
-    //     try {
-    //         const result = await app.server.service.v2.usuarioService.findById(req.params.usuarioId);
-    //         console.log(result)
-    //         return res.json(result);
-    //     } catch(err) {
-    //         return res.status(500).send(err);
-    //     }
-    // }
+    const getById = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.usuarioService.findById(req.params.usuarioId);
+            if(result) {
+                delete result.password;
+            }
+            console.log(result)
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err);
+        }
+    }
 
     const getName = async (req, res) => {
         try {
@@ -255,5 +258,5 @@ module.exports = app => {
         }
     }
 
-    return { getByUnidadeId, getVigilantesAtivosByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro, getName, checkStatus }
+    return { getById, getByUnidadeId, getVigilantesAtivosByUnidadeId, sendInvitation, resendInvitation, getAdministradores, remove, updateStatus, completarCadastro, getName, checkStatus }
 }
