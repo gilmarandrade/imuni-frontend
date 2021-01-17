@@ -376,6 +376,51 @@ module.exports = app => {
         return promise;
     }
 
+    const countByVigilante = async (unidadeId, userId, filter) => {
+
+        let match;
+        // TODO falta filtrar por _isDeleted
+        // TODO VERIFICAR SE ESSES FILTROS FUNCIONAM NOS CASOS VAZIOS
+        switch(filter) {
+            case 'com-escalas':
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), 'estatisticas.qtdAtendimentosEfetuados': { $gt : 0 } } }; //apenas idosos com escalas
+                break;
+            case 'sem-escalas':
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId), $or: [ { 'estatisticas.qtdAtendimentosEfetuados': { $exists: false }}, {'estatisticas.qtdAtendimentosEfetuados': { $lte : 0 }} ]}  }; //apenas idosos sem escalas
+                break;
+            case 'all':
+            default:
+                match = { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId), vigilanteId: ObjectId(userId)} }; //todos
+                break;
+        }
+
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const idososCollection = db.collection(collectionName);
+      
+                idososCollection.aggregate([
+                    match,
+                    { $count: "total" },
+                    // { $group: { _id: null, totalRows: { $sum: 1 } } },
+                         
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        // console.log(result.length);
+                        resolve(result[0]);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
     const findAll = async (unidadeId, filter, sort, page, rowsPerPage) => {
 
         let match;
@@ -526,5 +571,5 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, bulkUpdateOne, getByNome, upsertEpidemiologia };
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia };
 }

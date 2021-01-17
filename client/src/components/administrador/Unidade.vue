@@ -34,16 +34,20 @@
             <b-table :items="usuarios" :fields="fieldsUsuarios">
               <template v-slot:cell(link)="data">
                 <router-link :to="'/unidades/'+unidade._id+'/usuarios/'+ data.item._id +'/idosos/com-escalas'">{{ data.item.name }}</router-link>
+                <div class="text-muted">
+                  {{data.item.role}} 
+                  <CounterIdosos v-if="data.item.role === 'VIGILANTE'" :idVigilante="data.item._id" />
+                </div>
               </template>
               <template v-slot:cell(status)="data">
                 <span v-if="data.item.status == 'INCOMPLETO'">
-                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch disabled="true" class="d-inline-block">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch :disabled="true" class="d-inline-block">
                   </b-form-checkbox>
                   INCOMPLETO
                   <!-- <button @click="openModalCompletarCadastroUsuario(data.item)" class="btn btn-outline-primary">Completar</button> -->
                 </span>
                 <span v-else-if="data.item.status == 'CONVIDADO'">
-                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch disabled="true" class="d-inline-block">
+                  <b-form-checkbox v-model="data.item.status" value="ATIVO" unchecked-value="INATIVO" name="check-button" switch :disabled="true" class="d-inline-block">
                   </b-form-checkbox>
                    CONVITE ENVIADO 
                   <!-- <button @click="resendInvite(data.item._id)" class="btn btn-outline-primary">reenviar</button> -->
@@ -107,13 +111,14 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import Breadcrumb from '@/components/includes/Breadcrumb';
+import CounterIdosos from '@/components/includes/CounterIdosos';
 import axios from 'axios';
 import 'vue-popperjs/dist/vue-popper.css';
 import { mapState } from 'vuex';
 
 export default {
     name: 'Unidade',
-    components: { Breadcrumb },
+    components: { Breadcrumb,CounterIdosos },
     data: function() {
         return {
             unidade: null,
@@ -121,9 +126,8 @@ export default {
             usuarios: [],
             fieldsUsuarios: [ 
                 { key: 'link', label: 'nome' },
-                // { key: 'name', label: 'nome' },
                 { key: 'email', label: 'email' },
-                { key: 'role', label: 'tipo' },
+                // { key: 'role', label: 'tipo' },
                 { key: 'status', label: 'status' },
                 { key: 'acoes', label: 'ações' },
             ],

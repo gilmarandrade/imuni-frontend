@@ -78,5 +78,18 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, idososByUser };
+    const countByVigilante = async (req, res) => {
+        console.log('idosos by user' + req.params.usuarioId)
+        const unidadeId = req.params.unidadeId;
+        const usuarioId = req.params.usuarioId;
+
+        try {
+            const result = await app.server.service.v2.idosoService.countByVigilante(unidadeId, usuarioId, req.query.filter);
+            return res.json(result);
+        } catch(err) {
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante };
 };
