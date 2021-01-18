@@ -78,7 +78,7 @@
                     <template #button-content>
                         <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
                     </template>
-                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Convidar</b-dropdown-item>
+                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Enviar convite</b-dropdown-item>
                     <b-dropdown-item v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)">Reenviar convite</b-dropdown-item>
                     <b-dropdown-item :disabled="data.item.role !== 'VIGILANTE'" :href="'/unidades/'+data.item.unidadeId+'/usuarios/'+ data.item._id +'/transferirIdosos'">Transferir idosos</b-dropdown-item>
                 </b-dropdown>
@@ -122,7 +122,7 @@
                     <template #button-content>
                         <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
                     </template>
-                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Convidar</b-dropdown-item>
+                    <b-dropdown-item v-if="data.item.status == 'INCOMPLETO'" @click="openModalCompletarCadastroUsuario(data.item)">Enviar convite</b-dropdown-item>
                     <b-dropdown-item v-else-if="data.item.status == 'CONVIDADO'" @click="resendInvite(data.item._id)">Reenviar convite</b-dropdown-item>
                     <b-dropdown-item :disabled="data.item.role !== 'VIGILANTE'" :href="'/unidades/'+data.item.unidadeId+'/usuarios/'+ data.item._id +'/transferirIdosos'">Transferir idosos</b-dropdown-item>
                 </b-dropdown>
