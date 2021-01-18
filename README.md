@@ -5,7 +5,7 @@ Sistema de monitoramento de idosos pra prevenção de covid-19 em Natal/RN
 na pasta raiz execute
 npm install para baixar as dependencias
 
-configure o arquivo .env com as informações necessarias para usar a api do Google Cloud Platform e SMPT (envio de emails)
+configure o arquivo .env com as informações necessarias para usar a api do Google Cloud Platform e SMPT (envio de emails) (desatualizado!)
 GOOGLE_PROJECT: nome do projeto
 GOOGLE_APPLICATION_CREDENTIALS: caminho para o arquivo credentials.json
 SMTP_HOST: endereço do servidor SMTP de envio de emails

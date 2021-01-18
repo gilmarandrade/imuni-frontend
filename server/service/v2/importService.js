@@ -533,7 +533,7 @@ module.exports = app => {
                 <h2>Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})</h2>
                 <p>Não foi possível identificar a quais idosos pertencem os seguintes atendimentos, pois há mais de um idoso com o mesmo nome na unidade!</p>
                 <table border>${atendimentosIdososMesmoNomeString}</table>`,
-                `[${unidade.nome}] Importação finalizada`,
+                `[IMUNI] ${unidade.nome}: Importação finalizada`,
                 toArray);
         } else {
             const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
@@ -546,7 +546,7 @@ module.exports = app => {
                 <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
                 <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
                 <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>`,
-                `[${unidade.nome}] Importação finalizada`,
+                `[IMUNI] ${unidade.nome}: Importação finalizada`,
                 toArray);
         }
 

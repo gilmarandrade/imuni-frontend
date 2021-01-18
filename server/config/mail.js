@@ -24,7 +24,7 @@ module.exports = app => {
   
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: '"Frente Prevenção COVID19 RN" <' + process.env.SMTP_USER + '>', // sender address
+      from: '"IMUNI" <' + process.env.SMTP_USER + '>', // sender address
       to: to, // list of receivers
       subject: subject, // Subject line
       text: message, // plain text body

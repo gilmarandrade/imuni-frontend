@@ -51,7 +51,7 @@ module.exports = app => {
                     `<h1>Erro fatal ao importar unidade</h1>
                     id unidade: ${data.idUnidade}<br/>
                     ${err.toString()}`,
-                    `Erro fatal ao importar unidade`,
+                    `[IMUNI] Erro fatal ao importar unidade`,
                     process.env.DEVELOPER_MAIL);
 
                 syncStatus.payload.status = 'ERROR';

@@ -110,7 +110,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "Recuperação de senha",
+                "[IMUNI] Recuperação de senha",
                 user.email
             ).catch((err) => {
                 console.log(err)
@@ -165,7 +165,7 @@ module.exports = app => {
                       </section>
                     </div>
                     `,
-                    "Senha alterada",
+                    "[IMUNI] Senha alterada",
                     user.email
                   ).catch(console.error);
                 return res.status(200).send("Senha alterada com sucesso");
@@ -209,7 +209,7 @@ module.exports = app => {
                       </section>
                     </div>
                     `,
-                    "Seja bem vindo!",
+                    "[IMUNI] Seja bem vindo!",
                     user.email
                   ).catch(console.error);
                 return res.status(200).send("Usuário cadastrado com sucesso");

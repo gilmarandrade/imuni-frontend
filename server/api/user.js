@@ -64,7 +64,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "Convite",
+                "[IMUNI] Convite",
                 user.email
               ).catch(console.error);
             return res.status(204).send();
@@ -123,7 +123,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "Convite",
+                "[IMUNI] Convite",
                 user.email
               ).catch(console.error);
             return res.status(200).send('Convite enviado');
@@ -166,7 +166,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "Convite",
+                "[IMUNI] Convite",
                 user.email
               ).catch(console.error);
             return res.status(200).send('Convite reenviado');
