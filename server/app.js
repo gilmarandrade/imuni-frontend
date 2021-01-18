@@ -4,12 +4,15 @@ const consign = require('consign');
 
 consign()
   .include('/server/config/passport.js')
-  .then('/server/config/socket.js')
   .then('/server/config/middlewares.js')
+  .then('/server/model')
+  .then('/server/config/socket.js')
   .then('/server/config/mail.js')
+  .then('/server/config/sheetsApi.js')
+  .then('/server/service')
   .then('/server/api/validation.js')
   .then('/server/api')
-  .then('/server/schedule')
+  // .then('/server/schedule')
   .then('/server/config/routes.js')
   .into(app);
 

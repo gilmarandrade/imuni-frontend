@@ -10,20 +10,42 @@ import VigilanteHome from '@/components/vigilante/VigilanteHome'
 import Unidades from '@/components/administrador/Unidades'
 import Unidade from '@/components/administrador/Unidade'
 import AdicionarUnidade from '@/components/administrador/AdicionarUnidade'
+import ImportarUnidade from '@/components/administrador/ImportarUnidade'
 import ConvidarUsuario from '@/components/administrador/ConvidarUsuario'
-import IdososPorVigilante from '@/components/administrador/IdososPorVigilante'
+import IdososPorUsuario from '@/components/administrador/IdososPorUsuario'
 import Auth from '@/components/auth/Auth'
 import ForgotPassword from '@/components/auth/ForgotPassword'
 import ResetPassword from '@/components/auth/ResetPassword'
 import AcceptInvitation from '@/components/auth/AcceptInvitation'
 import Administradores from '@/components/administrador/Administradores'
 import ConvidarAdministrador from '@/components/administrador/ConvidarAdministrador'
+import CadastrarIdoso from '@/components/administrador/CadastrarIdoso'
+import TransferirIdosos from '@/components/administrador/TransferirIdosos'
 import Idoso from '@/components/idoso/Idoso'
 import Atendimento from '@/components/atendimento/Atendimento'
+import Listar from '@/components/avalins/Listar'
+import Novo from '@/components/avalins/Novo'
+import Detalhar from '@/components/avalins/Detalhar'
+import CadastrarAtendimento from '@/components/atendimento/CadastrarAtendimento'
 
 Vue.use(VueRouter);
 
 const routes = [
+    {
+        name: 'Detalharavalins',
+        path: '/avalins/detalhar/:atendimentoId',
+        component: Detalhar
+    },
+    {
+        name: 'Novoavalins',
+        path: '/avalins/novo',
+        component: Novo
+    },
+    {
+        name: 'avalins',
+        path: '/avalins',
+        component: Listar
+    },
     {
         name: 'home',
         path: '/',
@@ -45,9 +67,15 @@ const routes = [
         component: VigilanteHome,
     },
     {
+        name: 'transferirIdosos',
+        path: '/unidades/:unidadeId/usuarios/:usuarioId/transferirIdosos',
+        component: TransferirIdosos,
+        meta: { requiresAdmin: true }
+    },
+    {
         name: 'idososPorUsuario',
-        path: '/unidades/:unidadePrefix/:unidadeNome/:unidadeId/usuarios/:usuarioId/:nome/:tab',
-        component: IdososPorVigilante,
+        path: '/unidades/:unidadeId/usuarios/:usuarioId/idosos/:tab',
+        component: IdososPorUsuario,
         meta: { requiresAdmin: true }
     },
     {
@@ -67,7 +95,7 @@ const routes = [
     },
     {
         name: 'convidarUsuarioDaUnidade',
-        path: '/unidades/:id/:unidadeNome/addUsuario',
+        path: '/unidades/:unidadeId/addUsuario',
         component: ConvidarUsuario,
         meta: { requiresAdmin: true }
     },
@@ -86,6 +114,11 @@ const routes = [
         name: 'atendimento',
         path: '/unidades/:unidadeId/atendimentos/:atendimentoId',
         component: Atendimento,
+    },
+    {
+        name: 'cadastrarAtendimento',
+        path: '/unidades/:unidadeId/cadastrarAtendimento',
+        component: CadastrarAtendimento,
     },
     {
         name: 'idoso',
@@ -111,10 +144,22 @@ const routes = [
         meta: { requiresAdmin: true }
     },
     {
+        name: 'importarUnidade',
+        path: '/importarUnidade',
+        component: ImportarUnidade,
+        meta: { requiresAdmin: true }
+    },
+    {
         name: 'administradores',
         path: '/administradores',
         component: Administradores,
         meta: { requiresAdmin: true }
+    },
+    {
+        name: 'cadastrarIdoso',
+        path: '/unidades/:unidadeId/cadastrarIdoso',
+        component: CadastrarIdoso,
+        meta: { requiresPreceptor: true }
     },
 ]
 
@@ -129,6 +174,9 @@ router.beforeEach((to, from, next) => {
     if(to.matched.some(record => record.meta.requiresAdmin)) {
         const user = JSON.parse(json);
         user && user.role === 'ADMINISTRADOR' ? next() : next({ path: '/' })
+    } else if(to.matched.some(record => record.meta.requiresPreceptor)) {
+        const user = JSON.parse(json);
+        user && (user.role === 'ADMINISTRADOR' || user.role === 'PRECEPTOR') ? next() : next({ path: '/' })
     } else {
         next()
     }

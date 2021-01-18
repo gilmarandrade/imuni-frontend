@@ -1,10 +1,10 @@
 <template>
     <div class="atendimento" v-if="atendimento">
-        <h6 v-if="user.role !== 'ADMINISTRADOR' && idoso"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link> / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+ idoso._id">{{ idoso.nome }}</router-link></h6>
-        <h6 v-if="user.role === 'ADMINISTRADOR' && idoso"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}} / <router-link :to="'/unidades/'+idoso.unidade+'/idosos/'+idoso._id">{{idoso.nome}}</router-link></h6>
-        
+        <Breadcrumb v-if="user.role !== 'ADMINISTRADOR' && idoso" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && idoso && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/idosos/com-escalas`}, {text: idoso.nome, url: `/unidades/${idoso.unidadeId}/idosos/${idoso._id}`}, {text: formatDate(atendimento.timestamp)}]" />
+
         <h1>Atendimento</h1>
-        <h6 class="text-muted">{{ formatDate(atendimento.fichaVigilancia.data) }}</h6>
+        <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>
 
         <div class="row mt-5">
             <div class="col-lg-7">
@@ -16,7 +16,9 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Nome:</b> {{ idoso.nome }}
+                                    <b>Nome: </b>
+                                    <IdosoLink :nome="idoso.nome" :url="`/unidades/${idoso.unidadeId}/idosos/${idoso._id}`" />
+                                    <!-- <IdosoLink :id="idoso._id" /> -->
                                 </div>
                                 <div>
                                     <b>Data de nascimento:</b> {{ idoso.dataNascimento }}
@@ -27,13 +29,15 @@
                             </div>
                             <div class="col-lg-6">
                                 <div>
-                                    <b>Unidade:</b> {{ idoso.unidade }}
+                                    <b>Unidade: </b>
+                                    <UnidadeLink v-if="unidade" :nome="unidade.nome" :url="`/unidades/${unidade._id}`" />
                                 </div>
                                 <div>
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
                                 </div>
                                 <div>
-                                    <b>Vigilante:</b> {{ idoso.vigilante }}
+                                    <b>Vigilante: </b>
+                                    <UsuarioLink :id="idoso.vigilanteId"></UsuarioLink>
                                 </div>
                             </div>
                         </div>
@@ -43,134 +47,42 @@
                 <b-card
                     title="Sintomas do idoso"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.atendeu"
                 >
                     <b-card-text>
-                        <div>
-                            <b>O idoso apresenta sintomas de gripe/COVID?</b> 
-                            <div v-if="!atendimento.fichaVigilancia.sintomasIdoso.apresentaSintomasGripeCOVID">Não</div>
-                            <ul>
-                                <li v-for="sintoma in atendimento.fichaVigilancia.sintomasIdoso.sintomas" :key="sintoma">{{ sintoma }}</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <b>Apresenta também outros sintomas?</b> 
-                            <div v-if="atendimento.fichaVigilancia.sintomasIdoso.outrosSintomas.length == 0">Não</div>
-                            <ul>
-                                <li v-for="sintoma in atendimento.fichaVigilancia.sintomasIdoso.outrosSintomas" :key="sintoma">{{ sintoma }}</li>
-                            </ul>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.sintomasIdoso.detalhesAdicionais">
-                            <b>Detalhes adicionais a respeito dos sintomas</b>
-                            <div>{{ atendimento.fichaVigilancia.sintomasIdoso.detalhesAdicionais }} </div>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.sintomasIdoso.haQuantosDiasIniciaram > 0">
-                            <b>Se estiver apresentando sintomas, há quantos dias eles iniciaram?</b>
-                            <div>{{ atendimento.fichaVigilancia.sintomasIdoso.haQuantosDiasIniciaram }} </div>
-                        </div>
-                        <div>
-                            <b>Esteve em contato com algum caso confirmado de coronavírus?</b>
-                            <div>{{ atendimento.fichaVigilancia.sintomasIdoso.contatoComCasoConfirmado ? 'Sim' : 'Não' }} </div>
-                        </div>
+                        <FormResponse v-for="item in atendimento.raw['S05']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Comorbidades"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.atendeu"
                 >
                     <b-card-text>
-                        <div>
-                            <b>Tem alguma condição de saúde?</b> 
-                            <div v-if="!atendimento.fichaVigilancia.comorbidades.condicoesSaude">Não</div>
-                            <ul>
-                                <li v-for="comorbidade in atendimento.fichaVigilancia.comorbidades.condicoesSaude" :key="comorbidade">{{ comorbidade }}</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <b>Tem alguma medicação que toma todos os dias?</b> 
-                            <div>{{ atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar ? 'Sim' : 'Não' }}</div>
-                            <ul>
-                                <li v-for="medicacao in atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.medicacoes" :key="medicacao">{{ medicacao }}</li>
-                            </ul>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.deveTomar">
-                            <b>Se toma medicação diariamente, está conseguindo adquiri-las?</b> 
-                            <div>{{ atendimento.fichaVigilancia.comorbidades.medicacaoDiaria.acessoMedicacao ? 'Sim' : 'Não' }}</div>
-                        </div>
+                        <FormResponse v-for="item in atendimento.raw['S06']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Acompanhantes no domicílio"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.atendeu"
                 >
                     <b-card-text>
-                        <div>
-                            <b>Quantas pessoas moram na casa do idoso?</b> 
-                            <div> {{ atendimento.fichaVigilancia.qtdAcompanhantesDomicilio }}</div>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
-                            <b>Na casa do idoso, alguém apresenta sintomas de gripe/COVID?</b> 
-                            <div v-if="atendimento.fichaVigilancia.sintomasDomicilio.length == 0">Não</div>
-                            <ul>
-                                <li v-for="sintomas in atendimento.fichaVigilancia.sintomasDomicilio" :key="sintomas">{{ sintomas }}</li>
-                            </ul>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
-                            <b>As pessoas que moram com o idoso têm saído de casa?</b> 
-                            <div> {{ atendimento.fichaVigilancia.habitosDomiciliaresAcompanhantes.saiDeCasa ? 'Sim' : 'Não' }}</div>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
-                            <b>As pessoas que moram com o idoso têm feito a higienização frequente das mãos com água e sabão ou álcool gel?</b> 
-                            <div> {{ atendimento.fichaVigilancia.habitosDomiciliaresAcompanhantes.higienizacaoMaos ? 'Sim' : 'Não' }}</div>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
-                            <b>O idoso costuma compartilhar utensílios com as pessoas da sua casa? Ex: copos, talheres.</b> 
-                            <div> {{ atendimento.fichaVigilancia.habitosDomiciliaresAcompanhantes.compartilhamentoUtensilios ? 'Sim' : 'Não' }}</div>
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.qtdAcompanhantesDomicilio > 0">
-                            <b>Todos em casa usam máscara ao falar com o idoso?</b> 
-                            <div> {{ atendimento.fichaVigilancia.habitosDomiciliaresAcompanhantes.usoMascara ? 'Sim' : 'Não' }}</div>
-                        </div>
+                        <FormResponse v-for="item in atendimento.raw['S09']" :key="item.question" :item="item" />
+                        <FormResponse v-for="item in atendimento.raw['S10']" :key="item.question" :item="item" />
+                        <FormResponse v-for="item in atendimento.raw['S11']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Identificação de vulnerabilidades"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.atendeu"
                 >
                     <b-card-text>
-                        <div>
-                            <b>Após a sondagem, como você identifica o convívio do idoso com sua família?</b> 
-                            <div> {{ atendimento.fichaVigilancia.vulnerabilidades.convivioFamilia }}</div>
-                        </div>
-                        <div>
-                            <b>Após a sondagem, você identificou algum sinal de vulnerabilidade alimentar?</b> 
-                            <div> {{ atendimento.fichaVigilancia.vulnerabilidades.alimentar ? 'Sim' : 'Não' }}</div>
-                        </div>
-                        <div>
-                            <b>Após a sondagem, você identificou algum sinal de vulnerabilidade financeira ou abuso financeiro por parte de terceiros?</b> 
-                            <div> {{ atendimento.fichaVigilancia.vulnerabilidades.financeira ? 'Sim' : 'Não' }}</div>
-                        </div>
-                        <div>
-                            <b>Após a sondagem, você identificou algum sinal de violência sofrida pelo idoso, seja ela física ou psicológica?</b> 
-                            <div> {{ atendimento.fichaVigilancia.vulnerabilidades.violencia ? 'Sim' : 'Não' }}</div>
-                        </div>
-                    </b-card-text>
-                </b-card>
-
-                <b-card
-                    title="Observações"
-                    class="mb-4"
-                >
-                    <b-card-text>
-                        <div>
-                            <div> {{ atendimento.fichaVigilancia.vulnerabilidades.observacoes || '-'}}</div>
-                        </div>
+                        <FormResponse v-for="item in atendimento.raw['S12']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
             </div>
@@ -182,42 +94,38 @@
                     <b-card-text>
                         <div>
                             <b>Data de realização:</b> 
-                             {{ formatDate(atendimento.fichaVigilancia.data) }}
+                             {{ formatDate(atendimento.timestamp) }}
                         </div>
                         <div>
-                            <b>Status da chamada: </b> 
-                            <span class="statusUltimoAtendimento" :class="{ 'atendido' : atendimento.fichaVigilancia.dadosIniciais.atendeu }">
-                                <span v-show="atendimento.fichaVigilancia.dadosIniciais.atendeu">
+                            <b>Status da chamada: </b>
+                            <span class="statusUltimoAtendimento" :class="{ 'atendido' : atendimento.atendeu }">
+                                <span v-show="atendimento.atendeu">
                                     <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
                                 </span>
-                                <span v-show="!atendimento.fichaVigilancia.dadosIniciais.atendeu">
+                                <span v-show="!atendimento.atendeu">
                                     <font-awesome-icon :icon="['far', 'times-circle']" /> Ligação não atendida
                                 </span>
                             </span>
                         </div>
                         <div>
-                            <b>Vigilante responsável:</b> 
-                             {{ atendimento.fichaVigilancia.vigilante }}
+                            <b>Atendente: </b>
+                             <UsuarioLink :id="atendimento.vigilanteId"></UsuarioLink>
                         </div>
                         <div>
                             <b>Tipo de atendimento:</b> 
-                             {{ atendimento.fichaVigilancia.primeiroAtendimento ? 'Primeiro atendimento' : 'Acompanhamento'}}
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.fonte">
-                            <b>Fonte das informações:</b> 
-                             {{ atendimento.fichaVigilancia.fonte }}
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.idade">
-                            <b>Idade:</b> 
-                             {{ atendimento.fichaVigilancia.idade }} anos
-                        </div>
-                        <div v-if="atendimento.fichaVigilancia.duracaoChamada">
-                            <b>Duração da chamada:</b> 
-                             {{ atendimento.fichaVigilancia.duracaoChamada }}
+                            {{ atendimento.tipo }}
                         </div>
                         <div>
-                            <b>key:</b> 
-                             {{ atendimento.fichaVigilancia.row }}
+                            <b>Fonte das informações:</b> 
+                            {{ atendimento.fonte }}
+                        </div>
+                        <div>
+                            <b>Idade:</b> 
+                            {{ atendimento.idadeIdoso }} anos
+                        </div>
+                        <div>
+                            <b>Duração da chamada:</b> 
+                            {{ atendimento.duracaoChamada }}
                         </div>
                     </b-card-text>
                 </b-card>
@@ -225,7 +133,7 @@
                 <b-card
                     title="Resultado do atendimento"
                     class="mb-4"
-                    v-if="atendimento.fichaVigilancia.dadosIniciais.atendeu"
+                    v-if="atendimento.atendeu"
                 >
                     <b-card-text>
                         <div>
@@ -261,67 +169,20 @@
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
-                    v-if="idoso && idoso.ultimaEscala"
+                    v-if="atendimento.raw['S08']"
                 >
                     <b-card-text>
-                        <div>
-                            <b>Tem feito a higienização frequente das mãos com água e sabão ou álcool gel?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.higienizacaoMaos ? 'Sim' : 'Não' }}
-                            </div>
-                        </div>
-                        <div>
-                            <b>O idoso tem saído de casa?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa ? 'Sim' : 'Não' }}
-                            </div>
-                        </div>
-                        <div v-if="idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa">
-                            <b>Caso o idoso esteja saindo de casa, qual a frequência?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.isolamento.frequencia }}
-                            </div>
-                        </div>
-                        <div v-if="idoso.ultimaEscala.epidemiologia.isolamento.saiDeCasa">
-                            <b>Caso o idoso esteja saindo de casa, para onde?</b> 
-                            <ul>
-                                <li v-for="paraOnde in idoso.ultimaEscala.epidemiologia.isolamento.paraOnde" :key="paraOnde">{{ paraOnde }}</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <b>Há um familiar ou amigo que o idoso possa contar quando necessita de ajuda?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.recebeApoioFamiliarOuAmigo ? 'Sim' : 'Não' }}
-                            </div>
-                        </div>
-                        <div v-if="idoso.ultimaEscala.epidemiologia.visitas.recebeVisitas">
-                            <b>Caso esteja recebendo visitas na sua casa, essas visitas estão tomando os cuidados de prevenção?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.visitas.tomamCuidadosPrevencao ? 'Sim' : 'Não' }}
-                            </div>
-                        </div>
-                        <div>
-                            <b>Qual número de cômodos a casa do idoso possui?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.qtdComodosCasa }}
-                            </div>
-                        </div>
-                        <div>
-                            <b>Dentro de casa, tem realizado alguma atividade prazerosa?</b> 
-                            <div>
-                                {{ idoso.ultimaEscala.epidemiologia.realizaAtividadePrazerosa ? 'Sim' : 'Não' }}
-                            </div>
-                        </div>
+                         <FormResponse v-for="item in atendimento.raw['S08']" :key="item.question" :item="item" />
                     </b-card-text>
                 </b-card>
 
                 <b-card
                     title="Epidemiologia"
                     class="mb-4"
-                    v-if="idoso && !idoso.ultimaEscala"
+                    v-if="!atendimento.raw['S08']"
                 >
                     <b-card-text>
-                        O idoso ainda não possui atendimentos efetuados
+                        O idoso ainda não possui atendimentos efetuados. A epidemiologia é colhida no primeiro atendimento.
                     </b-card-text>
                 </b-card>
             </div>
@@ -331,36 +192,43 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, formatDate } from '@/global';
 import axios from 'axios';
 import Badge from '@/components/template/Badge';
 import { mapState } from 'vuex';
+import FormResponse from '@/components/template/FormResponse';
+import UnidadeLink from '@/components/includes/UnidadeLink';
+import UsuarioLink from '@/components/includes/UsuarioLink';
+import IdosoLink from '@/components/includes/IdosoLink';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'Atendimento',
-    components: { Badge },
+    components: { Badge, FormResponse, UnidadeLink, UsuarioLink, IdosoLink, Breadcrumb },
     computed: mapState(['user']),
     data: function() {
         return {
             atendimento: null,
             idoso: null,
             loading: false,
+            unidade: null,
         }
     },
     methods: {
+        formatDate,
         loadAtendimento() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/atendimentos/${this.$route.params.atendimentoId}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/atendimentos/${this.$route.params.atendimentoId}`;
             console.log(url);
 
             axios.get(url).then(res => {
                 this.atendimento = res.data
                 console.log(this.atendimento);
                 this.loadIdoso();
-                console.log(this.atendimento.fichaVigilancia.dadosIniciais.nomeLower)
+                this.loadUnidade();
             }).catch(showError)
         },
         loadIdoso() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.atendimento.fichaVigilancia.dadosIniciais.nomeLower}`;
+            const url = `${baseApiUrl}/v2/idosos/${this.atendimento.idosoId}`;
             console.log(url);
 
             axios.get(url).then(res => {
@@ -368,8 +236,14 @@ export default {
                 console.log(this.idoso);
             }).catch(showError)
         },
-        formatDate(date) {
-            return new Date(date).toLocaleString();
+        loadUnidade() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
         },
     },
     mounted() {

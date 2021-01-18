@@ -52,7 +52,16 @@ export default new Vuex.Store({
             state.syncStatus = data;
 
             if(state.syncStatus.status === 'SUCCESS') {
-                location.reload();
+                // location.reload();
+                Vue.toasted.success('Importação de unidade finalizada', {action : {
+                    text : 'Ver',
+                    push : {
+                        name : 'unidades',
+                        // this will prevent toast from closing
+                        dontClose : true
+                     }
+                }});
+                // Vue.toasted.global.defaultSuccess({msg: 'Importação de unidade finalizada'});
                 // this.$router.go()
             } else if (state.syncStatus.status === 'ERROR' ) {
                 showError(state.syncStatus.msg);

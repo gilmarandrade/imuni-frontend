@@ -1,8 +1,9 @@
 <template>
   <div class="adicionarUsuario">
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Convidar usuário'}]" />
     <h1>Convidar Usuário</h1>
 
-    obs: caso o usuario seja um vigilante, seu nome deve ser informado da mesma forma que foi usado nas planilhas (incluido letras maiúsculas, acentos e abreviações). 
+    <!-- obs: caso o usuario seja um vigilante, seu nome deve ser informado da mesma forma que foi usado nas planilhas (incluido letras maiúsculas, acentos e abreviações).  -->
     <b-form @submit="onSubmit">
         <b-form-group
             id="input-group-nome"
@@ -86,35 +87,52 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'ConvidarUsuario',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {
                 name: '',
                 email: '',
                 role: 'VIGILANTE',
-                unidadeId: this.$route.params.id,
+                unidadeId: this.$route.params.unidadeId,
+                status: 'CONVIDADO',
+                _isDeleted: false,
             },
             permissoes: [ { text: 'Preceptor', value: 'PRECEPTOR' }, { text: 'Vigilante', value: 'VIGILANTE' } ],
-            //TODO preencher a lista de unidades com a lista vinda do bd
-            unidades: [ { text: this.$route.params.unidadeNome, value: this.$route.params.id } ],
+            unidades: [ { text: this.$route.params.unidadeId, value: this.$route.params.unidadeId } ],
         }
     },
      methods: {
+        loadUnidades() {
+            const url = `${baseApiUrl}/v2/unidades`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidades = [ 
+                    { text: 'Selecione...', value: '' }, 
+                    ...res.data.map(item => { return { text: item.nome, value: item._id } } ) 
+                ];
+            }).catch(showError)
+        },
         onSubmit(evt) {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}/usuarios`;
             console.log(url);
 
             axios.post(url, this.form).then( () => {
-                this.$router.push({ name: 'unidade', params: { id: this.$route.params.id } })
+                this.$router.push({ name: 'unidade', params: { id: this.$route.params.unidadeId } })
                 this.$toasted.global.defaultSuccess();
             }).catch(showError)
         },
     },
+    mounted() {
+      this.loadUnidades();
+    }
 }
 </script>
 

@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 // const { calcularEscalas } = require('../config/helpers');
 
 //TODO usar configuração do banco
@@ -258,4 +261,4 @@ const validateInvitationToken = async (id, token) => {
     return promise;
 }
 
-module.exports = {  findAll, deleteAll, insertAll, replaceOne, insertOne, findByEmail, findById, findByUnidade, validateResetToken, validateInvitationToken, findAdministradores };
+module.exports = {  findAll, deleteAll, insertAll };

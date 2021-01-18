@@ -2,8 +2,6 @@
 const jwt = require('jwt-simple');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
- 
-const userService = require('../service/userService');
 
 module.exports = app => {
     const { existsOrError, notExistsOrError, equalsOrError } = app.server.api.validation;
@@ -18,10 +16,16 @@ module.exports = app => {
             return res.status(400).send('Informe email e senha');
         }
         
-        const user = await userService.findByEmail(req.body.email);
+        const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
         
-        if(!user) return res.status(400).send('usuário não encontrado');
-        
+        if(!user) return res.status(400).send('Usuário não encontrado');
+
+        if(user.status == 'CONVIDADO') {
+            return res.status(400).send('E-mail não validado');
+        } else if(user.status != 'ATIVO') {
+            return res.status(400).send('Usuário bloqueado');
+        }
+
         try {
             const isMatch = bcrypt.compareSync(req.body.password, user.password);
             if(!isMatch) return res.status(400).send('E-mail/Senha inválidos');
@@ -30,11 +34,11 @@ module.exports = app => {
         }
         
         const now = Math.floor(Date.now() / 1000);
-        console.log('chegou até aqui?')
 
         // obs: quando o token expira, o usuário precisa fazer login novamente
         const payload = {
             id: user._id,
+            status: user.status,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -56,29 +60,39 @@ module.exports = app => {
         const userData = req.body || null;
         try {
             if(userData) {
-                const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
-                if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
-                    return res.send(true);
-                    // Em vez de mndar true, pode-se mandar um novo token (renovar o token de forma transparente para o usuário)
+                //checa se o usuário não está com acesso bloqueado
+                const user = await app.server.service.v2.usuarioService.findById(userData.id);
+                console.log('USER STATUS', user.status)
+
+                if(user.status == 'ATIVO') {
+                    //checa se o token está dentro da validade
+                    const token = jwt.decode(userData.token, process.env.AUTH_SECRET);
+                    if(new Date(token.exp * 1000) > new Date()) { // o token ainda é válido
+                        return res.send(true);
+                        // Em vez de mndar true, pode-se mandar um novo token (renovar o token de forma transparente para o usuário)
+                    }
                 }
+
             }
         } catch (e) {
             // algum tipo de problema no token
+            return res.send(false);
         }
 
         return res.send(false); // token não válido
     };
 
+    // TODO verificar falha de segurança: é possivel alterar a senha caso o usuário esteja bloqueado?
     const forgotPassword = async (req, res) => {
         try {
-            const user = await userService.findByEmail(req.body.email);
+            const user = await app.server.service.v2.usuarioService.findByEmail(req.body.email);
             console.log(user)
 
             const token = crypto.randomBytes(20).toString('hex');
             user.resetPasswordToken = token;
             user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-            await userService.replaceOne(user);
+            await app.server.service.v2.usuarioService.replaceOne(user);
 
             app.server.config.mail.send(
                 `
@@ -111,7 +125,7 @@ module.exports = app => {
 
     const validateResetToken = async (req, res) => {
         try {
-            const user = await userService.validateResetToken(req.body._id, req.body.token);
+            const user = await app.server.service.v2.usuarioService.validateResetToken(req.body._id, req.body.token);
             console.log(user)
             if(user) {
                 return res.send(true);
@@ -125,7 +139,7 @@ module.exports = app => {
 
     const resetPassword = async (req, res) => {
         try {
-            const user = await userService.validateResetToken(req.body._id, req.body.resetPasswordToken);
+            const user = await app.server.service.v2.usuarioService.validateResetToken(req.body._id, req.body.resetPasswordToken);
             if(user) {
                 delete user.resetPasswordToken;
                 delete user.resetPasswordExpires;
@@ -136,7 +150,7 @@ module.exports = app => {
 
                 user.password = encryptPassword(req.body.password);
 
-                const result = await userService.replaceOne(user);
+                const result = await app.server.service.v2.usuarioService.replaceOne(user);
                 app.server.config.mail.send(
                     `
                     <div>
@@ -167,8 +181,9 @@ module.exports = app => {
 
     const acceptInvite = async (req, res) => {
         try {
-            const user = await userService.validateInvitationToken(req.body._id, req.body.invitationToken);
+            const user = await app.server.service.v2.usuarioService.validateInvitationToken(req.body._id, req.body.invitationToken);
             if(user) {
+                user.status = 'ATIVO';
                 delete user.invitationToken;
                 delete user.invitationExpires;
 
@@ -178,7 +193,7 @@ module.exports = app => {
 
                 user.password = encryptPassword(req.body.password);
 
-                const result = await userService.replaceOne(user);
+                const result = await app.server.service.v2.usuarioService.replaceOne(user);
                 app.server.config.mail.send(
                     `
                     <div>

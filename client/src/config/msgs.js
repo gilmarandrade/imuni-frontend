@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import Toasted from 'vue-toasted'
+import router from './router'
 
 Vue.use(Toasted, {
     iconPack: 'fontawesome',
     duration: 3000,
+    router,
 });
 
 Vue.toasted.register(

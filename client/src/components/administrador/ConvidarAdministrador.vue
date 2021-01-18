@@ -1,5 +1,6 @@
 <template>
   <div class="adicionarUsuario">
+      <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Administradores', url:'/administradores'}, {text: 'Convidar'}]" />
     <h1>Convidar Administrador</h1>
 
     <b-form @submit="onSubmit">
@@ -85,15 +86,19 @@
 <script>
 import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 
 export default {
     name: 'ConvidarUsuario',
+    components: { Breadcrumb },
     data: function() {
         return {
             form: {
                 name: '',
                 email: '',
                 role: 'ADMINISTRADOR',
+                status: 'CONVIDADO',
+                _isDeleted: false,
             },
         }
     },
@@ -102,7 +107,7 @@ export default {
             evt.preventDefault();
             console.log(JSON.stringify(this.form));
             //TODO unificar o cadastro de admin e vigilante na mesma url
-            const url = `${baseApiUrl}/unidades/${this.$route.params.id}/usuarios`;
+            const url = `${baseApiUrl}/v2/administradores`;
             console.log(url);
 
             axios.post(url, this.form).then( () => {

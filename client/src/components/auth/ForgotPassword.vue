@@ -22,7 +22,7 @@ export default {
     },
     methods: {
         login() {
-            axios.post(`${baseApiUrl}/forgotPassword`, this.user)
+            axios.post(`${baseApiUrl}/v2/forgotPassword`, this.user)
                 .then((res) => {
                     this.$toasted.global.defaultSuccess({msg: res.data});
                 })

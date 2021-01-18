@@ -19,15 +19,18 @@ export default {
                     return 'yellow';
                 case 'alto':
                 case 'Alto':
+                case 'Elevado':
                     return 'red';
 
                 case '0 - Sem vulnerabilidades':
                 case 'O - Sem Vulnerabilidade':
                     return 'blue';
                 case 'A - vulnerabilidade financeira':
+                case 'A - Vulnerabilidade financeira':
                 case 'A - Vulnerabilidade Financeira':
                 case 'B - vulnerabilidade alimentar':
                 case 'B - Vulnerabilidade Alimentar':
+                case 'B - Vulnerabilidade alimentar':
                     return 'yellow';
                 case 'C - Situação de violência':
                 case 'C - situação de violência':
@@ -38,6 +41,7 @@ export default {
                     return 'blue';
                 case 'IIa - Assintomático, mas sai de casa':
                 case 'IIb - Assintomático, mas recebe visitas ou domiciliares saem':
+                case 'IIb - Assintomático, mas recebe visita ou domiciliares saem':
                 case 'IIIa - Assintomático, mas com comorbidades':
                     return 'green';
                 case 'IIIb - Assintomático, mas tem contato com sintomáticos ou confirmados':

@@ -25,7 +25,7 @@ export default {
     },
     methods: {
         salvar() {
-            axios.post(`${baseApiUrl}/acceptInvite`, this.user)
+            axios.post(`${baseApiUrl}/v2/acceptInvite`, this.user)
                 .then(res => {
                     console.log(res.data)
                     // this.$toasted.global.defaultSuccess({msg: res.data});

@@ -1,13 +1,27 @@
 <template>
     <div class="idoso"  v-if="idoso">
-        <h6 v-if="user.role !== 'ADMINISTRADOR'"> <router-link :to="'/'">Home</router-link> / <router-link :to="'/meusIdosos/'">Meus Idosos</router-link></h6>
-        <h6 v-if="user.role === 'ADMINISTRADOR'"><router-link :to="'/'">Home</router-link> / <router-link :to="'/unidades'">Unidades</router-link> / {{ idoso.unidade }} / {{ idoso.vigilante}}</h6>
-        <h1>
-            {{ idoso.nome }}
-        </h1>
+        <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome}]" />
+        <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/idosos/com-escalas`}, {text: idoso.nome}]" />
 
-        <div class="badges" v-if="idoso.ultimaEscala">
-                <popper v-if="idoso.ultimaEscala.vulnerabilidade"
+        <div class="row">
+            <div class="col-10">
+                <h1>
+                    {{ idoso.nome }}
+                </h1>
+            </div>
+            <div class="col-2 text-right">
+                <b-dropdown right no-caret variant="light" title="Opções">
+                    <template #button-content>
+                        <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+                    </template>
+                    <b-dropdown-item :href="'/unidades/'+idoso.unidadeId+'/cadastrarIdoso?id='+idoso._id">Editar</b-dropdown-item>
+                    <b-dropdown-item v-if="user.role === 'ADMINISTRADOR'" @click="deleteIdoso(idoso._id)">Excluir</b-dropdown-item>
+                </b-dropdown>
+            </div>
+        </div>
+
+        <div class="badges" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
+                <popper v-if="idoso.estatisticas.ultimaEscala.escalas.vulnerabilidade"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -17,10 +31,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.vulnerabilidade" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.vulnerabilidade" />
                 </span>
             </popper>
-            <popper v-if="idoso.ultimaEscala.epidemiologica"
+            <popper v-if="idoso.estatisticas.ultimaEscala.escalas.epidemiologica"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -30,10 +44,10 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.epidemiologica" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.epidemiologica" />
                 </span>
             </popper>
-            <popper v-if="idoso.ultimaEscala.riscoContagio"
+            <popper v-if="idoso.estatisticas.ultimaEscala.escalas.riscoContagio"
                 trigger="hover"
                 :options="{
                     placement: 'top'
@@ -43,144 +57,165 @@
                 </div>
 
                 <span slot="reference">
-                    <Badge :value="idoso.ultimaEscala.riscoContagio" />
+                    <Badge :value="idoso.estatisticas.ultimaEscala.escalas.riscoContagio" />
                 </span>
             </popper>
-            <small class="text-muted ml-2">Score {{ idoso.ultimaEscala.score }}</small>
+            <small class="text-muted ml-2">Score {{ idoso.estatisticas.ultimaEscala.escalas.scoreOrdenacao }}</small>
         </div>
         
         <div class="row mt-4">
-            <div class="col">
-                <div>
-                    <strong>Unidade:</strong> {{ $route.params.unidadeId }} 
-                </div>
-                <div>
-                    <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
-                </div>
-                <div>
-                    <strong>Data de Nascimento:</strong> {{ idoso.dataNascimento }} 
-                </div>
-                <div>
-                    <strong>Telefones:</strong> {{ idoso.telefone1 }} {{ idoso.telefone2 ? '/ ' + idoso.telefone2 : '' }} 
-                </div>
-                <div>
-                    <strong>Key:</strong> {{ idoso.row }} 
+            <div class="col-12 col-md-6 col-lg-7 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div>
+                                    <strong>Unidade: </strong>
+                                    <UnidadeLink v-if="unidade" :nome="unidade.nome" :url="`/unidades/${unidade._id}`" />
+                                </div>
+                                <div>
+                                    <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
+                                </div>
+                                <div>
+                                    <strong>Data de Nascimento:</strong> {{ idoso.dataNascimento }} 
+                                </div>
+                                <div>
+                                    <strong>Telefones:</strong> {{ idoso.telefone1 }} {{ idoso.telefone2 ? '/ ' + idoso.telefone2 : '' }} 
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div>
+                                    <strong>Vigilante: </strong>
+                                    <UsuarioLink v-if="idoso.vigilanteId" :id="idoso.vigilanteId" />
+                                    <span v-else class="atencao">Sem vigilante</span>
+                                </div>
+                                <div>
+                                    <strong>Atendimentos efetuados:</strong> 
+                                    <span>
+                                        <popper
+                                            trigger="hover"
+                                            :options="{
+                                            placement: 'top',
+                                            modifiers: { offset: { offset: '0,10px' } }
+                                            }">
+                                            <div class="popper">
+                                            Atendimentos efetuados / total de tentativas
+                                            </div>
+
+                                            <span slot="reference">
+                                                {{ idoso.estatisticas ? idoso.estatisticas.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.estatisticas ? idoso.estatisticas.qtdTotal : 0) }}
+                                            </span>
+                                        </popper>
+                                    </span>
+                                </div>
+                                <div>
+                                    <strong>Último atendimento:</strong>
+                                    <span class="statusUltimoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimoAtendimento" :class="{ 'atendido' : idoso.estatisticas.ultimoAtendimento.atendeu }">
+                                        <popper
+                                            trigger="hover"
+                                            :options="{
+                                                placement: 'top',
+                                                modifiers: { offset: { offset: '0,10px' } }
+                                            }">
+                                            <div class="popper">
+                                                Último atendimento: 
+                                                <span v-if="idoso.estatisticas.ultimoAtendimento.atendeu">Ligação atendida</span>
+                                                <span v-if="!idoso.estatisticas.ultimoAtendimento.atendeu">Não atendeu a ligação</span>
+                                            </div>
+
+                                            <span slot="reference">
+                                                <span v-show="idoso.estatisticas.ultimoAtendimento.atendeu">
+                                                    <font-awesome-icon :icon="['far', 'check-circle']"  />
+                                                </span>
+                                                <span v-show="!idoso.estatisticas.ultimoAtendimento.atendeu">
+                                                    <font-awesome-icon :icon="['far', 'times-circle']" />
+                                                </span>
+                                                {{ formatDate(idoso.estatisticas.ultimoAtendimento.timestamp) }}
+                                            </span>
+                                        </popper>
+                                    </span>
+
+                                    <span class="statusUltimoAtendimento atencao" v-show="!idoso.estatisticas || !idoso.estatisticas.ultimoAtendimento">
+                                        <popper
+                                            trigger="hover"
+                                            :options="{
+                                                placement: 'top',
+                                                modifiers: { offset: { offset: '0,10px' } }
+                                            }">
+                                            <div class="popper">
+                                                Último atendimento: não há registros
+                                            </div>
+
+                                            <span slot="reference">
+                                                <font-awesome-icon :icon="['fas', 'exclamation-circle']" /> pendente
+                                            </span>
+                                        </popper>
+                                    </span>
+                                </div>
+                                <div>
+                                    <strong>Sugestão de próximo atendimento:</strong>
+                                    <span class="dataProximoAtendimento" v-if="idoso.estatisticas && idoso.estatisticas.ultimaEscala">
+                                        <popper
+                                            trigger="hover"
+                                            :options="{
+                                                placement: 'top',
+                                                modifiers: { offset: { offset: '0,10px' } }
+                                            }">
+                                            <div class="popper">
+                                                Sugestão de próximo atendimento
+                                            </div>
+
+                                            <span slot="reference">
+                                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.estatisticas.ultimaEscala.escalas.dataProximoAtendimento) }}
+                                            </span>
+                                        </popper>
+                                    </span>
+                                    <span v-else>
+                                        <popper
+                                            trigger="hover"
+                                            :options="{
+                                                placement: 'top',
+                                                modifiers: { offset: { offset: '0,10px' } }
+                                            }">
+                                            <div class="popper">
+                                                Sugestão de próximo atendimento
+                                            </div>
+
+                                            <span slot="reference">
+                                                <font-awesome-icon :icon="['far', 'clock']" /> Não definido
+                                            </span>
+                                        </popper>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <div>
-                    <strong>Vigilante:</strong> {{ idoso.vigilante }} 
-                </div>
-                <div>
-                    <strong>Atendimentos efetuados:</strong> 
-                    <span>
-                        <popper
-                            trigger="hover"
-                            :options="{
-                            placement: 'top',
-                            modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                            Atendimentos efetuados / total de tentativas
-                            </div>
-
-                            <span slot="reference">
-                                {{ idoso.ultimaEscala ? idoso.ultimaEscala.qtdAtendimentosEfetuados : 0 }}/{{ (idoso.ultimoAtendimento ? idoso.ultimoAtendimento.qtdTentativas : 0) }}
-                            </span>
-                        </popper>
-                    </span>
-                </div>
-                <div>
-                    <strong>Último atendimento:</strong>
-                    <span class="statusUltimoAtendimento" v-if="idoso.ultimoAtendimento" :class="{ 'atendido' : idoso.ultimoAtendimento.efetuado }">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                                placement: 'top',
-                                modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                                Último atendimento: 
-                                <span v-if="idoso.ultimoAtendimento.efetuado">Ligação atendida</span>
-                                <span v-if="!idoso.ultimoAtendimento.efetuado">Não atendeu a ligação</span>
-                            </div>
-
-                            <span slot="reference">
-                                <span v-show="idoso.ultimoAtendimento.efetuado">
-                                    <font-awesome-icon :icon="['far', 'check-circle']"  />
-                                </span>
-                                <span v-show="!idoso.ultimoAtendimento.efetuado">
-                                    <font-awesome-icon :icon="['far', 'times-circle']" />
-                                </span>
-                                {{ formatDate(idoso.ultimoAtendimento.data) }}
-                            </span>
-                        </popper>
-                    </span>
-
-                    <span class="statusUltimoAtendimento atencao" v-show="!idoso.ultimoAtendimento">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                                placement: 'top',
-                                modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                                Último atendimento: não há registros
-                            </div>
-
-                            <span slot="reference">
-                                <font-awesome-icon :icon="['fas', 'exclamation-circle']" /> pendente
-                            </span>
-                        </popper>
-                    </span>
-                </div>
-                <div>
-                    <strong>Sugestão de próximo atendimento:</strong>
-                    <span class="dataProximoAtendimento" v-if="idoso.ultimaEscala && idoso.ultimaEscala.dataProximoAtendimento">
-                        <popper
-                            trigger="hover"
-                            :options="{
-                                placement: 'top',
-                                modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                                Sugestão de próximo atendimento
-                            </div>
-
-                            <span slot="reference">
-                                <font-awesome-icon :icon="['far', 'clock']" /> {{ formatDate(idoso.ultimaEscala.dataProximoAtendimento) }}
-                            </span>
-                        </popper>
-                    </span>
-                    <span v-else>
-                        <popper
-                            trigger="hover"
-                            :options="{
-                                placement: 'top',
-                                modifiers: { offset: { offset: '0,10px' } }
-                            }">
-                            <div class="popper">
-                                Sugestão de próximo atendimento
-                            </div>
-
-                            <span slot="reference">
-                                <font-awesome-icon :icon="['far', 'clock']" /> Não definido
-                            </span>
-                        </popper>
-                    </span>
-                </div>
+            <div class="col-12 col-md-6 col-lg-5 mb-3">
+                <Anotacoes :idosoId="idoso._id" :primeiraAnotacao="idoso.anotacoes"></Anotacoes>
             </div>
         </div>
-        <div class="row mt-3">
+        <!-- <div class="row mt-3">
             <div class="col">
                  <div>
                     <strong>Anotações do vigilante:</strong>
                     <p>{{ idoso.anotacoes ? idoso.anotacoes : '-' }}</p>
                 </div>
             </div>
-        </div>
+        </div> -->
 
-        <h2 class="my-5">Histórico de atendimentos</h2>
+        <div class="row mt-5 mb-3">
+            <div class="col">
+                <h2 class="">Histórico de atendimentos</h2>
+            </div>
+            <div class="col text-right">
+                <a class="btn btn-primary" target="_blank" title="Novo atendimento" 
+                    :href="novoAtendimentoURL(idoso, user)">
+                    <font-awesome-icon :icon="['fas', 'comment-medical']" /> Novo atendimento
+                </a>
+            </div>
+        </div>
 
         <b-table :items="atendimentos" :fields="fields" primary-key="_id" :busy="carregandoAtendimentos" show-empty>
             <template v-slot:table-busy>
@@ -194,15 +229,15 @@
             </template>
             <template v-slot:cell(col-data)="data">
                 <router-link :to="'/unidades/'+$route.params.unidadeId+'/atendimentos/'+ data.item._id">
-                    {{ formatDate(data.item.fichaVigilancia.data) }}
+                    {{ formatDate(data.item.timestamp) }}
                 </router-link>
             </template>
             <template v-slot:cell(col-status)="data">
-                <span class="statusUltimoAtendimento" v-if="data.item.fichaVigilancia.dadosIniciais" :class="{ 'atendido' : data.item.fichaVigilancia.dadosIniciais.atendeu }">
-                    <span v-show="data.item.fichaVigilancia.dadosIniciais.atendeu">
+                <span class="statusUltimoAtendimento" :class="{ 'atendido' : data.item.atendeu }">
+                    <span v-show="data.item.atendeu">
                         <font-awesome-icon :icon="['far', 'check-circle']"  /> Ligação atendida
                     </span>
-                    <span v-show="!data.item.fichaVigilancia.dadosIniciais.atendeu">
+                    <span v-show="!data.item.atendeu">
                         <font-awesome-icon :icon="['far', 'times-circle']" /> Ligação não atendida
                     </span>
                 </span>
@@ -250,38 +285,48 @@
                     </popper>
                 </div>
             </template>
+            <template v-slot:cell(col-vigilante)="data">
+                <UsuarioLink :id="data.item.vigilanteId"></UsuarioLink>
+            </template>
         </b-table>
     </div>
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global';
+import { baseApiUrl, showError, novoAtendimentoURL, formatDate } from '@/global';
 import axios from 'axios';
 import { mapState } from 'vuex';
 import Badge from '@/components/template/Badge';
+import UnidadeLink from '@/components/includes/UnidadeLink';
+import UsuarioLink from '@/components/includes/UsuarioLink';
+import Breadcrumb from '@/components/includes/Breadcrumb';
+import Anotacoes from '@/components/idoso/Anotacoes';
 import Popper from 'vue-popperjs';
 import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     name: 'Idoso',
-    components: { Badge, 'popper': Popper },
+    components: { Badge, 'popper': Popper, UnidadeLink, UsuarioLink, Breadcrumb, Anotacoes },
     computed: mapState(['user']),
     data: function() {
         return {
             idoso: null,
+            unidade: null,
             atendimentos: [],
             fields: [ 
                 { key: 'col-data', label: 'Data' },
                 { key: 'col-status', label: 'Status' },
                 { key: 'col-escalas', label: 'Escalas' },
-                { key: 'fichaVigilancia.vigilante', label: 'Vigilante' },
+                { key: 'col-vigilante', label: 'Atendente' },
             ],
             carregandoAtendimentos: false,
         }
     },
     methods: {
+        novoAtendimentoURL,
+        formatDate,
         loadIdoso() {
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.$route.params.idosoId}`;
+            const url = `${baseApiUrl}/v2/idosos/${this.$route.params.idosoId}`;
             console.log(url);
 
             axios.get(url).then(res => {
@@ -292,7 +337,7 @@ export default {
         },
         loadAtendimentos() {
             this.carregandoAtendimentos = true;
-            const url = `${baseApiUrl}/unidades/${this.$route.params.unidadeId}/idosos/${this.idoso.nomeLower}/atendimentos`;
+            const url = `${baseApiUrl}/v2/idosos/${this.$route.params.idosoId}/atendimentos`;
             console.log(url);
 
             axios.get(url).then(res => {
@@ -301,12 +346,44 @@ export default {
                 console.log(this.atendimentos)
             }).catch(function(e) {console.error(e);showError(e)})
         },
-        formatDate(date) {
-            return new Date(date).toLocaleString();
+        loadUnidade() {
+            const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                this.unidade = res.data
+                console.log(this.unidade)
+            }).catch(showError)
+        },
+        deleteIdoso(id) {
+          this.$bvModal.msgBoxConfirm('Deseja realmente excluir o idoso? Todos os dados serão perdidos!', {
+            okVariant: 'danger',
+            okTitle: 'excluir',
+            cancelTitle: 'cancelar',
+          })
+            .then(value => {
+              console.log(value);
+              if(value === true) {
+                  const url = `${baseApiUrl}/v2/idosos/${id}`;
+                  console.log(url);
+
+                  axios.delete(url).then(res => {
+                      console.log(res.data)
+                      console.log(`/unidades/${this.unidade._id}/usuarios/${this.user._id}/idosos/all`)
+                      this.$router.push({ path: `/unidades/${this.unidade._id}/usuarios/${this.user.id}/idosos/all` })
+                      this.$toasted.global.defaultSuccess({ msg: 'Idoso removido com sucesso'});
+                  }).catch(showError)
+              }
+            })
+            .catch(err => {
+              // An error occurred
+              console.error(err.toString())
+            })
         },
     },
     mounted() {
       this.loadIdoso();
+      this.loadUnidade();
     }
 }
 </script>
@@ -331,6 +408,10 @@ export default {
     }
 
     .idoso .dataProximoAtendimento.atencao {
+        color: rgb(235, 87, 87);
+    }
+    
+    .atencao {
         color: rgb(235, 87, 87);
     }
 </style>

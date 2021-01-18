@@ -23,7 +23,7 @@ export default {
     },
     methods: {
         login() {
-            axios.post(`${baseApiUrl}/login`, this.user)
+            axios.post(`${baseApiUrl}/v2/login`, this.user)
                 .then(res => {
                     this.$store.commit('setUser', res.data);
                     localStorage.setItem(userKey, JSON.stringify(res.data));

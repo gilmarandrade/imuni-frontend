@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 const { calcularEscalas } = require('../config/helpers');
 const sheetsApi = require('../config/sheetsApi');
 const atendimentoService = require('./atendimentoService');
@@ -8,7 +11,7 @@ const unidadeService = require('./unidadeService');
  * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
  * @param {*} idUnidade 
  */
-const fullSyncUnidade = async (idUnidade) => {
+const importFromPlanilhaUnidade = async (idUnidade) => {
     const unidade = await unidadeService.findById(idUnidade);
     
     if(unidade) {
@@ -33,6 +36,7 @@ const fullSyncUnidade = async (idUnidade) => {
 }
 
 /**
+ * @deprecated
  * Sincronização parcial da unidade
  * 
  * Atualiza pelo menos os 10 ultimos idosos de um ou todos os vigilantes e pelo menos os 10 ultimos atendimentos,
@@ -85,7 +89,7 @@ const partialSyncUnidade = async (idUnidade, nomeVigilante) => {
             
         }
 
-        const countAtendimentos = await atendimentoService.count(unidade.collectionPrefix);
+        const countAtendimentos = await atendimentoService.getEstatisticasByIdoso(unidade.collectionPrefix);
         await syncAtendimentos(unidade, countAtendimentos);
 
         console.log(`[Sync] ${unidade.nome} ENDED SYNC `);
@@ -337,4 +341,4 @@ const syncAtendimentos = async (unidade, total) => {
     }
 }
 
-module.exports = { fullSyncUnidade, resetUnidade, partialSyncUnidade }
+module.exports = { importFromPlanilhaUnidade, resetUnidade, partialSyncUnidade }

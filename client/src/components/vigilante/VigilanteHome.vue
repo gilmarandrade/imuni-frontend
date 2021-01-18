@@ -1,9 +1,9 @@
+<!-- Vigilante ou Preceptor Home -->
 <template>
-    <div class="listaIdosos">
-        <h6><router-link :to="'/'">Home</router-link></h6>
-
-        <div v-if="unidade">
-            <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
+    <div class="listaIdosos" v-if="unidade">
+        <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos'}]" />
+        <!-- <div v-if="unidade"> -->
+            <!-- <div v-if="unidade.lastSyncDate" class="sync-state" :class="{ 'ativo' : unidade.autoSync }">
             <popper
                 trigger="hover"
                 :options="{
@@ -14,30 +14,36 @@
                 </div>
 
                 <span slot="reference">
-                    <!-- TODO fazer o icone de sincronização rodar durante a sincronização? -->
                     <font-awesome-icon :icon="['fas', 'sync']" /> {{ formatDate(unidade.lastSyncDate) }}
                 </span>
             </popper>
-            </div>
+            </div> -->
             <!-- <h1>{{ unidade.nome }}</h1>
             <p>Distrito {{ unidade.distrito }}</p> -->
+        <!-- </div> -->
+
+        <!-- <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button> -->
+        <!-- <a disabled v-if="user.role === 'VIGILANTE'" class="btn btn-primary mb-4 ml-3" :href="`https://google.com?`" target="_blank">Novo atendimento</a> -->
+        <div class="row">
+            <div class="col-9">
+                <h5>{{ unidade.nome }}</h5>
+                <h1>Meus Idosos</h1>
+            </div>
+            <div class="col-3 text-right">
+                <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">importar</button> -->
+                <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary mt-4" title="Adicionar idoso">Adicionar</router-link>
+            </div>
         </div>
-
-        <h5>{{ user.nomeUnidade }}</h5>
-        <h1>Meus Idosos</h1>
-        <button @click="manualSync" class="btn btn-outline-primary mb-4" :disabled="syncStatus.status==='LOADING'">sincronizar agora</button>
-        <a v-if="unidade && user.role === 'VIGILANTE' || user.role === 'ADMINISTRADOR'" class="btn btn-primary mb-4 ml-3" :href="`https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`" target="_blank">Novo atendimento</a>
-
 
          <b-tabs content-class="mt-3" v-model="tabIndex" v-on:activate-tab="tabActivated">
             <b-tab title="Com escalas" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="com-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Sem escalas" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="sem-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="sem-escalas" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
             <b-tab title="Todos" lazy>
-                <TableIdosos :collectionPrefix="user.collectionPrefix" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
+                <TableIdosos :unidadeId="user.unidadeId" :userId="user.id" filter="all" :orderBy="user.role == 'VIGILANTE' ? 'proximo-atendimento' : 'score'"></TableIdosos>
             </b-tab>
         </b-tabs>
     </div>
@@ -48,14 +54,13 @@ import { baseApiUrl, showError } from '@/global';
 import axios from 'axios';
 // import Badge from '@/components/template/Badge';
 import TableIdosos from '@/components/includes/TableIdosos';
-import Popper from 'vue-popperjs';
-import 'vue-popperjs/dist/vue-popper.css';
+import Breadcrumb from '@/components/includes/Breadcrumb';
 // import { userKey } from '@/global';
 import { mapState } from 'vuex';
 
 export default {
     name: 'VigilanteHome',
-    components: { TableIdosos, 'popper': Popper },
+    components: { TableIdosos, Breadcrumb },
     computed: mapState(['user', 'syncStatus']),
     data: function() {
         return {
@@ -67,7 +72,7 @@ export default {
     },
     methods: {
         loadUnidade() {
-            const url = `${baseApiUrl}/unidades/${this.user.unidadeId}`;
+            const url = `${baseApiUrl}/v2/unidades/${this.user.unidadeId}`;
             console.log(url);
 
             axios.get(url).then(res => {
@@ -80,6 +85,7 @@ export default {
         },
         manualSync() {
           // $socket is socket.io-client instance
+          // TODO SONFTSYNC NÃO EXISTE MAIS
           console.log('emit softSyncEvent')
           if(this.user.role === 'VIGILANTE') {
               this.$socket.emit('softSyncEvent', { idUnidade: this.user.unidadeId, nomeVigilante: this.user.name });
