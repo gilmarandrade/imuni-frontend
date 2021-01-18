@@ -24,11 +24,11 @@ module.exports = app => {
   
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: '"IMUNI" <' + process.env.SMTP_USER + '>', // sender address
+      from:  (process.env.MODE ? process.env.MODE + '_IMUNI ' : 'IMUNI ') + '<' + process.env.SMTP_USER + '>', // sender address
       to: to, // list of receivers
-      subject: subject, // Subject line
-      text: message, // plain text body
-      html: message, // html body
+      subject: (process.env.MODE ? '['+process.env.MODE+'_IMUNI] ' : '[IMUNI] ') + subject, // Subject line
+      text: (process.env.MODE ? '['+process.env.MODE+'_IMUNI] ' : '[IMUNI] ') +  message, // plain text body
+      html: (process.env.MODE == 'TESTES' ? '<h2 style="color: red;">Atenção: esse e-mail foi enviado pela versão de testes do sistema.</h2>' : '') +  message, // html body
     });
   
     console.log("Message sent: %s", info.messageId);

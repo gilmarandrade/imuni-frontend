@@ -110,7 +110,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "[IMUNI] Monitoramento de Idosos",
+                "Monitoramento de Idosos",
                 user.email
               ).catch(console.error);
             return res.status(200).send('Convite enviado');
@@ -153,7 +153,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "[IMUNI] Monitoramento de Idosos",
+                "Monitoramento de Idosos",
                 user.email
               ).catch(console.error);
             return res.status(200).send('Convite reenviado');
@@ -245,7 +245,7 @@ module.exports = app => {
                   </section>
                 </div>
                 `,
-                "[IMUNI] Monitoramento de Idosos",
+                "Monitoramento de Idosos",
                 user.email
               ).catch(console.error);
 
