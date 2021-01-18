@@ -31,7 +31,7 @@ export default {
   computed: mapState(['isMenuVisible', 'user', 'isLoadingApp']),
   methods: {
     async validateToken() {
-      if(this.$route.name === 'acceptInvitation' || this.$route.name === 'resetPassword' || this.$route.name === 'auth')//não precisa estar logado para acessar essas telas, e portanto não é necessário validar o token
+      if(this.$route.name === 'acceptInvitation' || this.$route.name === 'resetPassword' || this.$route.name === 'auth' || this.$route.name === 'Detalharavalins' || this.$route.name === 'Novoavalins' || this.$route.name === 'avalins')//não precisa estar logado para acessar essas telas, e portanto não é necessário validar o token
       {
         this.$store.commit('setIsLoadingApp', false);
         return;
