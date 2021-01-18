@@ -42,6 +42,9 @@
               </router-link>
             </li>
         </ul>
+        <div v-if="!unidades" class="text-muted">
+          Não há unidades cadastradas
+        </div>
  </div>
 </template>
 

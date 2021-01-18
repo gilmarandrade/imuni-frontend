@@ -19,7 +19,7 @@
             </template>
             <b-dropdown-item :href="'/adicionarUnidade?id='+unidade._id">Editar</b-dropdown-item>
             <b-dropdown-item  @click="confirmDeletion(unidade._id)">Excluir</b-dropdown-item>
-            <b-dropdown-item  @click="importFromPlanilhaUnidade" :disabled="!unidade.idPlanilhaGerenciamento || syncStatus.status==='LOADING'">Reimportar de planilhas</b-dropdown-item>
+            <!-- <b-dropdown-item  @click="importFromPlanilhaUnidade" :disabled="!unidade.idPlanilhaGerenciamento || syncStatus.status==='LOADING'">Reimportar de planilhas</b-dropdown-item> -->
         </b-dropdown>
      </div>
 
