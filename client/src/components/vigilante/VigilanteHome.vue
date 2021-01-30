@@ -31,7 +31,7 @@
             </div>
             <div class="col-3 text-right">
                 <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-secondary mb-2" :disabled="syncStatus.status==='LOADING'">importar</button> -->
-                <router-link :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary mt-4" title="Adicionar idoso">Adicionar</router-link>
+                <router-link v-if="user.role === 'PRECEPTOR'" :to="'/unidades/'+unidade._id+'/cadastrarIdoso'" class="btn btn-primary mt-4" title="Adicionar idoso">Adicionar</router-link>
             </div>
         </div>
 

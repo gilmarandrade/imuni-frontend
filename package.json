@@ -1,6 +1,6 @@
 {
   "name": "frenteprevencaocovidrn",
-  "version": "v2.6.8",
+  "version": "v2.6.9",
   "description": "",
   "main": "server/app.js",
   "scripts": {
