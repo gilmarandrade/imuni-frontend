@@ -23,9 +23,9 @@
                   </b-form-checkbox>
                 </span>
               </template>
-                <template v-slot:cell(acoes)="data">
+              <!-- <template v-slot:cell(acoes)="data">
                   <b-button @click="deleteUsuario(data.item._id)" :disabled="data.item._id == user.id" class="btn btn-danger ml-2">excluir</b-button>
-              </template>
+              </template> -->
             </b-table>
          </div>
        </div>
@@ -48,7 +48,7 @@ export default {
                 { key: 'name', label: 'nome' },
                 { key: 'email', label: 'email' },
                 { key: 'status', label: 'status' },
-                { key: 'acoes', label: 'ações' },
+                // { key: 'acoes', label: 'ações' },
             ],
         }
     },
