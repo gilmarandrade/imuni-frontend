@@ -307,6 +307,7 @@ module.exports = app => {
 
     const convertAtendimento = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
         atendimento.idosoId = app.server.service.v2.questionarioService.extractResponse('S01','Q01', atendimento.raw);
+        // console.log('atendimento.idosoId', atendimento.responseId, atendimento.idosoId)
         atendimento.vigilanteId = app.server.service.v2.questionarioService.extractResponse('S01','Q02', atendimento.raw);
         atendimento.unidadeId = app.server.service.v2.questionarioService.extractResponse('S01','Q03', atendimento.raw);
         atendimento.atendeu = app.server.service.v2.questionarioService.isEquals('S02','Q01', atendimento.raw, 'Sim');
@@ -424,7 +425,7 @@ module.exports = app => {
                     authsecret: item.authsecret,
                     timestamp: item.timestamp,
                     responseId: item.responseId,
-                    idosoId: ObjectId(item.idosoId),
+                    idosoId: item.idosoId ? ObjectId(item.idosoId) : null,
                     vigilanteId: ObjectId(item.vigilanteId),
                     unidadeId: ObjectId(item.unidadeId),
                     atendeu: item.atendeu,
