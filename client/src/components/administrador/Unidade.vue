@@ -7,6 +7,9 @@
         <p>Distrito {{ unidade.distrito }}</p>
      </div>
      <div class="col-2 text-right">
+       <a :href="`${baseApiUrl}/v2/unidades/${unidade._id}/exportacao`" class="btn btn-outline-primary">
+          exportar
+        </a>
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar
@@ -207,7 +210,9 @@ export default {
             qtdIdosos: 0,
         }
     },
-    computed: mapState(['syncStatus', 'user']),
+    computed: {
+        baseApiUrl() { return baseApiUrl},
+        ...mapState(['syncStatus', 'user'])},
     methods: {
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}`;
@@ -385,6 +390,15 @@ export default {
               console.error(err.toString())
             })
         },
+        download() {
+          console.log('download')
+          const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/exportacao`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                console.log(res.data)
+            }).catch(showError)
+        }
     },
     sockets: {
       connect: function () {

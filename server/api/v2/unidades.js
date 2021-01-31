@@ -1,3 +1,6 @@
+const fastcsv = require("fast-csv");
+const fs = require("fs");
+
 module.exports = app => {
 
     const get = async (req, res) => {
@@ -13,7 +16,16 @@ module.exports = app => {
     const exportCSV = async (req, res) => {
         try {
             const result = await app.server.service.v2.exportService.exportCSV();
-            return res.json(result);
+
+            fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
+                res.set('Content-Type', 'text/csv'); 
+                res.set("Content-Disposition", "attachment;filename=myfilename.csv");
+                res.send(data)
+            });
+
+
+            // const result = await app.server.service.v2.exportService.exportCSV();
+            // return res.json(result);
         } catch(err) {
             console.log(err);
             return res.status(500).send(err.toString());

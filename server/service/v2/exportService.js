@@ -9,19 +9,8 @@ module.exports = app => {
      */
     const exportCSV = async () => {
         const result = await app.server.service.v2.unidadeService.findAtivos();
-
-        const promise = new Promise( (resolve, reject) => {
-            // const ws = fs.createWriteStream(new Date().getTime() + "-unidades.csv");
     
-            // const stream = fastcsv.write(result, { headers: true, delimiter: ';' }).pipe(ws);
-            // console.log(stream);
-            const fileName = new Date().getTime() + "-unidades.csv"
-            fastcsv.writeToPath(fileName, result, { headers: true, delimiter: ';' })
-            .on('error', err => reject(err))
-            .on('finish', () => resolve(fileName));
-        });
-    
-        return promise;
+        return result;
 
 
 
