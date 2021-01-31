@@ -83,6 +83,10 @@ module.exports = app => {
         .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
 
+    app.route('/api/v2/unidades/:unidadeId/exportacao')
+        // .all(app.server.config.passport.authenticate())
+        .get(app.server.api.v2.unidades.exportCSV);
+
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.unidades.getById)

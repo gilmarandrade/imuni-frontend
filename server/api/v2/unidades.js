@@ -1,9 +1,18 @@
-
 module.exports = app => {
 
     const get = async (req, res) => {
         try {
             const result = await app.server.service.v2.unidadeService.findAtivos();
+            return res.json(result);
+        } catch(err) {
+        console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    const exportCSV = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.exportService.exportCSV();
             return res.json(result);
         } catch(err) {
             console.log(err);
@@ -143,5 +152,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades, getById, remove, getName, migrate };
+    return { get, save, exportCSV, adequarUnidades, getById, remove, getName, migrate };
 };
