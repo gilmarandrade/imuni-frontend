@@ -7,7 +7,7 @@ module.exports = app => {
     /**
      * 
      */
-    const exportCSV = async (unidadeId) => {
+    const exportIdososCSV = async (unidadeId) => {
         const unidade = await app.server.service.v2.unidadeService.getById(unidadeId);
         const result = await app.server.service.v2.idosoService.findWithVigilantes(unidadeId);
     
@@ -62,5 +62,5 @@ module.exports = app => {
 
 
 
-    return { exportCSV }
+    return { exportIdososCSV }
 }

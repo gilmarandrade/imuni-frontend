@@ -13,25 +13,6 @@ module.exports = app => {
         }
     }
 
-    const exportCSV = async (req, res) => {
-        try {
-            const result = await app.server.service.v2.exportService.exportCSV(req.params.unidadeId);
-
-            fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
-                res.set('Content-Type', 'text/csv'); 
-                res.set("Content-Disposition", "attachment;filename=idosos.csv");
-                res.send(data)
-            });
-
-
-            // const result = await app.server.service.v2.exportService.exportCSV();
-            // return res.json(result);
-        } catch(err) {
-            console.log(err);
-            return res.status(500).send(err.toString());
-        }
-    }
-
     const getById = async (req, res) => {
         try {
             const result = await app.server.service.v2.unidadeService.getById(req.params.unidadeId);
@@ -164,5 +145,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, exportCSV, adequarUnidades, getById, remove, getName, migrate };
+    return { get, save, adequarUnidades, getById, remove, getName, migrate };
 };

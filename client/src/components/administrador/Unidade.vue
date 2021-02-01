@@ -7,7 +7,7 @@
         <p>Distrito {{ unidade.distrito }}</p>
      </div>
      <div class="col-2 text-right">
-       <a :href="`${baseApiUrl}/v2/unidades/${unidade._id}/exportacao`" class="btn btn-outline-primary">
+       <a :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/idosos`" class="btn btn-outline-primary">
           exportar idosos (csv)
         </a>
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
