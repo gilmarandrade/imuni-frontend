@@ -231,6 +231,22 @@ module.exports = app => {
                 collection.aggregate([
                     { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
                     { $sort : { timestamp : -1 } },
+                    {
+                        $lookup: {
+                            from: "idosos",
+                            localField: "idosoId",
+                            foreignField: "_id",
+                            as: "idosoNome",
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "usuarios",
+                            localField: "vigilanteId",
+                            foreignField: "_id",
+                            as: "vigilanteNome",
+                        }
+                    },
                 ]).toArray(function(err, result) {
                     if(err) {
                         reject(err);

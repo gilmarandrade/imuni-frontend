@@ -36,28 +36,6 @@ module.exports = app => {
             }
         });
         return data;
-
-
-
-        // const stream = fastcsv.format({ headers: true, delimiter: ';' });
-        // stream.pipe(ws);
-
-        // stream.write(result);
-        // stream.end(() => {
-        //     console.log("Write to .csv de verdade successfully!");
-        // });
-
-        // console.log("Write to .csv successfully!");
-        // await fastcsv
-        //     .write(result, { headers: true, delimiter: ';' })
-        //     .on("finish", () => {
-        //         console.log("Write to .csv successfully!");
-        //         return result;
-        //     })
-        //     .on("error", error => {
-        //         throw error;
-        //     })
-        //     .pipe(ws);
     }
     
     /**
@@ -67,7 +45,30 @@ module.exports = app => {
         const unidade = await app.server.service.v2.unidadeService.getById(unidadeId);
         const result = await app.server.service.v2.atendimentoService.findAllByUnidade(unidadeId);
 
-        return result;
+        const data = result.map((atendimento) => {
+            return {
+                _id: atendimento._id,
+                unidade_id: atendimento.unidadeId,
+                unidade_nome: unidade.nome,
+                idoso_id: atendimento.idosoId,
+                idoso_nome: atendimento.idosoNome.length ? atendimento.idosoNome[0].nome : null,
+                vigilante_id: atendimento.vigilanteId,
+                vigilante_nome: atendimento.vigilanteNome.length ? atendimento.vigilanteNome[0].name : null,
+                timestamp: atendimento.timestamp,
+                tipo: atendimento.tipo,
+                atendeu: atendimento.atendeu,
+                fonte: atendimento.fonte,
+                duracaoChamada: atendimento.duracaoChamada,
+                idadeIdoso: atendimento.idadeIdoso,
+                scoreOrdenacao: atendimento.escalas ? atendimento.escalas.scoreOrdenacao : null,
+                vulnerabilidade: atendimento.escalas ? atendimento.escalas.vulnerabilidade : null,
+                epidemiologica: atendimento.escalas ? atendimento.escalas.epidemiologica : null,
+                riscoContagio: atendimento.escalas ? atendimento.escalas.riscoContagio : null,
+                dataProximoAtendimento: atendimento.escalas ? atendimento.escalas.dataProximoAtendimento : null,
+            }
+        });
+
+        return data;
 
     }
 
