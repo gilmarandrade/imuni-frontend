@@ -59,8 +59,19 @@ module.exports = app => {
         //     })
         //     .pipe(ws);
     }
+    
+    /**
+     * 
+     */
+    const exportAtendimentosCSV = async (unidadeId) => {
+        const unidade = await app.server.service.v2.unidadeService.getById(unidadeId);
+        const result = await app.server.service.v2.atendimentoService.findAllByUnidade(unidadeId);
+
+        return result;
+
+    }
 
 
 
-    return { exportIdososCSV }
+    return { exportIdososCSV, exportAtendimentosCSV }
 }

@@ -10,6 +10,9 @@
        <a :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/idosos`" class="btn btn-outline-primary">
           exportar idosos (csv)
         </a>
+       <a :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/atendimentos`" class="btn btn-outline-primary">
+          exportar atendimentos (csv)
+        </a>
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar

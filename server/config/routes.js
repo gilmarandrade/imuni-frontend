@@ -84,8 +84,12 @@ module.exports = app => {
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
 
     app.route('/api/v2/exportacao/unidades/:unidadeId/idosos')
-        // .all(app.server.config.passport.authenticate())
+        // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
         .get(app.server.api.v2.idosos.exportCSV);
+
+    app.route('/api/v2/exportacao/unidades/:unidadeId/atendimentos')
+        // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
+        .get(app.server.api.v2.atendimentos.exportCSV);
 
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
