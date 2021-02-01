@@ -19,7 +19,7 @@ module.exports = app => {
 
             fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
                 res.set('Content-Type', 'text/csv'); 
-                res.set("Content-Disposition", "attachment;filename=myfilename.csv");
+                res.set("Content-Disposition", "attachment;filename=idosos.csv");
                 res.send(data)
             });
 

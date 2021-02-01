@@ -8,7 +8,8 @@ module.exports = app => {
      * 
      */
     const exportCSV = async (unidadeId) => {
-        const result = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidadeId);
+        const unidade = await app.server.service.v2.unidadeService.getById(unidadeId);
+        const result = await app.server.service.v2.idosoService.findWithVigilantes(unidadeId);
     
         const data = result.map((idoso) => {
             return {
@@ -16,10 +17,12 @@ module.exports = app => {
                 nome: idoso.nome,
                 telefone1: idoso.telefone1,
                 telefone2: idoso.telefone2,
-                unidadeId: idoso.unidadeId,
+                unidade_id: idoso.unidadeId,
+                unidade_nome: unidade.nome,
                 agenteSaude: idoso.agenteSaude,
                 dataNascimento: idoso.dataNascimento,
-                vigilanteId: idoso.vigilanteId,
+                vigilante_id: idoso.vigilanteId,
+                vigilante_nome: idoso.vigilanteNome.length ? idoso.vigilanteNome[0].name : null,
                 qtdAtendimentosEfetuados: idoso.estatisticas.qtdAtendimentosEfetuados ? idoso.estatisticas.qtdAtendimentosEfetuados : 0,
                 qtdTotal: idoso.estatisticas.qtdTotal ? idoso.estatisticas.qtdTotal : 0,
                 ultimoAtendimento_timestamp: idoso.estatisticas.ultimoAtendimento ? idoso.estatisticas.ultimoAtendimento.timestamp : null,
