@@ -15,7 +15,7 @@ module.exports = app => {
 
     const exportCSV = async (req, res) => {
         try {
-            const result = await app.server.service.v2.exportService.exportCSV();
+            const result = await app.server.service.v2.exportService.exportCSV(req.params.unidadeId);
 
             fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
                 res.set('Content-Type', 'text/csv'); 

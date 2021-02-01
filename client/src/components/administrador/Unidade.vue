@@ -8,7 +8,7 @@
      </div>
      <div class="col-2 text-right">
        <a :href="`${baseApiUrl}/v2/unidades/${unidade._id}/exportacao`" class="btn btn-outline-primary">
-          exportar
+          exportar idosos (csv)
         </a>
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
