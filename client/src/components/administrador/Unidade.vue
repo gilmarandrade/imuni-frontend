@@ -7,12 +7,6 @@
         <p>Distrito {{ unidade.distrito }}</p>
      </div>
      <div class="col-2 text-right">
-       <a :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/idosos`" class="btn btn-outline-primary">
-          exportar idosos (csv)
-        </a>
-       <a :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/atendimentos`" class="btn btn-outline-primary">
-          exportar atendimentos (csv)
-        </a>
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
         <router-link :to="'/adicionarUnidade?id='+unidade._id" class="btn btn-outline-primary">
           editar
@@ -25,6 +19,8 @@
             </template>
             <b-dropdown-item :href="'/adicionarUnidade?id='+unidade._id">Editar</b-dropdown-item>
             <b-dropdown-item  @click="confirmDeletion(unidade._id)">Excluir</b-dropdown-item>
+            <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/idosos`">Exportar idosos (csv)</b-dropdown-item>
+            <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/atendimentos`">Exportar atendimentos (csv)</b-dropdown-item>
             <!-- <b-dropdown-item  @click="importFromPlanilhaUnidade" :disabled="!unidade.idPlanilhaGerenciamento || syncStatus.status==='LOADING'">Reimportar de planilhas</b-dropdown-item> -->
         </b-dropdown>
      </div>
