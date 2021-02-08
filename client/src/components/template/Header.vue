@@ -3,6 +3,9 @@
         <h1 class="title"> {{ title }} 
             <span v-if="appMode == 'TEST'" class="badge bg-danger">MODO TESTE</span>
         </h1>
+        <a href="https://www.notion.so/gilmarandrade/Wiki-IMUNI-v2-7-11987949af694849be026da8caaa2fac" target="_blank" title="Ajuda" class="nav-link text-light mr-2">
+            <font-awesome-icon :icon="['fas', 'question-circle']" size="lg" />
+        </a>
         <UserDropdown v-if="!hideUserDropdown" />
   </header>
 </template>

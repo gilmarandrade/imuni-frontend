@@ -8,10 +8,12 @@
           <font-awesome-icon :icon="['fas', 'angle-down']" />
       </div>
       <div class="user-dropdown-content">
-          <div>
-              {{ user.role }}
+          <div class="text-muted">
+              <small>
+                {{ user.role }}
+              </small>
           </div>
-          <div>
+          <div class="mb-3">
               {{ user.email }}
           </div>
           <a href @click.prevent="logout">
