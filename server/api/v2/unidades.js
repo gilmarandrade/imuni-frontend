@@ -1,3 +1,5 @@
+const fastcsv = require("fast-csv");
+const fs = require("fs");
 
 module.exports = app => {
 
@@ -6,7 +8,7 @@ module.exports = app => {
             const result = await app.server.service.v2.unidadeService.findAtivos();
             return res.json(result);
         } catch(err) {
-            console.log(err);
+        console.log(err);
             return res.status(500).send(err.toString());
         }
     }

@@ -1,6 +1,6 @@
 {
   "name": "frenteprevencaocovidrn",
-  "version": "v2.6.7",
+  "version": "v2.7.2",
   "description": "",
   "main": "server/app.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fast-csv": "^4.3.6",
     "googleapis": "^51.0.0",
     "jwt-simple": "^0.5.6",
     "mongodb": "^3.5.8",

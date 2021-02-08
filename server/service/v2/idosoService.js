@@ -635,5 +635,38 @@ module.exports = app => {
         return promise;
     }
 
-    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia, transferirIdosos, countByUnidade };
+    const findWithVigilantes = async (unidadeId) => {
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const idososCollection = db.collection(collectionName);
+
+                idososCollection.aggregate([
+                    { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
+                    { $sort : { nome: 1 } },
+                    {
+                        $lookup: {
+                            from: "usuarios",
+                            localField: "vigilanteId",
+                            foreignField: "_id",
+                            as: "vigilanteNome",
+                        }
+                    },
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
+    return { upsertOne, findAtivosByUnidadeId, getById, softDeleteOne, upsertEstatisticas, bulkUpdateEstatisticas, findAllByUser, countByVigilante, bulkUpdateOne, getByNome, upsertEpidemiologia, transferirIdosos, countByUnidade, findWithVigilantes };
 }

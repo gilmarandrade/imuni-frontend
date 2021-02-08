@@ -219,6 +219,48 @@ module.exports = app => {
         return promise;
     }
 
+    const findAllByUnidade = async (unidadeId) => {
+
+        const promise = new Promise( (resolve, reject) => {
+            var MongoClient = require( 'mongodb' ).MongoClient;
+            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+                if(err) return reject(err);
+                const db = client.db(dbName);
+                const collection = db.collection(collectionName);
+      
+                collection.aggregate([
+                    { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
+                    { $sort : { timestamp : -1 } },
+                    {
+                        $lookup: {
+                            from: "idosos",
+                            localField: "idosoId",
+                            foreignField: "_id",
+                            as: "idosoNome",
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "usuarios",
+                            localField: "vigilanteId",
+                            foreignField: "_id",
+                            as: "vigilanteNome",
+                        }
+                    },
+                ]).toArray(function(err, result) {
+                    if(err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+    
+        });
+    
+        return promise;
+    }
+
     // const findEstatisticasByUnidade = async (unidadeId, idosoId) => {
 
     //     const promise = new Promise( (resolve, reject) => {
@@ -470,5 +512,5 @@ module.exports = app => {
 
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne };
+   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne, findAllByUnidade };
 }

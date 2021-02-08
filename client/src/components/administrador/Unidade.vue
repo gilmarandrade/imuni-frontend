@@ -19,6 +19,8 @@
             </template>
             <b-dropdown-item :href="'/adicionarUnidade?id='+unidade._id">Editar</b-dropdown-item>
             <b-dropdown-item  @click="confirmDeletion(unidade._id)">Excluir</b-dropdown-item>
+            <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/idosos`">Exportar idosos (csv)</b-dropdown-item>
+            <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/unidades/${unidade._id}/atendimentos`">Exportar atendimentos (csv)</b-dropdown-item>
             <!-- <b-dropdown-item  @click="importFromPlanilhaUnidade" :disabled="!unidade.idPlanilhaGerenciamento || syncStatus.status==='LOADING'">Reimportar de planilhas</b-dropdown-item> -->
         </b-dropdown>
      </div>
@@ -207,7 +209,9 @@ export default {
             qtdIdosos: 0,
         }
     },
-    computed: mapState(['syncStatus', 'user']),
+    computed: {
+        baseApiUrl() { return baseApiUrl},
+        ...mapState(['syncStatus', 'user'])},
     methods: {
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}`;
@@ -385,6 +389,15 @@ export default {
               console.error(err.toString())
             })
         },
+        download() {
+          console.log('download')
+          const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}/exportacao`;
+            console.log(url);
+
+            axios.get(url).then(res => {
+                console.log(res.data)
+            }).catch(showError)
+        }
     },
     sockets: {
       connect: function () {

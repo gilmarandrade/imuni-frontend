@@ -201,18 +201,18 @@ module.exports = app => {
         switch(epidemiologica) {
             case epidemiologicaEnum.I_A:
             case epidemiologicaEnum.I_B:
-                increment = 10;
+                increment = 20;
                 break; 
             case epidemiologicaEnum.II_A:
             case epidemiologicaEnum.II_B:
             case epidemiologicaEnum.III_A:
-                increment = 7;
+                increment = 14;
                 break; 
             case epidemiologicaEnum.IV_A:
-                increment = 3;
+                increment = 7;
                 break; 
             case epidemiologicaEnum.III_B:
-                increment = 2;
+                increment = 3;
                 break; 
             case epidemiologicaEnum.IV_B:
                 increment = 1;

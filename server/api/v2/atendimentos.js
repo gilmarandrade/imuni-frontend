@@ -1,3 +1,5 @@
+const fastcsv = require("fast-csv");
+const fs = require("fs");
 
 module.exports = app => {
 
@@ -66,5 +68,26 @@ module.exports = app => {
         }
     }
 
-    return { save, getById, getByIdoso };
+    const exportCSV = async (req, res) => {
+        try {
+            const unidade = await app.server.service.v2.unidadeService.getById(req.params.unidadeId);
+            const result = await app.server.service.v2.exportService.exportAtendimentosCSV(req.params.unidadeId);
+
+            const fileName = `${unidade.nome}-atendimentos-${new Date().toLocaleDateString('pt-BR', {dateStyle:"short"})}.csv`
+            fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
+                res.set('Content-Type', 'text/csv'); 
+                res.set("Content-Disposition", `attachment;filename=${fileName}`);
+                res.send(data)
+            });
+
+
+            // const result = await app.server.service.v2.exportService.exportCSV();
+            // return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getById, getByIdoso, exportCSV };
 };
