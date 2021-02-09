@@ -1,5 +1,6 @@
 <template>
     <div class="auth-content">
+            <Banner/>
         <div class="auth-modal">
             <div class="auth-title">Login</div>
             <input v-model="user.email" name="email" placeholder="E-mail" type="email">
@@ -12,6 +13,7 @@
 
 <script>
 import { baseApiUrl, showError, userKey } from '@/global';
+import Banner from '@/components/includes/Banner';
 import axios from 'axios';
 //TODO quando o usuario esta logado ele está conseguindo acessar a tela de login e fazer login novamente
 export default {
@@ -21,6 +23,7 @@ export default {
             user: {}
         }
     },
+    components: { Banner },
     methods: {
         login() {
             axios.post(`${baseApiUrl}/v2/login`, this.user)
@@ -47,6 +50,7 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
     }
 
     .auth-modal {
