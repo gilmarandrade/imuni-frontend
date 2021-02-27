@@ -25,5 +25,12 @@ app.server.config.socket.init(server);
 server.listen(process.env.PORT, ()=>{
   console.log('[' + env.DOMAIN + '] server running');
   console.log(env)
+  if(env.DOMAIN != 'localhost') {
+    app.server.config.mail.send(
+      `<h1>Sistema reiniciado</h1>
+      Se você não solicitou esta ação, verifique se ocorreu um erro no Node.js que possa ter reiniciado o sistema`,
+      `Sistema reiniciado`,
+      process.env.DEVELOPER_MAIL);
+  }
 });
 
