@@ -39,9 +39,14 @@ module.exports = app => {
             
             
             try {
+                const startDate = new Date();
+                syncStatus.payload.msg = `[ImportUnidade] ${startDate}`;
                 syncStatus.emit();
-                await app.server.service.v2.importService.importFromPlanilhaUnidade(data.idUnidade);
-
+                await app.server.service.v2.importService.importFromPlanilhaUnidade(data.idUnidade, syncStatus);
+                
+                const duracao = new Date() - startDate;
+                
+                syncStatus.payload.msg = `[ImportUnidade] duração da execução: ${(duracao/1000/60).toFixed(2)}min`;
                 syncStatus.payload.status = 'SUCCESS';
                 syncStatus.emit();
                     

@@ -19,6 +19,7 @@ export default new Vuex.Store({
             current: 0,
             msg: '',
         },
+        syncStatusLogArray: [],
         pageParamsMap: new Map(),
     },
     mutations: {
@@ -47,7 +48,11 @@ export default new Vuex.Store({
         setIsLoadingApp(state, isLoading){
             state.isLoadingApp = isLoading;
         },
+        resetSyncStatusLogArray(state){
+            state.syncStatusLogArray = [];
+        },
         SOCKET_syncStatusEvent(state, data){
+            state.syncStatusLogArray.push(data.msg);
             // console.log( 'syncStatusEvent', data);
             state.syncStatus = data;
 
@@ -61,11 +66,12 @@ export default new Vuex.Store({
                         dontClose : true
                      }
                 }});
+                // state.syncStatusLogArray = [];
                 // Vue.toasted.global.defaultSuccess({msg: 'Importação de unidade finalizada'});
                 // this.$router.go()
             } else if (state.syncStatus.status === 'ERROR' ) {
                 showError(state.syncStatus.msg);
-
+                // state.syncStatusLogArray = [];
             }
         },
         setPageParamsMap(state, params){
@@ -94,6 +100,9 @@ export default new Vuex.Store({
         getPageParamsMap: (state) => {
             return state.pageParamsMap;
         },
+        getSyncStatus: (state) => {
+            return state.syncStatus;
+        }
     },
     // actions: {
     //     SOCKET_syncStatusEvent: function (data) {

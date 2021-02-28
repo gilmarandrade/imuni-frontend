@@ -4,6 +4,12 @@
             <font-awesome-icon :icon="['fas', 'sync']" size="6x" spin  />
             <h1 class="mt-5">Importando dados</h1>
             <h6 class="text-muted">Isso vai demorar um pouco...</h6> 
+            <ul class="import-log">
+                <li v-for="log in syncStatusLogArray" :key="log">
+                    {{log}}
+                </li>
+            </ul>
+            <!-- <pre>-{{syncStatusLogArray}}</pre> -->
       </section>
       <section class="wait-page success" v-else-if="syncStatus.status === 'SUCCESS'">
             <font-awesome-icon :icon="['far', 'check-circle']" size="6x"  />
@@ -12,6 +18,11 @@
             <h6 class="text-muted">Confira detalhes no relatório de falhas enviado por e-mail.</h6>
             <router-link :to="'/unidades/'+unidadeId" class="btn btn-success mt-3">acessar unidade</router-link>
 
+            <ul class="import-log">
+                <li v-for="log in syncStatusLogArray" :key="log">
+                    {{log}}
+                </li>
+            </ul>
       </section>
       <section v-else>
         <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Importar unidade'}]" />
@@ -20,9 +31,6 @@
             <h4 class="alert-heading">Atenção</h4>
             Antes de tudo, você deve compartilhar as planilhas com o email <code>autobot@frente-prevencao-covid-19-rn.iam.gserviceaccount.com</code> para que a sincronização dos dados possa ser efetuada.
         </b-alert>
-
-
-
         <b-form @submit="onSubmit">
             <b-form-group
                 id="input-group-nome"
@@ -91,6 +99,12 @@
 
             <b-button type="submit" variant="primary">Importar</b-button>
         </b-form>
+
+        <ul class="import-log">
+            <li v-for="log in syncStatusLogArray" :key="log">
+                {{log}}
+            </li>
+        </ul>
       </section>
   </div>
 </template>
@@ -104,7 +118,7 @@ import { mapState } from 'vuex';
 export default {
     name: 'ImportarUnidade',
     components: { Breadcrumb },
-    computed: mapState(['syncStatus', 'user']),
+    computed: mapState(['syncStatus', 'syncStatusLogArray', 'user']),
     data: function() {
         return {
             form: {
@@ -153,6 +167,7 @@ export default {
         },
     },
     mounted() {
+        this.$store.commit('resetSyncStatusLogArray', null);
         // modo de edição
         // if(this.$route.query.id) {
         //     const url = `${baseApiUrl}/v2/unidades/${this.$route.query.id}`;
@@ -182,5 +197,22 @@ export default {
     }
     .wait-page.success {
         color: rgb(39, 174, 96);
+    }
+
+    .import-log {
+        list-style: none;
+        text-align: left;
+        background: black;
+        color: white;
+        padding: 15px;
+        margin-top: 30px;
+        width: 1000px;
+        max-width: 100%;
+        height: 300px;
+        overflow-y: scroll;
+    }
+
+    .import-log li {
+        margin-bottom: 6px;
     }
 </style>

@@ -5,33 +5,51 @@ module.exports = app => {
      * Sincronização completa da unidade (todos os vigilantes e todas as respostas)
      * @param {*} idUnidade 
      */
-    const importFromPlanilhaUnidade = async (idUnidade) => {
+    const importFromPlanilhaUnidade = async (idUnidade, syncStatus) => {
         const unidade = await app.server.service.v2.unidadeService.getById(idUnidade);
         
         if(unidade) {
             console.log(`[ImportUnidade] ${unidade.nome} STARTING SYNC `);
+            syncStatus.payload.msg = `[ImportUnidade] ${unidade.nome} STARTING SYNC `;
+            syncStatus.emit();
             console.log(unidade);
-            const sheets = await prepareDataToSync(unidade);
+
+            const sheets = await prepareDataToSync(unidade, syncStatus);
             
+            syncStatus.payload.msg = `[ImportUnidade] buscando vigilantes`;
+            syncStatus.emit();
+
             for(let i = 0; i < sheets.length; i++) {
                 if(sheets[i].sheetName.startsWith("Vigilante")) {
                     // TODO e se a planilha estiver vazia?
                     let idVigilante = await syncVigilante(unidade, sheets[i].sheetName);
-                    console.log('idVigilante', idVigilante);
+                    console.log(`[ImportUnidade] ${sheets[i].sheetName} - id: ${idVigilante}`);
+                    
+                    syncStatus.payload.msg = `[ImportUnidade] ${sheets[i].sheetName} - id: ${idVigilante}`;
+                    syncStatus.emit();
+
                     if(!idVigilante) {
                         let idVigilante = await syncVigilante(unidade, sheets[i].sheetName);
-                        console.log('idVigilante (2ª tentativa)', idVigilante);
+                        console.log(`[ImportUnidade] (2ª tentativa) ${sheets[i].sheetName} - id: ${idVigilante}`);
+
+                        syncStatus.payload.msg = `[ImportUnidade] (2ª tentativa) ${sheets[i].sheetName} - id: ${idVigilante}`;
+                        syncStatus.emit();
                     }
-                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, idVigilante);
+                    const rows = await syncIdososBySheetName(unidade, sheets[i].sheetName, idVigilante, syncStatus);
                     // if(rows == 0) {// se não encontrou nenhuma linha, tenta mais uma vez
                     //     await syncIdososBySheetName(unidade, sheets[i].sheetName, idVigilante);
                     // }
                 }
             }
             
-            await syncAtendimentos(unidade);
+            await syncAtendimentos(unidade, syncStatus);
             console.log(`[ImportUnidade] ${unidade.nome} ENDED SYNC `);
+            syncStatus.payload.msg = `[ImportUnidade] ${unidade.nome} ENDED SYNC`;
+            syncStatus.emit();
         } else {
+            syncStatus.payload.status = 'ERROR';
+            syncStatus.payload.msg = 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
+            syncStatus.emit();
             throw 'Ocorreu um erro ao sincronizar a unidade, tente novamente';
         }
     }
@@ -41,7 +59,7 @@ module.exports = app => {
      * Procura essa informação da API do google Sheet (a api não conta o número de linhas preenchidas, e sim o numero máximo de linhas no grid, então é uma estimativa com folga)
      * @param {*} unidade 
      */
-    const prepareDataToSync = async (unidade) => {
+    const prepareDataToSync = async (unidade, syncStatus) => {
         const sheetsToSync = [];
         try {
             const spreadSheetProperties = await app.server.config.sheetsApi.getProperties(unidade.idPlanilhaGerenciamento);
@@ -57,10 +75,18 @@ module.exports = app => {
             }
             
         } catch(err) {
+            syncStatus.payload.status = 'ERROR';
+            syncStatus.payload.msg = err.toString();
+            syncStatus.emit();
+
             console.log(err);
         } finally {
             console.log(sheetsToSync);
             console.log(`[ImportUnidade] ${sheetsToSync.length} sheets found`);
+
+            syncStatus.payload.msg = `[ImportUnidade] ${sheetsToSync.length} sheets found: ${sheetsToSync.map((sheet) => sheet.sheetName).join(', ')}`;
+            syncStatus.emit();
+
             return sheetsToSync;
         }
     }
@@ -97,7 +123,7 @@ module.exports = app => {
     /**
      * Atualiza pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
      */
-    const syncIdososBySheetName = async (unidade, sheetName, vigilanteId, total) => {
+    const syncIdososBySheetName = async (unidade, sheetName, vigilanteId, syncStatus, total) => {
         const idososPorVigilantes = [];
         // let indexIdosos = 1; //unidade.sync[vigilanteIndex].indexed;
         // let rowsInserted = null;//@deprecated
@@ -106,6 +132,9 @@ module.exports = app => {
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';//''
         // let vigilanteNome = '';
         console.log(`[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`);
+        syncStatus.payload.msg = `[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndex}`;
+        syncStatus.emit();
+        
         const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'${sheetName}'!A${firstIndex}:N${lastIndex}`);
         rows.forEach((item, index) => {
             if(item[1]) {//se o idoso tem nome
@@ -125,15 +154,21 @@ module.exports = app => {
             }
         });
         if(idososPorVigilantes.length) {
-            console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`);
+            console.log(`[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`);
+            syncStatus.payload.msg = `[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} '${sheetName}'!A${firstIndex}:N${lastIndexSynced + idososPorVigilantes.length}`;
+            syncStatus.emit();
 
             //insere os idosos no banco
             await app.server.service.v2.idosoService.bulkUpdateOne(idososPorVigilantes);
         } else {
-            console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 0 rows found!`);
+            console.log(`[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} 0 rows found!`);
+            syncStatus.payload.msg = `[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} 0 rows found!`;
+            syncStatus.emit();
         }       
         
         console.log(`[ImportUnidade] idososCollection updated`)
+        syncStatus.payload.msg = `[ImportUnidade] idososCollection updated`;
+        syncStatus.emit();
         // return rowsInserted;
         return idososPorVigilantes.length;
     }
@@ -141,7 +176,7 @@ module.exports = app => {
     /**
      * Apaga os registros importados anterioremente, insere pelo menos os 10 ultimos registros já cadastrados no banco, e insere os novos registros (se houver)
      */
-    const syncAtendimentos = async (unidade, total) => {
+    const syncAtendimentos = async (unidade, syncStatus, total) => {
 
         const atendimentosSemIdoso = [];
         const atendimentosIdososMesmoNome = [];
@@ -156,11 +191,18 @@ module.exports = app => {
         const lastIndex = '';//limit ? lastIndexSynced + limit : '';
 
         console.log(`[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`);
+        syncStatus.payload.msg = `[ImportUnidade] Reading spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndex}`;
+        syncStatus.emit();
+        
         const rows = await app.server.config.sheetsApi.read(unidade.idPlanilhaGerenciamento, `'Respostas'!A${firstIndex}:AI${lastIndex}`);
-
+        
         const usuariosArray = await app.server.service.v2.usuarioService.findByUnidade(unidade._id);
         // console.log('usuariosArray', usuariosArray)
         // const respostasArray = [];
+        console.log(`[ImportUnidade] Processando atendimentos`);
+        syncStatus.payload.msg = `[ImportUnidade] Processando atendimentos`;
+        syncStatus.emit();
+        
         const atendimentosArray = [];
         for(let i = 0; i < rows.length; i++) {
             // console.log(i+2, ' ', rows[i][2])
@@ -460,13 +502,17 @@ module.exports = app => {
         // console.log('atendimentosArray ', atendimentosArray.length);
 
         if(atendimentosArray.length > 0) {
+            syncStatus.payload.msg = `[ImportUnidade] Inserindo ${atendimentosArray.length} atendimentos no banco de dados`;
+            syncStatus.emit();
             // INSERE ATENDIMENTOS VIA BATCH
             // console.log('INSERE ATENDIMENTOS VIA BATCH');
             await app.server.service.v2.atendimentoService.bulkUpdateOne(atendimentosArray);
-
+            
             const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
-
+            
             // console.log('idososArray ', idososArray.length);
+            syncStatus.payload.msg = `[ImportUnidade] Atualizando estatísticas de ${idososArray.length} idosos`;
+            syncStatus.emit();
             for(let i = 0; i < idososArray.length; i++) {
                 idososArray[i].estatisticas = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(idososArray[i]._id);
             }
@@ -519,39 +565,62 @@ module.exports = app => {
             const toArray = administradores.map((admin) => admin.email);
             toArray.push(process.env.DEVELOPER_MAIL);
             
-            await app.server.config.mail.sendToMany(
-                `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
-                <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
-                <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
-                <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>
-
-                <h1>Relatório de falhas</h1>
-                <h2>Atendimentos com idosos não encontrados (${atendimentosSemIdoso.length})</h2>
-                <p>Os seguintes atendimentos se referem a idosos cujos dados cadastrais não foram encontrados!</p>
-                <table border>${atendimentosSemIdosoString}</table>
-
-                <h2>Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})</h2>
-                <p>Não foi possível identificar a quais idosos pertencem os seguintes atendimentos, pois há mais de um idoso com o mesmo nome na unidade!</p>
-                <table border>${atendimentosIdososMesmoNomeString}</table>`,
-                `${unidade.nome}: Importação finalizada`,
-                toArray);
+            try{
+                await app.server.config.mail.sendToMany(
+                    `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
+                    <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
+                    <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
+                    <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>
+    
+                    <h1>Relatório de falhas</h1>
+                    <h2>Atendimentos com idosos não encontrados (${atendimentosSemIdoso.length})</h2>
+                    <p>Os seguintes atendimentos se referem a idosos cujos dados cadastrais não foram encontrados!</p>
+                    <table border>${atendimentosSemIdosoString}</table>
+    
+                    <h2>Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})</h2>
+                    <p>Não foi possível identificar a quais idosos pertencem os seguintes atendimentos, pois há mais de um idoso com o mesmo nome na unidade!</p>
+                    <table border>${atendimentosIdososMesmoNomeString}</table>`,
+                    `${unidade.nome}: Importação finalizada`,
+                    toArray);
+    
+                    syncStatus.payload.msg = `[ImportUnidade] Relatório de falhas enviado por e-mail`;
+                    syncStatus.emit();
+            } catch(err) {
+                syncStatus.payload.msg = `[ImportUnidade] Erro ao enviar Relatório de falhas por e-mail: ${err.toString()}`;
+                syncStatus.emit();
+                console.error('Erro email: ', err)
+            }
         } else {
+            syncStatus.payload.msg = `[ImportUnidade] Inserindo 0 atendimentos no banco de dados`;
+            syncStatus.emit();
+
             const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
             const toArray = administradores.map((admin) => admin.email);
             toArray.push(process.env.DEVELOPER_MAIL);
 
             const idososArray = await app.server.service.v2.idosoService.findAtivosByUnidadeId(unidade._id);
-            await app.server.config.mail.send(
-                `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
-                <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
-                <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
-                <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>`,
-                `${unidade.nome}: Importação finalizada`,
-                toArray);
+            try{
+                await app.server.config.mail.send(
+                    `<h1>A importação da ${unidade.nome} foi finalizada!</h1>
+                    <p><strong>Idosos encontrados:</strong> ${idososArray.length}</p>
+                    <p><strong>Atendimentos encontrados:</strong> ${atendimentosArray.length}</p>
+                    <p><strong>Atendentes encontrados:</strong> ${usuariosArray.length}</p>`,
+                    `${unidade.nome}: Importação finalizada`,
+                    toArray);
+    
+                syncStatus.payload.msg = `[ImportUnidade] Relatório de falhas enviado por e-mail`;
+                syncStatus.emit();
+            } catch(err) {
+                syncStatus.payload.msg = `[ImportUnidade] Erro ao enviar Relatório de falhas por e-mail: ${err.toString()}`;
+                syncStatus.emit();
+                console.error('Erro email: ', err)
+            }
         }
 
 
-        console.log('[ImportUnidade] Readed spreadsheet ', unidade.idPlanilhaGerenciamento , ` 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
+        console.log(`[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`);
+        syncStatus.payload.msg = `[ImportUnidade] Readed spreadsheet ${unidade.idPlanilhaGerenciamento} 'Respostas'!A${firstIndex}:AI${lastIndexSynced + rows.length}`;
+        syncStatus.emit();
     }
 
     return { importFromPlanilhaUnidade }
