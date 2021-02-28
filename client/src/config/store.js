@@ -51,6 +51,14 @@ export default new Vuex.Store({
         resetSyncStatusLogArray(state){
             state.syncStatusLogArray = [];
         },
+        // SOCKET_CONNECTED: (state,  status ) => {
+        //     state.socketStatus = true;
+        //     console.log('AAAAAA SOCKET CONNECTED!!!', status)
+        // },
+        // SOCKET_DISCONNECTED: (state,  status ) => {
+        //     state.socketStatus = false;
+        //     console.log('AAAAAA SOCKET DISCONNECTED!!!', status)
+        // },
         SOCKET_syncStatusEvent(state, data){
             state.syncStatusLogArray.push(data.msg);
             // console.log( 'syncStatusEvent', data);

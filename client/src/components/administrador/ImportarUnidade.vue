@@ -4,11 +4,15 @@
             <font-awesome-icon :icon="['fas', 'sync']" size="6x" spin  />
             <h1 class="mt-5">Importando dados</h1>
             <h6 class="text-muted">Isso vai demorar um pouco...</h6> 
-            <ul class="import-log">
+
+        <div class="import-log">
+            <div class="statusSocket" :class="{'connected': socketConnected}"></div>
+            <ul>
                 <li v-for="log in syncStatusLogArray" :key="log">
                     {{log}}
                 </li>
             </ul>
+        </div>
             <!-- <pre>-{{syncStatusLogArray}}</pre> -->
       </section>
       <section class="wait-page success" v-else-if="syncStatus.status === 'SUCCESS'">
@@ -18,11 +22,14 @@
             <h6 class="text-muted">Confira detalhes no relatório de falhas enviado por e-mail.</h6>
             <router-link :to="'/unidades/'+unidadeId" class="btn btn-success mt-3">acessar unidade</router-link>
 
-            <ul class="import-log">
-                <li v-for="log in syncStatusLogArray" :key="log">
-                    {{log}}
-                </li>
-            </ul>
+            <div class="import-log">
+                <div class="statusSocket" :class="{'connected': socketConnected}"></div>
+                <ul>
+                    <li v-for="log in syncStatusLogArray" :key="log">
+                        {{log}}
+                    </li>
+                </ul>
+            </div>
       </section>
       <section v-else>
         <Breadcrumb :path="[{text:'Dashboard', url:'/'}, {text:'Unidades', url:'/unidades'}, {text: 'Importar unidade'}]" />
@@ -100,11 +107,14 @@
             <b-button type="submit" variant="primary">Importar</b-button>
         </b-form>
 
-        <ul class="import-log">
-            <li v-for="log in syncStatusLogArray" :key="log">
-                {{log}}
-            </li>
-        </ul>
+            <div class="import-log">
+                <div class="statusSocket" :class="{'connected': socketConnected}"></div>
+                <ul>
+                    <li v-for="log in syncStatusLogArray" :key="log">
+                        {{log}}
+                    </li>
+                </ul>
+            </div>
       </section>
   </div>
 </template>
@@ -121,6 +131,7 @@ export default {
     computed: mapState(['syncStatus', 'syncStatusLogArray', 'user']),
     data: function() {
         return {
+            socketConnected: false,
             form: {
                 nome: '',
                 distrito: null,
@@ -175,6 +186,10 @@ export default {
         //         this.form = res.data;
         //     }).catch(showError)
         // }
+      setInterval(() => {
+        //   console.log(this.$socket)
+          this.socketConnected = this.$socket.connected
+      }, 1500)
     }
 }
 </script>
@@ -200,19 +215,50 @@ export default {
     }
 
     .import-log {
+        max-width: 100%;
+        margin-top: 30px;
+    }
+
+    .import-log ul {
         list-style: none;
         text-align: left;
         background: black;
         color: white;
         padding: 15px;
-        margin-top: 30px;
         width: 1000px;
         max-width: 100%;
         height: 300px;
         overflow-y: scroll;
+        position: relative;
     }
 
     .import-log li {
         margin-bottom: 6px;
+    }
+
+    .import-log .statusSocket {
+        text-align: left;
+    }
+
+    .import-log .statusSocket::after {
+        position: relative;
+        color: gray;
+        content: 'desconectado'
+    }
+    .import-log .statusSocket.connected::after {
+        content: 'conectado';
+    }
+    .import-log .statusSocket::before {
+        position: relative;
+        background: red;
+        content: '';
+        width: 12px;
+        height: 12px;
+        border-radius: 100%;
+        display: inline-block;
+        margin: -2px 5px;
+    }
+    .import-log .statusSocket.connected::before {
+        background: #2ad82a;
     }
 </style>

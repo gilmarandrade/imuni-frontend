@@ -399,11 +399,6 @@ export default {
             }).catch(showError)
         }
     },
-    sockets: {
-      connect: function () {
-        console.log('socket connected');
-      },
-    },
     mounted() {
       this.loadUnidade();
       this.loadUsuarios();
