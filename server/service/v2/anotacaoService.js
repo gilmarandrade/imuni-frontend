@@ -33,8 +33,7 @@ module.exports = app => {
             }
         }
         return run();
-        
-        // return run().catch(console.dir);
+
 
         // const promise = new Promise( (resolve, reject) => {
         //     var MongoClient = require( 'mongodb' ).MongoClient;

@@ -51,9 +51,11 @@ module.exports = app => {
 
         try {
             const result = await app.server.service.v2.atendimentoService.findById(id);
+            console.log('ATENDIMENTO', result)
             return res.json(result);
         } catch(err) {
-            return res.status(500).send(err);
+            console.error('ATENDIMENTO', err)
+            return res.status(500).send(err.toString());
         }
     }
 
