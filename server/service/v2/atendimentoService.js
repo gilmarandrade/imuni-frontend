@@ -680,33 +680,64 @@ module.exports = app => {
                 }
             });
         };
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
-    
+
+                    
                 // Initialize the unordered Batch
                 const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
                 for(let i = 0; i < atendimentosArray.length; i++) {
                     addToBatch(batch, atendimentosArray[i]);
                 };
-    
+
                 // Execute the operations
-                batch.execute(function(err, result) {
-                    // console.log(result)
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result.ok);
-                    }
-                });
-            });
+                const result = await batch.execute();
+                
+                return result ? result.ok : null;
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                // console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
     
-        });
+        //         // Initialize the unordered Batch
+        //         const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+        //         for(let i = 0; i < atendimentosArray.length; i++) {
+        //             addToBatch(batch, atendimentosArray[i]);
+        //         };
     
-        return promise;
+        //         // Execute the operations
+        //         batch.execute(function(err, result) {
+        //             // console.log(result)
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result.ok);
+        //             }
+        //         });
+        //     });
+    
+        // });
+    
+        // return promise;
     }
 
 
