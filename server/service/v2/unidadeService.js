@@ -3,31 +3,53 @@ module.exports = app => {
 const ObjectId = require('mongodb').ObjectID;
 const dbName = process.env.MONGO_DB_NAME;
 const collectionName = 'unidades';
+const MongoClient = require( 'mongodb' ).MongoClient;
 
 /**
  * Encontra todos os registros da collection, inclusive os que estão _isDeleted true
+ * @deprecated
  */
 const findAll = async () => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.find().toArray(function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+            return await collection.find().toArray();
 
-    });
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
 
-    return promise;
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+            
+    //         const collection = db.collection(collectionName);
+
+    //         collection.find().toArray(function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
 /**
@@ -35,26 +57,46 @@ const findAll = async () => {
  */
 //TODO esse nome de método é ambiguo. Dá a entender que está buscando unidades com status ATIVOS, quando na verdade esta buscando todas as unidades não deletadas
 const findAtivos = async () => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.find({ _isDeleted: false}).toArray(function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+            return await collection.find({ _isDeleted: false}).sort({nome: 1}).toArray();
 
-    });
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
 
-    return promise;
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+            
+    //         const collection = db.collection(collectionName);
+
+    //         collection.find({ _isDeleted: false}).toArray(function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
 /**
@@ -62,14 +104,17 @@ const findAtivos = async () => {
  * @param {*} unidade 
  */
 const upsertOne = async (unidade) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id: ObjectId(unidade._id) }, {
+            const result = await collection.updateOne({ _id: ObjectId(unidade._id) }, {
                 $set: { 
                     nome: unidade.nome,
                     distrito: unidade.distrito,
@@ -88,22 +133,64 @@ const upsertOne = async (unidade) => {
                     // lastSyncDate: unidade.lastSyncDate,
                     // vigilantes: unidade.vigilantes,
                 }
-            }, { upsert: true }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result.upsertedId === null ? unidade._id : result.upsertedId._id);
-                }
-            });
-        });
+            }, { upsert: true });
 
-    });
+            if(result) {
+                return result.upsertedId === null ? unidade._id : result.upsertedId._id;
+            }
+            return null;
 
-    return promise;
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
+
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+    //         const collection = db.collection(collectionName);
+
+    //         collection.updateOne({ _id: ObjectId(unidade._id) }, {
+    //             $set: { 
+    //                 nome: unidade.nome,
+    //                 distrito: unidade.distrito,
+    //                 status: unidade.status,
+    //                 _isDeleted: unidade._isDeleted,
+    //                 /* TODO DEPRECATED ATTRIBUTES*/
+    //                 // planilhaIdosos: unidade.planilhaIdosos,
+    //                 // planilhaGerenciamento: unidade.planilhaGerenciamento,
+    //                 // fichaVigilancia: unidade.fichaVigilancia,
+    //                 // idPlanilhaIdosos: unidade.idPlanilhaIdosos,
+    //                 // idPlanilhaGerenciamento: unidade.idPlanilhaGerenciamento,
+    //                 // idFichaVigilancia: unidade.idFichaVigilancia,
+    //                 // collectionPrefix: unidade.collectionPrefix,
+    //                 // ativo: unidade.ativo,
+    //                 // autoSync: unidade.autoSync,
+    //                 // lastSyncDate: unidade.lastSyncDate,
+    //                 // vigilantes: unidade.vigilantes,
+    //             }
+    //         }, { upsert: true }, function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result.upsertedId === null ? unidade._id : result.upsertedId._id);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
 /**
  * Insere ou atualiza um array de unidades
+ * @deprecated
  * @param {*} array 
  */
 const bulkUpdateOne = async (array) => {
@@ -129,11 +216,15 @@ const bulkUpdateOne = async (array) => {
             }
         });
     };
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
+
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
             // Initialize the unordered Batch
@@ -142,21 +233,45 @@ const bulkUpdateOne = async (array) => {
                 addToBatch(batch, array[i]);
             };
 
-            // Execute the operations
-            batch.execute(function(err, result) {
-                // console.log(result)
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result.ok);
-                }
+            const result = batch.execute();
+
+            return result;
+
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+    //         const collection = db.collection(collectionName);
+
+    //         // Initialize the unordered Batch
+    //         const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+    //         for(let i = 0; i < array.length; i++) {
+    //             addToBatch(batch, array[i]);
+    //         };
+
+    //         // Execute the operations
+    //         batch.execute(function(err, result) {
+    //             // console.log(result)
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result.ok);
+    //             }
                
-            });
-        });
+    //         });
+    //     });
 
-    });
+    // });
 
-    return promise;
+    // return promise;
 }
 
 /**
@@ -164,26 +279,45 @@ const bulkUpdateOne = async (array) => {
  * @param {*} id 
  */
 const getById = async (id) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
-            
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.findOne({ _id: ObjectId(id) }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
+            return await collection.findOne({ _id: ObjectId(id) });
 
-    });
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+            
+    //         const collection = db.collection(collectionName);
 
-    return promise;
+    //         collection.findOne({ _id: ObjectId(id) }, function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
 
@@ -194,29 +328,55 @@ const getById = async (id) => {
  * @param {*} id
  */
 const softDeleteOne = async (id) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.updateOne({ _id: ObjectId(id) }, {
+            const result = await collection.updateOne({ _id: ObjectId(id) }, {
                 $set: {
                     _isDeleted: true
                 }
-            }, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(id);
-                }
             });
-        });
 
-    });
+            return id;
 
-    return promise;
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
+
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+    //         const collection = db.collection(collectionName);
+
+    //         collection.updateOne({ _id: ObjectId(id) }, {
+    //             $set: {
+    //                 _isDeleted: true
+    //             }
+    //         }, function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(id);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
 /**
@@ -225,25 +385,46 @@ const softDeleteOne = async (id) => {
  */
 // TODO todos os inserts e updates do sistema deveriam retornar o id
 const insertOne = async (item) => {
-    const promise = new Promise( (resolve, reject) => {
-        var MongoClient = require( 'mongodb' ).MongoClient;
-        MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-            if(err) return reject(err);
-            const db = client.db(dbName);
+    // Create a new MongoClient
+    const client = new MongoClient(process.env.MONGO_URIS);
+
+    async function run() {
+        try {
+            // Connect the client to the server
+            await client.connect();
+            const db = await client.db(dbName);
             const collection = db.collection(collectionName);
 
-            collection.insertOne(item, function(err, result) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(result.insertedId);
-                }
-            });
-        });
+            const result = await collection.insertOne(item);
+            return result ? result.insertedId : null;
 
-    });
+        } finally {
+            // Ensures that the client will close when you finish/error
+            await client.close();
+            console.log('conexão fechada')
+        }
+    }
+    return run();
 
-    return promise;
+    // const promise = new Promise( (resolve, reject) => {
+    //     var MongoClient = require( 'mongodb' ).MongoClient;
+    //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+    //         if(err) return reject(err);
+    //         const db = client.db(dbName);
+    //         const collection = db.collection(collectionName);
+
+    //         collection.insertOne(item, function(err, result) {
+    //             if(err) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(result.insertedId);
+    //             }
+    //         });
+    //     });
+
+    // });
+
+    // return promise;
 }
 
     return { findAll, findAtivos, upsertOne, bulkUpdateOne, getById, softDeleteOne, insertOne };
