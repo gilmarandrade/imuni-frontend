@@ -281,7 +281,7 @@ module.exports = app => {
                     stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
                     stats.qtdTotal = result[0].total ? result[0].total.count : 0;
                 }
-                console.log('STATS ',stats)
+                // console.log('STATS ',stats)
                 return stats;
 
             } finally {
@@ -566,7 +566,7 @@ module.exports = app => {
         };
     
         // TODO trasnformar essas strings hardcoded em constantes
-        if(atendimento.tipo == 'Primeiro atendimento') {
+        if(atendimento.tipo == 'Primeiro atendimento' || atendimento.tipo == 'Primeiro Atendimento') {
             // insere temporariamente a epidemiologia na collection do idoso
             await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, { 'S08': atendimento.raw['S08']});
             // console.log(rest);
