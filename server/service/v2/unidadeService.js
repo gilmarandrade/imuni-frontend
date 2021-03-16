@@ -25,7 +25,7 @@ const findAll = async () => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -72,7 +72,7 @@ const findAtivos = async () => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -143,7 +143,7 @@ const upsertOne = async (unidade) => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -240,7 +240,7 @@ const bulkUpdateOne = async (array) => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -294,7 +294,7 @@ const getById = async (id) => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -349,7 +349,7 @@ const softDeleteOne = async (id) => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
@@ -401,7 +401,7 @@ const insertOne = async (item) => {
         } finally {
             // Ensures that the client will close when you finish/error
             await client.close();
-            console.log('conexão fechada')
+             
         }
     }
     return run();
