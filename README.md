@@ -1,50 +1,24 @@
 # monitoramento-covid19
 Sistema de monitoramento de idosos pra prevenção de covid-19 em Natal/RN
 
-## Server:
-na pasta raiz execute
-npm install para baixar as dependencias
+Copie o arquivo google_credentials.json (gerado no painel de console do Google Cloud Platform) para a pasta raiz do projeto (por segurança este arquivo não pode ser commitado). 
 
-configure o arquivo .env com as informações necessarias para usar a api do Google Cloud Platform e SMPT (envio de emails) (desatualizado!)
-GOOGLE_PROJECT: nome do projeto
-GOOGLE_APPLICATION_CREDENTIALS: caminho para o arquivo credentials.json
-SMTP_HOST: endereço do servidor SMTP de envio de emails
-SMTP_USER: usuário
-SMTP_PASSWORD: senha
+O google cloud é necessário para que uma conta de serviço tenha acesso as planilhas do Drive.
 
-crie um banco de dados no mongo chamado 'planilhas'
-dentro da pasta db tem alguns dados em json para serem inseridos no mongodb (collections usuarios e unidades)
-todos os usuarios tem a senha 12345
+crie arquivo.env da pasta raiz
 
-rode o projeto executando 
+.env da pasta /client
+
+## install backend
+npm install
+
+## install frontend
+cd client
+npm install
+
+
+## para rodar o backend
 npm run dev
 
-o servidor roda em localhost:3000
-a api está em localhost:3000/api
-
-## Client:
-na pasta /client execute
-npm install ára baixar as dependências do frontend
-
-em .env estão a configuração das variáveis de ambiente do projeto
-
-
-### Project setup
-```
-npm install
-```
-
-#### Compiles and hot-reloads for development
-o forntend roda em localhost:8080
-```
+## para rodar frontend
 npm run serve
-```
-
-#### Compiles and minifies for production
-```
-npm run build
-```
-
-#### Lints and fixes files
-```
-npm run lint
