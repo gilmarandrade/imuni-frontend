@@ -3,59 +3,108 @@ module.exports = app => {
     const ObjectId = require('mongodb').ObjectID;
     const dbName = process.env.MONGO_DB_NAME;
     const collectionName = 'atendimentos';
+    const MongoClient = require( 'mongodb' ).MongoClient;
 
     /**
      * Insere um item
      * @param {*} item 
      */
     const insertOne = async (item) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
                 item.idosoId = ObjectId(item.idosoId);
                 item.vigilanteId = ObjectId(item.vigilanteId);
                 item.unidadeId = ObjectId(item.unidadeId);
 
-                collection.insertOne(item, function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
+                await collection.insertOne(item);
 
-        });
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
 
-        return promise;
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
+
+        //         item.idosoId = ObjectId(item.idosoId);
+        //         item.vigilanteId = ObjectId(item.vigilanteId);
+        //         item.unidadeId = ObjectId(item.unidadeId);
+
+        //         collection.insertOne(item, function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result);
+        //             }
+        //         });
+        //     });
+
+        // });
+
+        // return promise;
     }
 
 
     const findById = async (id) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
-                
+        console.log('FIND BY ID', id)
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
+                const query = { _id: ObjectId(id), _isDeleted: false };
 
-        });
+                const result = await collection.findOne(query);
+                return result;
 
-        return promise;
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+                
+        //         const collection = db.collection(collectionName);
+
+        //         collection.findOne({ _id: ObjectId(id), _isDeleted: false }, function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result);
+        //             }
+        //         });
+        //     });
+
+        // });
+
+        // return promise;
     }
 
     /**
@@ -63,58 +112,117 @@ module.exports = app => {
      * @param {*} id 
      */
     const getEpidemiologia = async (idosoId) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
-                
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+        
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
+                
+                const query = { idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro atendimento' };
+                const sort = {timestamp: -1};
+                
+                const result = await collection.findOne(query, sort);
+                console.log(result)
+                // return result;
+                if(result) {
+                    return Object.keys(result).length === 0 ? null : result.raw;
+                } else {
+                    return null;
+                }
+    
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
 
-            collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        // console.log('GET epidemiologia', result);
-                        if(result) {
-                            resolve( Object.keys(result).length === 0 ? null : result.raw );
-                        } else {
-                            resolve( null);
-                        }
-                    }
-                });
-            });
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+                
+        //         const collection = db.collection(collectionName);
 
-        });
+        //     collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, tipo: 'Primeiro atendimento' }, { sort: { timestamp: -1 }, projection: { _id: 0, 'raw.S08': 1 } }, function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 // console.log('GET epidemiologia', result);
+        //                 if(result) {
+        //                     resolve( Object.keys(result).length === 0 ? null : result.raw );
+        //                 } else {
+        //                     resolve( null);
+        //                 }
+        //             }
+        //         });
+        //     });
 
-        return promise;
+        // });
+
+        // return promise;
     }
 
     /**
      * Encontra as últimas escalas preenchida de um idoso
+     * @deprecated
      * @param {*} id 
      */
     const getEscalas = async (idosoId) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
-                
+
+        console.log('GET ESCALAS!!')
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, atendeu: true }, { sort: { timestamp: -1 }, projection: { _id: 0, 'escalas': 1, 'timestamp': 1 } }, function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve( result ? { ...result.escalas, timestamp: result.timestamp } : null );
-                    }
-                });
-            });
+                const query = { idosoId: ObjectId(idosoId), _isDeleted: false, atendeu: true };
+                const options = { sort: { timestamp: -1 }, projection: { _id: 0, 'escalas': 1, 'timestamp': 1 } } 
 
-        });
+                const result = await collection.findOne(query, options);
 
-        return promise;
+                return result ? { ...result.escalas, timestamp: result.timestamp } : null;
+                
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+                
+        //         const collection = db.collection(collectionName);
+
+        //         collection.findOne({ idosoId: ObjectId(idosoId), _isDeleted: false, atendeu: true }, { sort: { timestamp: -1 }, projection: { _id: 0, 'escalas': 1, 'timestamp': 1 } }, function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve( result ? { ...result.escalas, timestamp: result.timestamp } : null );
+        //             }
+        //         });
+        //     });
+
+        // });
+
+        // return promise;
     }
 
     /**
@@ -124,15 +232,17 @@ module.exports = app => {
      * @returns { atendimentosEfetuados: x, total: x }
      */
     const getEstatisticasByIdoso = async (idosoId) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
-                
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                collection.aggregate([
+                const result = await collection.aggregate([
                     { $match: { "idosoId": ObjectId(idosoId), _isDeleted: false } },
                     { $sort: { "timestamp" : -1 } },
                     {
@@ -159,76 +269,162 @@ module.exports = app => {
                     { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
                     { $unwind: { path: "$atendimentosEfetuados", preserveNullAndEmptyArrays: true } },
                     { $unwind: { path: "$total", preserveNullAndEmptyArrays: true } },
-                ]).toArray(function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        // console.log(result ? { atendimentosEfetuados: result[0].atendimentosEfetuados.count, total: result[0].total.count } : null);
-                        // TODO VERIFICAR O QUE ACONTECE QUANDO O ARRAY ESTÁ VAZIO
-                        const stats = {};
-                        if(result.length > 0) {
-                            stats.ultimoAtendimento = result[0].ultimoAtendimento ? result[0].ultimoAtendimento : null;
-                            stats.ultimaEscala = result[0].ultimaEscala ? result[0].ultimaEscala : null;
-                            stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
-                            stats.qtdTotal = result[0].total ? result[0].total.count : 0;
-                        }
-                        // console.log('stat ',stats)
-                        resolve(stats);
-                    }
-                });
-            });
-        });
+                ]).toArray();
 
-        return promise;
+                // console.log(result)
+
+                // TODO VERIFICAR O QUE ACONTECE QUANDO O ARRAY ESTÁ VAZIO
+                const stats = {};
+                if(result.length > 0) {
+                    stats.ultimoAtendimento = result[0].ultimoAtendimento ? result[0].ultimoAtendimento : null;
+                    stats.ultimaEscala = result[0].ultimaEscala ? result[0].ultimaEscala : null;
+                    stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
+                    stats.qtdTotal = result[0].total ? result[0].total.count : 0;
+                }
+                // console.log('STATS ',stats)
+                return stats;
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+                
+        //         const collection = db.collection(collectionName);
+
+        //         collection.aggregate([
+        //             { $match: { "idosoId": ObjectId(idosoId), _isDeleted: false } },
+        //             { $sort: { "timestamp" : -1 } },
+        //             {
+        //                 $facet: {
+        //                     "ultimoAtendimento": [
+        //                         { $limit: 1 },
+        //                         { $project: { "timestamp": 1, "atendeu": 1 } },
+        //                     ],
+        //                     "ultimaEscala": [
+        //                         { $match: { "atendeu": true, } },
+        //                         { $limit: 1 },
+        //                         { $project: { "timestamp": 1, "escalas": 1 } },
+        //                     ],
+        //                     "atendimentosEfetuados" : [ 
+        //                         { $match: { "atendeu": true }, },
+        //                         { $count: "count" },
+        //                     ],
+        //                     "total" : [ 
+        //                         { $count: "count" },
+        //                     ],
+        //                 }
+        //             },
+        //             { $unwind: { path: "$ultimoAtendimento", preserveNullAndEmptyArrays: true } },
+        //             { $unwind: { path: "$ultimaEscala", preserveNullAndEmptyArrays: true } },
+        //             { $unwind: { path: "$atendimentosEfetuados", preserveNullAndEmptyArrays: true } },
+        //             { $unwind: { path: "$total", preserveNullAndEmptyArrays: true } },
+        //         ]).toArray(function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 // console.log(result ? { atendimentosEfetuados: result[0].atendimentosEfetuados.count, total: result[0].total.count } : null);
+        //                 // TODO VERIFICAR O QUE ACONTECE QUANDO O ARRAY ESTÁ VAZIO
+        //                 const stats = {};
+        //                 if(result.length > 0) {
+        //                     stats.ultimoAtendimento = result[0].ultimoAtendimento ? result[0].ultimoAtendimento : null;
+        //                     stats.ultimaEscala = result[0].ultimaEscala ? result[0].ultimaEscala : null;
+        //                     stats.qtdAtendimentosEfetuados = result[0].atendimentosEfetuados ? result[0].atendimentosEfetuados.count : 0;
+        //                     stats.qtdTotal = result[0].total ? result[0].total.count : 0;
+        //                 }
+        //                 // console.log('stat ',stats)
+        //                 resolve(stats);
+        //             }
+        //         });
+        //     });
+        // });
+
+        // return promise;
     }
 
     const findAllByIdoso = async (idosoId) => {
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
 
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
-      
-                collection.aggregate([
+
+                const result = await collection.aggregate([
                     { $match: { _isDeleted: false, idosoId: ObjectId(idosoId)} },
                     { $sort : { timestamp : -1 } },
                     // { $skip : rowsPerPage * page },
                     // { $limit : rowsPerPage },
-                ]).toArray(function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        // console.log(result);
-                        // resolve({
-                        //     data : result,
-                        //     info: {
-                        //         totalRows: result.length,
-                        //         currentPage: page,
-                        //         rowsPerPage: rowsPerPage
-                        //     }
-                        // });
-                        resolve(result);
-                    }
-                });
-            });
+                ]).toArray();
+
+                return result;
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
+      
+        //         collection.aggregate([
+        //             { $match: { _isDeleted: false, idosoId: ObjectId(idosoId)} },
+        //             { $sort : { timestamp : -1 } },
+        //             // { $skip : rowsPerPage * page },
+        //             // { $limit : rowsPerPage },
+        //         ]).toArray(function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 // console.log(result);
+        //                 // resolve({
+        //                 //     data : result,
+        //                 //     info: {
+        //                 //         totalRows: result.length,
+        //                 //         currentPage: page,
+        //                 //         rowsPerPage: rowsPerPage
+        //                 //     }
+        //                 // });
+        //                 resolve(result);
+        //             }
+        //         });
+        //     });
     
-        });
+        // });
     
-        return promise;
+        // return promise;
     }
 
     const findAllByUnidade = async (unidadeId) => {
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
 
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
-      
-                collection.aggregate([
+
+                const result = await collection.aggregate([
                     { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
                     { $sort : { timestamp : -1 } },
                     {
@@ -247,75 +443,57 @@ module.exports = app => {
                             as: "vigilanteNome",
                         }
                     },
-                ]).toArray(function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-    
-        });
-    
-        return promise;
-    }
+                ]).toArray();
 
-    // const findEstatisticasByUnidade = async (unidadeId, idosoId) => {
+                return result;
 
-    //     const promise = new Promise( (resolve, reject) => {
-    //         var MongoClient = require( 'mongodb' ).MongoClient;
-    //         MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-    //             if(err) return reject(err);
-    //             const db = client.db(dbName);
-    //             const collection = db.collection(collectionName);
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
       
-    //             collection.aggregate([
-    //                 { $match: { unidadeId: ObjectId(unidadeId), idosoId: ObjectId(idosoId), _isDeleted: false, } },
-    //                 { $sort: { timestamp : -1 } },
-    //                 {
-    //                     $facet: {
-    //                         "ultimoAtendimento": [
-    //                             { $match: { "atendeu": true, } },
-    //                             { $limit: 1 },
-    //                             { $project: { "timestamp": 1, "escalas": 1 } },
-    //                         ],
-    //                         "atendimentosEfetuados": [
-    //                             { $match: { "atendeu": true } },
-    //                             { $count: "count" },
-    //                         ],
-    //                         "total" : [ 
-    //                             { $count: "count" },
-    //                         ],
-    //                     }
-                        
-    //                 }
-    //                 // { $group: { _id: '$idosoId', totalRows: { $sum: 1 } } },
-
-    //                 // { $skip : rowsPerPage * page },
-    //                 // { $limit : rowsPerPage },
-    //             ]).toArray(function(err, result) {
-    //                 if(err) {
-    //                     reject(err);
-    //                 } else {
-    //                     // console.log(result);
-    //                     // resolve({
-    //                     //     data : result,
-    //                     //     info: {
-    //                     //         totalRows: result.length,
-    //                     //         currentPage: page,
-    //                     //         rowsPerPage: rowsPerPage
-    //                     //     }
-    //                     // });
-    //                     resolve(result);
-    //                 }
-    //             });
-    //         });
+        //         collection.aggregate([
+        //             { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
+        //             { $sort : { timestamp : -1 } },
+        //             {
+        //                 $lookup: {
+        //                     from: "idosos",
+        //                     localField: "idosoId",
+        //                     foreignField: "_id",
+        //                     as: "idosoNome",
+        //                 }
+        //             },
+        //             {
+        //                 $lookup: {
+        //                     from: "usuarios",
+        //                     localField: "vigilanteId",
+        //                     foreignField: "_id",
+        //                     as: "vigilanteNome",
+        //                 }
+        //             },
+        //         ]).toArray(function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result);
+        //             }
+        //         });
+        //     });
     
-    //     });
+        // });
     
-    //     return promise;
-    // }
+        // return promise;
+    }
 
     /**
      * Insere um atendimento recebido através do google form
@@ -388,7 +566,7 @@ module.exports = app => {
         };
     
         // TODO trasnformar essas strings hardcoded em constantes
-        if(atendimento.tipo == 'Primeiro atendimento') {
+        if(atendimento.tipo == 'Primeiro atendimento' || atendimento.tipo == 'Primeiro Atendimento') {
             // insere temporariamente a epidemiologia na collection do idoso
             await app.server.service.v2.idosoService.upsertEpidemiologia(atendimento.idosoId, { 'S08': atendimento.raw['S08']});
             // console.log(rest);
@@ -436,25 +614,46 @@ module.exports = app => {
      * @param {*} unidadeId
      */
     const deleteImportedByUnidade = async (unidadeId) => {
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                collection.deleteMany({ unidadeId: ObjectId(unidadeId), origin: 'IMPORTED' }, function(err, result) {
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result.deletedCount);
-                    }
-                });
-            });
+                const result =  await collection.deleteMany({ unidadeId: ObjectId(unidadeId), origin: 'IMPORTED' });
+                return result ? result.deletedCount : null;
 
-        });
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                console.log('conexão fechada')
+            }
+        }
+        return run();
 
-        return promise;
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
+
+        //         collection.deleteMany({ unidadeId: ObjectId(unidadeId), origin: 'IMPORTED' }, function(err, result) {
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result.deletedCount);
+        //             }
+        //         });
+        //     });
+
+        // });
+
+        // return promise;
     }
 
     const bulkUpdateOne = async (atendimentosArray) => {
@@ -481,33 +680,64 @@ module.exports = app => {
                 }
             });
         };
-        const promise = new Promise( (resolve, reject) => {
-            var MongoClient = require( 'mongodb' ).MongoClient;
-            MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-                if(err) return reject(err);
-                const db = client.db(dbName);
+
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
-    
+
+                    
                 // Initialize the unordered Batch
                 const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
                 for(let i = 0; i < atendimentosArray.length; i++) {
                     addToBatch(batch, atendimentosArray[i]);
                 };
-    
+
                 // Execute the operations
-                batch.execute(function(err, result) {
-                    // console.log(result)
-                    if(err) {
-                        reject(err);
-                    } else {
-                        resolve(result.ok);
-                    }
-                });
-            });
+                const result = await batch.execute();
+                
+                return result ? result.ok : null;
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                // console.log('conexão fechada')
+            }
+        }
+        return run();
+
+        // const promise = new Promise( (resolve, reject) => {
+        //     var MongoClient = require( 'mongodb' ).MongoClient;
+        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
+        //         if(err) return reject(err);
+        //         const db = client.db(dbName);
+        //         const collection = db.collection(collectionName);
     
-        });
+        //         // Initialize the unordered Batch
+        //         const batch = collection.initializeUnorderedBulkOp({useLegacyOps: true});
+        //         for(let i = 0; i < atendimentosArray.length; i++) {
+        //             addToBatch(batch, atendimentosArray[i]);
+        //         };
     
-        return promise;
+        //         // Execute the operations
+        //         batch.execute(function(err, result) {
+        //             // console.log(result)
+        //             if(err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(result.ok);
+        //             }
+        //         });
+        //     });
+    
+        // });
+    
+        // return promise;
     }
 
 

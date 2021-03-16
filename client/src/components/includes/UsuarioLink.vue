@@ -26,10 +26,14 @@ export default {
             console.log(url);
 
             try {
+                if(this.id == null) {
+                    throw 'Id usuario null'
+                }
                 const response = await axios.get(url);
                 console.log('USUARIOLINK', response);
                 // this.usuario = response.data;
                 this.usuarioName = response.data.name;
+
                 if(response.data.unidadeId) {
                     this.usuarioUrl = `/unidades/${response.data.unidadeId}/usuarios/${this.id}/idosos/com-escalas`;
                 }
