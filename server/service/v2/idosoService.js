@@ -47,7 +47,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -111,7 +111,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -157,7 +157,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -204,7 +204,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -251,7 +251,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -306,7 +306,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -368,7 +368,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -429,7 +429,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -494,7 +494,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -632,7 +632,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -752,7 +752,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -863,7 +863,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -994,7 +994,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -1058,7 +1058,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
@@ -1119,7 +1119,7 @@ module.exports = app => {
             } finally {
                 // Ensures that the client will close when you finish/error
                 await client.close();
-                console.log('conexão fechada')
+                 
             }
         }
         return run();
