@@ -1,3 +1,4 @@
+const { raw } = require("express");
 
 module.exports = app => {
 
@@ -12,7 +13,7 @@ module.exports = app => {
             console.log(`[ImportUnidade] ${unidade.nome} STARTING SYNC `);
             syncStatus.payload.msg = `[ImportUnidade] ${unidade.nome} STARTING SYNC `;
             syncStatus.emit();
-            console.log(unidade);
+            console.log(`UNIDADE ${unidade}`);
 
             const sheets = await prepareDataToSync(unidade, syncStatus);
             
@@ -79,9 +80,9 @@ module.exports = app => {
             syncStatus.payload.msg = err.toString();
             syncStatus.emit();
 
-            console.log(err);
+            console.error(`[erro] ${err}`);
         } finally {
-            console.log(sheetsToSync);
+            console.log(`[sheetsToSync]`, sheetsToSync);
             console.log(`[ImportUnidade] ${sheetsToSync.length} sheets found`);
 
             syncStatus.payload.msg = `[ImportUnidade] ${sheetsToSync.length} sheets found: ${sheetsToSync.map((sheet) => sheet.sheetName).join(', ')}`;
@@ -209,11 +210,12 @@ module.exports = app => {
             // encontra o id do idoso
              // TODO a performance dessa consulta poderia ser eliminada ao ser realizada apenas uma vez no inicio?  Pegando um grande array contendo todos os idosos?!
             const idososByNome = await app.server.service.v2.idosoService.getByNome(rows[i][2], unidade._id);
+            // console.log('idososByNome', idososByNome)
             let idosoId = null;
             // const idosoId = idos ? idos._id.toString() : null;
             let idos = null;
             if(idososByNome.length == 0) { // atendimento sem idoso
-                console.error('ATENDIMENTO SEM IDOSO! ', rows[i], unidade._id, idos)
+                console.error('ATENDIMENTO SEM IDOSO! ', i+2, rows[i][2])
                 atendimentosSemIdoso.push({index: i, row: rows[i]});
             } else if(idososByNome.length == 1) { // atendimento com idoso
                 idos = idososByNome[0];
@@ -221,7 +223,7 @@ module.exports = app => {
             } else { // mais de um idoso encontrado com o mesmo nome! Ambiguo, não da pra saber de que idoso é esse atendimento
                 idosoId = null;
                 idos = null;
-                console.error('MAIS DE UM IDOSO ENCONTRADO COM O MESMO NOME! ', rows[i], unidade._id, idos)
+                console.error('MAIS DE UM IDOSO ENCONTRADO COM O MESMO NOME! ', i+2, rows[i][2])
                 atendimentosIdososMesmoNome.push({index: i, row: rows[i]});
             }
             // encontra o id do vigilante, se não existir cria um novo vigilante
@@ -239,7 +241,7 @@ module.exports = app => {
                 vigilanteId = await app.server.service.v2.usuarioService.insertOne(novoVigilante);
                 novoVigilante._id = vigilanteId;
                 usuariosArray.push(novoVigilante);
-                console.error('ATENDIMENTO SEM VIGILANTE! ', rows[i], unidade._id, vig);
+                console.error('ATENDIMENTO SEM VIGILANTE! ', i+2, rows[i][2], rows[i][1]);
                 // atendimentosSemVigilante.push({index: i, row: rows[i]});
             }
 
@@ -494,7 +496,9 @@ module.exports = app => {
             atendimento.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
             atendimento.responseId = `'Respostas'!A${i + 2}:AI${i + 2}`;
                 
+            // console.log('ATENDIMENTO RAW', atendimento)
             const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            // console.log('ATENDIMENTO PROCESSADO', aten)
             atendimentosArray.push(aten);
         
         }
@@ -541,7 +545,7 @@ module.exports = app => {
                     <td>${atendimento.row[34]}</td>
                 </tr>`;
             });
-    
+
             atendimentosIdososMesmoNomeString = `
             <tr>
                 <th>idoso</th>
@@ -564,6 +568,14 @@ module.exports = app => {
             const administradores = await app.server.service.v2.usuarioService.findAdministradoresAtivos();
             const toArray = administradores.map((admin) => admin.email);
             toArray.push(process.env.DEVELOPER_MAIL);
+
+
+            console.log(`A importação da ${unidade.nome} foi finalizada!
+                    Idosos encontrados: ${idososArray.length},
+                    Atendimentos encontrados: ${atendimentosArray.length},
+                    Atendentes encontrados: ${usuariosArray.length},
+                    Atendimentos com idosos não encontrados (${atendimentosSemIdoso.length}),
+                    Idosos com mesmo nome (${atendimentosIdososMesmoNome.length})`);
             
             try{
                 await app.server.config.mail.sendToMany(

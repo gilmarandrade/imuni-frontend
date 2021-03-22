@@ -126,7 +126,7 @@ module.exports = app => {
                 const sort = {timestamp: -1};
                 
                 const result = await collection.findOne(query, sort);
-                console.log(result)
+                // console.log('EPIDEMIOLOGIA', result)
                 // return result;
                 if(result) {
                     return Object.keys(result).length === 0 ? null : result.raw;
