@@ -22,7 +22,7 @@ module.exports = app => {
 
                 const updateDoc = {
                     $set: { 
-                        nome: idoso.nome,
+                        nome: idoso.nome.toLowerCase(),
                         dataNascimento: idoso.dataNascimento,
                         telefone1: idoso.telefone1,
                         telefone2: idoso.telefone2,
@@ -199,7 +199,7 @@ module.exports = app => {
                 const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                return await collection.find({ nome: nome, unidadeId: ObjectId(unidadeId), _isDeleted: false  }).toArray();
+                return await collection.find({ nome: nome.toLowerCase(), unidadeId: ObjectId(unidadeId), _isDeleted: false  }).toArray();
 
             } finally {
                 // Ensures that the client will close when you finish/error
@@ -952,11 +952,11 @@ module.exports = app => {
     const bulkUpdateOne = async (idososArray) => {
 
         const addToBatch = (batch, item) => {
-            batch.find({ nome: item.nome, telefone1: item.telefone1, telefone2: item.telefone2, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
+            batch.find({ nome: item.nome.toLowerCase(), telefone1: item.telefone1, telefone2: item.telefone2, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
                 $set: { 
                     // row: item.row,
                     dataNascimento: item.dataNascimento,
-                    nome: item.nome,
+                    nome: item.nome.toLowerCase(),
                     telefone1: item.telefone1,
                     telefone2: item.telefone2,
                     agenteSaude: item.agenteSaude,
