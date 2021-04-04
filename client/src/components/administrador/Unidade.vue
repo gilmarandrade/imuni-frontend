@@ -5,6 +5,9 @@
      <div class="col-10">
         <h1>{{ unidade.nome }}</h1>
         <p>Distrito {{ unidade.distrito }}</p>
+        <b-form-checkbox v-model="unidade.status" unchecked-value="INATIVO" value="ATIVO" name="check-button" switch @change="toggleStatus">
+          {{ unidade.status == 'ATIVO' ? 'Unidade ativa' : 'Unidade inativa' }}
+        </b-form-checkbox>
      </div>
      <div class="col-2 text-right">
         <!-- <button @click="importFromPlanilhaUnidade" class="btn btn-primary" :disabled="syncStatus.status==='LOADING'">reimportar</button>
@@ -244,6 +247,18 @@ export default {
         },
         formatDate(date) {
             return new Date(date).toLocaleString();
+        },
+        toggleStatus(e) {
+
+          console.log(JSON.stringify(this.unidade));
+          const url = `${baseApiUrl}/v2/unidades`;
+          console.log(url, e);
+
+          axios.post(url, this.unidade).then(res => {
+              console.log(res)
+              // this.$router.push({ name: 'unidade', params: { id: res.data } })
+              this.$toasted.global.defaultSuccess({msg: 'Status da unidade alterado com sucesso!'});
+          }).catch(showError)
         },
         toggleSync(e) {
           //TODO escolher se vai usar o this.loading ou this.$store para mostrar um loading no sistema (ou usar silhouete)

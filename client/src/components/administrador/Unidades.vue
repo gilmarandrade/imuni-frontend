@@ -20,7 +20,7 @@
         </div>
 
         <ul class="grid-list row">
-            <li v-for="unidade in unidades" :key="unidade._id" class="col-sm-6 col-md-4 col-lg-3">
+            <li v-for="unidade in unidades" :key="unidade._id" class="col-sm-6 col-md-4 col-lg-3" :class="{ 'ativo' : unidade.status == 'ATIVO' }">
               <router-link :to="'/unidades/'+unidade._id" class="item" title="clique para ver detalhes">
                 <!-- <div v-if="unidade.lastSyncDate" class="sync-state">
                   <popper

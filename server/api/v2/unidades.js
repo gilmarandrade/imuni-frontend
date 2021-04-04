@@ -110,30 +110,30 @@ module.exports = app => {
         }
     }
 
-    /**
-     * Migração das unidades cadastradas no banco antigo para o formato compatível com a versão 2
-     * @param {*} req 
-     * @param {*} res 
-     * @deprecated
-     */
-    const adequarUnidades = async (req, res) => {
-        try {
-            const unidades = await app.server.service.v2.unidadeService.findAll();
+    // /**
+    //  * Migração das unidades cadastradas no banco antigo para o formato compatível com a versão 2
+    //  * @param {*} req 
+    //  * @param {*} res 
+    //  * @deprecated
+    //  */
+    // const adequarUnidades = async (req, res) => {
+    //     try {
+    //         const unidades = await app.server.service.v2.unidadeService.findAll();
             
-            unidades.forEach(unidade => {
-                unidade._isDeleted = false;
-                unidade.planilhaIdosos = `https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaIdosos}/edit?usp=sharing`;
-                unidade.planilhaGerenciamento = `https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaGerenciamento}/edit?usp=sharing`;
-                unidade.fichaVigilancia = `https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`;
-            });
+    //         unidades.forEach(unidade => {
+    //             unidade._isDeleted = false;
+    //             unidade.planilhaIdosos = `https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaIdosos}/edit?usp=sharing`;
+    //             unidade.planilhaGerenciamento = `https://docs.google.com/spreadsheets/d/${unidade.idPlanilhaGerenciamento}/edit?usp=sharing`;
+    //             unidade.fichaVigilancia = `https://docs.google.com/forms/d/${unidade.idFichaVigilancia}/edit?usp=sharing`;
+    //         });
             
-            const result = await app.server.service.v2.unidadeService.bulkUpdateOne(unidades);
-            return res.status(200).json(result);
-        } catch(err) {
-            console.log(err);
-            return res.status(500).send(err.toString());
-        }
-    }
+    //         const result = await app.server.service.v2.unidadeService.bulkUpdateOne(unidades);
+    //         return res.status(200).json(result);
+    //     } catch(err) {
+    //         console.log(err);
+    //         return res.status(500).send(err.toString());
+    //     }
+    // }
 
     const remove = async (req, res) => {
         try {
@@ -145,5 +145,5 @@ module.exports = app => {
         }
     }
 
-    return { get, save, adequarUnidades, getById, remove, getName, migrate };
+    return { get, save, getById, remove, getName, migrate };
 };
