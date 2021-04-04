@@ -88,7 +88,7 @@ export default {
             form: {
                 nome: '',
                 distrito: null,
-                status: 'ATIVO',
+                status: 'INATIVO',
                 _isDeleted: false,
             },
             distritos: [ { text: 'Selecione...', value: null }, 'Norte I', 'Norte II', 'Sul', 'Leste', 'Oeste' ],

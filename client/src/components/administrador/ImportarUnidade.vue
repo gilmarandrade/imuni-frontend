@@ -136,7 +136,7 @@ export default {
                 nome: '',
                 distrito: null,
                 _isDeleted: false,
-                status: 'ATIVO',
+                status: 'INATIVO',
                 planilhaIdosos: '',
                 planilhaGerenciamento: '',
                 fichaVigilancia: '',
