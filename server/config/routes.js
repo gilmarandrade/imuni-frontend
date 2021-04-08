@@ -104,19 +104,22 @@ module.exports = app => {
     app.route('/api/v2/atendimentos')
         .post(app.server.api.v2.atendimentos.save);
 
+        
     app.route('/api/v2/names/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.unidades.getName);
-
+        
     app.route('/api/v2/names/usuarios/:usuarioId')
         .all(app.server.config.passport.authenticate())
         .get(app.server.api.v2.usuarios.getName);
-
-    
+        
+        
     app.route('/api/v2/importacao/unidades')
         .all(app.server.config.passport.authenticate())
         .post(app.server.api.v2.unidades.migrate);
         
+    app.route('/api/v2/importacao/atendimentos/:index')
+        .post(app.server.api.v2.atendimentos.importFromPlanilhaGlobal);
 
 
     app.route('/api/v2/status')

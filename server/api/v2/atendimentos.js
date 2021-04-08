@@ -91,5 +91,21 @@ module.exports = app => {
         }
     }
 
-    return { save, getById, getByIdoso, exportCSV };
+    const importFromPlanilhaGlobal = async (req, res) => {
+
+        if(+req.params.index > 1) {
+            try {
+                const atendimento = await app.server.service.v2.importService.importAtendimentoFromPlanilhaGlobal(req.params.index);
+                return res.status(200).json(atendimento);
+    
+            } catch(err) {
+                console.log(err);
+                return res.status(500).send(err.toString());
+            }
+        } else {
+            return res.status(400).send('O index solicitado deve ser maior que 1');
+        }
+    }
+
+    return { save, getById, getByIdoso, exportCSV, importFromPlanilhaGlobal };
 };
