@@ -223,6 +223,7 @@ module.exports = app => {
     
         const nextDate = new Date(dataAtendimento);
         nextDate.setDate(nextDate.getDate() + increment);
+        // console.log(nextDate.toLocaleDateString())
         return nextDate;
     }    
 

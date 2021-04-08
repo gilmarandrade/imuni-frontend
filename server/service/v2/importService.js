@@ -671,49 +671,24 @@ module.exports = app => {
                 // console.log(`${header[j].substring(1,4)} : ${resposta[j]}`)
             }
             
-            
-            // atendimento.timestamp = respostas[0][0];
-            atendimento.timestamp = new Date(resposta[0]);
-            // atendimento.timestamp = (new Date(respostas[0][0])).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
-            // console.log(atendimento);
+             //TODO criar uma função para conversao de datas string da planilha para Date
+            // 13/05/2020 13:10:19
+            var parts = resposta[0].split(' ');
+            var data = parts[0].split('/');
+            var hora = parts[1].split(':');
+            // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
+            atendimento.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
+            // console.log(resposta[0], atendimento.timestamp.toLocaleDateString());
+           
             atendimento.origin = 'GLOBALIMPORTED';
             atendimento.authsecret = "";
             atendimento.responseId = `${index}:${index}`;
-            atendimento.idosoId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q01', atendimento.raw);
-            atendimento.vigilanteId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q02', atendimento.raw);
-            atendimento.unidadeId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q03', atendimento.raw);
-            atendimento.atendeu = app.server.service.v2.questionarioService.extractBoolean('S02', 'Q01', atendimento.raw, 'Sim');
-            atendimento.fonte = app.server.service.v2.questionarioService.extractResponse('S04', 'Q01', atendimento.raw);
-            atendimento.tipo = app.server.service.v2.questionarioService.extractResponse('S07', 'Q01', atendimento.raw);
-            atendimento.idadeIdoso = app.server.service.v2.questionarioService.extractNumber('S03', 'Q01', atendimento.raw);
-            atendimento.duracaoChamada = app.server.service.v2.questionarioService.extractResponse('S13', 'Q01', atendimento.raw);
-            atendimento._isDeleted = false;
+
+            const atendimentoConvertido = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, null);
+
+            return atendimentoConvertido;
             
         }
-        
-        // if(respostas[0]) {
-            // atendimento.raw = {};
-
-            // atendimento.raw.S01 = {
-            //     Q01: {
-            //         question: '[S01Q01] I_id',
-            //         response: idosoId
-            //     },
-            //     Q02: {
-            //         question: '[S01Q02] V_id',
-            //         response: vigilanteId.toString()
-            //     },
-            //     Q03: {
-            //         question: '[S01Q03] U_id',
-            //         response: unidade._id.toString()
-            //     },
-            // };
-
-
-            // await app.server.service.v2.atendimentoService.insertFromGoogleForm(atendimento);
-
-            // return res.status(200).json(atendimento);
-        // }
 
         return atendimento;
 
