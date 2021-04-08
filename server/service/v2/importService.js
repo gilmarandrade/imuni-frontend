@@ -637,20 +637,85 @@ module.exports = app => {
 
     /**
      * Sincroniza 1 unico atendimento da planilha global, a partir do index da row na planilha.
-     * Deve ser usado nos casos em que a execução automática do google falha. 
+     * Deve ser usado nos casos em que a importação automática do google falhou. 
      */
     const importAtendimentoFromPlanilhaGlobal = async (index) => {
 
-        const sheetName = 'Respostas ao formulário 1';
         const idPlanilhaGlobal = '1P-3iGSqgiHNhikyacDy7Z4X4geZTA9r3x2eP4KRW3zg'
         
-        console.log(`[ImportAtendimento] Reading spreadsheet ${idPlanilhaGlobal} '${sheetName}'!A${index}:AK${index}`);
+        console.log(`[ImportAtendimento] Reading spreadsheet ${idPlanilhaGlobal} !A${index}:${index}`);
 
-        const row = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `'${sheetName}'!A${index}:AK${index}`);
+        const headers = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `1:1`);        
+        const respostas = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `A${index}:${index}`);
 
-        console.log(row)
+        const atendimento = {};
+        
+        if(respostas.length == 1) {
+            const header = headers[0];
+            const resposta = respostas[0];
 
-        return row;
+            atendimento.raw = {};
+            
+            for(let j = 1; j < resposta.length; j++) {
+                if(resposta[j]){
+                    if(atendimento.raw[header[j].substring(1,4)] == undefined) {
+                        atendimento.raw[header[j].substring(1,4)] = {};
+                    }
+
+                    atendimento.raw[header[j].substring(1,4)][header[j].substring(4,7)] = {
+                        question: header[j],
+                        response: resposta[j],
+                    };
+                    
+                }
+                // console.log(`${header[j].substring(1,4)} : ${resposta[j]}`)
+            }
+            
+            
+            // atendimento.timestamp = respostas[0][0];
+            atendimento.timestamp = new Date(resposta[0]);
+            // atendimento.timestamp = (new Date(respostas[0][0])).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+            // console.log(atendimento);
+            atendimento.origin = 'GLOBALIMPORTED';
+            atendimento.authsecret = "";
+            atendimento.responseId = `${index}:${index}`;
+            atendimento.idosoId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q01', atendimento.raw);
+            atendimento.vigilanteId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q02', atendimento.raw);
+            atendimento.unidadeId = app.server.service.v2.questionarioService.extractResponse('S01', 'Q03', atendimento.raw);
+            atendimento.atendeu = app.server.service.v2.questionarioService.extractBoolean('S02', 'Q01', atendimento.raw, 'Sim');
+            atendimento.fonte = app.server.service.v2.questionarioService.extractResponse('S04', 'Q01', atendimento.raw);
+            atendimento.tipo = app.server.service.v2.questionarioService.extractResponse('S07', 'Q01', atendimento.raw);
+            atendimento.idadeIdoso = app.server.service.v2.questionarioService.extractNumber('S03', 'Q01', atendimento.raw);
+            atendimento.duracaoChamada = app.server.service.v2.questionarioService.extractResponse('S13', 'Q01', atendimento.raw);
+            atendimento._isDeleted = false;
+            
+        }
+        
+        // if(respostas[0]) {
+            // atendimento.raw = {};
+
+            // atendimento.raw.S01 = {
+            //     Q01: {
+            //         question: '[S01Q01] I_id',
+            //         response: idosoId
+            //     },
+            //     Q02: {
+            //         question: '[S01Q02] V_id',
+            //         response: vigilanteId.toString()
+            //     },
+            //     Q03: {
+            //         question: '[S01Q03] U_id',
+            //         response: unidade._id.toString()
+            //     },
+            // };
+
+
+            // await app.server.service.v2.atendimentoService.insertFromGoogleForm(atendimento);
+
+            // return res.status(200).json(atendimento);
+        // }
+
+        return atendimento;
 
     }
 

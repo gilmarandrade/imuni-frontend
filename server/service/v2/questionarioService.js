@@ -57,7 +57,7 @@ module.exports = app => {
                 return null;
             }
         }
-        return isEquals(session, question, fichaVigilancia);
+        return isEquals(session, question, fichaVigilancia, trueValue);
     }
 
     /**
