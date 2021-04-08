@@ -497,7 +497,7 @@ module.exports = app => {
             atendimento.responseId = `'Respostas'!A${i + 2}:AI${i + 2}`;
                 
             // console.log('ATENDIMENTO RAW', atendimento)
-            const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            const aten = await app.server.service.v2.atendimentoService.importFromPlanilha(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
             // console.log('ATENDIMENTO PROCESSADO', aten)
             atendimentosArray.push(aten);
         
@@ -635,5 +635,70 @@ module.exports = app => {
         syncStatus.emit();
     }
 
-    return { importFromPlanilhaUnidade }
+    /**
+     * Sincroniza 1 unico atendimento da planilha global, a partir do index da row na planilha.
+     * Deve ser usado nos casos em que a importação automática do google falhou. 
+     */
+    const importAtendimentoFromPlanilhaGlobal = async (index) => {
+
+        // TODO como garantir que um atendimento não será importado duas vezes?
+
+        const idPlanilhaGlobal = '1P-3iGSqgiHNhikyacDy7Z4X4geZTA9r3x2eP4KRW3zg'
+        
+        console.log(`[ImportAtendimento] Reading spreadsheet ${idPlanilhaGlobal} !A${index}:${index}`);
+
+        const headers = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `1:1`);        
+        const respostas = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `A${index}:${index}`);
+
+        const atendimento = {};
+        
+        if(respostas.length == 1) {
+            const header = headers[0];
+            const resposta = respostas[0];
+
+            atendimento.raw = {};
+            
+            for(let j = 1; j < resposta.length; j++) {
+                if(resposta[j]){
+                    if(atendimento.raw[header[j].substring(1,4)] == undefined) {
+                        atendimento.raw[header[j].substring(1,4)] = {};
+                    }
+
+                    atendimento.raw[header[j].substring(1,4)][header[j].substring(4,7)] = {
+                        question: header[j],
+                        response: resposta[j],
+                    };
+                    
+                }
+                // console.log(`${header[j].substring(1,4)} : ${resposta[j]}`)
+            }
+            
+             //TODO criar uma função para conversao de datas string da planilha para Date
+            // 13/05/2020 13:10:19
+            var parts = resposta[0].split(' ');
+            var data = parts[0].split('/');
+            var hora = parts[1].split(':');
+            // para converter a data de Iso para locale use : console.log(testDate.toLocaleString());
+            atendimento.timestamp = new Date(`${data[2]}-${data[1]}-${data[0]}T${hora[0]}:${hora[1]}:${hora[2]}`);
+            // console.log(resposta[0], atendimento.timestamp.toLocaleDateString());
+           
+            atendimento.origin = 'GLOBALIMPORTED';
+            atendimento.authsecret = "";
+            atendimento.responseId = `${index}:${index}`;
+
+            const atendimentoConvertido = await app.server.service.v2.atendimentoService.importFromPlanilha(atendimento, null);
+
+            await app.server.service.v2.atendimentoService.insertOne(atendimentoConvertido);
+            const estatisticas = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(atendimentoConvertido.idosoId);
+            await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
+
+            return atendimentoConvertido;
+            
+        }
+
+        return atendimento;
+
+    }
+
+    return { importFromPlanilhaUnidade, importAtendimentoFromPlanilhaGlobal }
 }
