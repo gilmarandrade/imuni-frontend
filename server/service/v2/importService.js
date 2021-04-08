@@ -635,5 +635,24 @@ module.exports = app => {
         syncStatus.emit();
     }
 
-    return { importFromPlanilhaUnidade }
+    /**
+     * Sincroniza 1 unico atendimento da planilha global, a partir do index da row na planilha.
+     * Deve ser usado nos casos em que a execução automática do google falha. 
+     */
+    const importAtendimentoFromPlanilhaGlobal = async (index) => {
+
+        const sheetName = 'Respostas ao formulário 1';
+        const idPlanilhaGlobal = '1P-3iGSqgiHNhikyacDy7Z4X4geZTA9r3x2eP4KRW3zg'
+        
+        console.log(`[ImportAtendimento] Reading spreadsheet ${idPlanilhaGlobal} '${sheetName}'!A${index}:AK${index}`);
+
+        const row = await app.server.config.sheetsApi.read(idPlanilhaGlobal, `'${sheetName}'!A${index}:AK${index}`);
+
+        console.log(row)
+
+        return row;
+
+    }
+
+    return { importFromPlanilhaUnidade, importAtendimentoFromPlanilhaGlobal }
 }
