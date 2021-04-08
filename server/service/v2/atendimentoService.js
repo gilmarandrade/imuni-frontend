@@ -517,9 +517,9 @@ module.exports = app => {
     }
     
     /**
-     * Insere um atendimento importado a partir da planilha da unidade
+     * Insere um atendimento importado a partir de uma planilha
      */
-    const importFromPlanilhaUnidade = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
+    const importFromPlanilha = async (atendimento, epidemiologiaIdoso, nomeIdoso) => {
         const atendimentoConvertido = await convertAtendimento(atendimento, epidemiologiaIdoso, nomeIdoso);
         // console.log('atendimentoConvertido ', atendimentoConvertido.idosoId)
         return atendimentoConvertido;
@@ -742,5 +742,5 @@ module.exports = app => {
 
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilhaUnidade, bulkUpdateOne, findAllByUnidade };
+   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilha, bulkUpdateOne, findAllByUnidade };
 }

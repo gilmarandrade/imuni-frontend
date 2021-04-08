@@ -94,7 +94,6 @@ module.exports = app => {
     const importFromPlanilhaGlobal = async (req, res) => {
 
         if(+req.params.index > 1) {
-            console.log('tentando importar', req.params.index)
             try {
                 const atendimento = await app.server.service.v2.importService.importAtendimentoFromPlanilhaGlobal(req.params.index);
                 return res.status(200).json(atendimento);

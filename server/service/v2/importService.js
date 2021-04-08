@@ -497,7 +497,7 @@ module.exports = app => {
             atendimento.responseId = `'Respostas'!A${i + 2}:AI${i + 2}`;
                 
             // console.log('ATENDIMENTO RAW', atendimento)
-            const aten = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
+            const aten = await app.server.service.v2.atendimentoService.importFromPlanilha(atendimento, idos && idos.epidemiologia ? idos.epidemiologia : null, idos ? idos.nome : null);
             // console.log('ATENDIMENTO PROCESSADO', aten)
             atendimentosArray.push(aten);
         
@@ -641,6 +641,8 @@ module.exports = app => {
      */
     const importAtendimentoFromPlanilhaGlobal = async (index) => {
 
+        // TODO como garantir que um atendimento não será importado duas vezes?
+
         const idPlanilhaGlobal = '1P-3iGSqgiHNhikyacDy7Z4X4geZTA9r3x2eP4KRW3zg'
         
         console.log(`[ImportAtendimento] Reading spreadsheet ${idPlanilhaGlobal} !A${index}:${index}`);
@@ -684,7 +686,11 @@ module.exports = app => {
             atendimento.authsecret = "";
             atendimento.responseId = `${index}:${index}`;
 
-            const atendimentoConvertido = await app.server.service.v2.atendimentoService.importFromPlanilhaUnidade(atendimento, null);
+            const atendimentoConvertido = await app.server.service.v2.atendimentoService.importFromPlanilha(atendimento, null);
+
+            await app.server.service.v2.atendimentoService.insertOne(atendimentoConvertido);
+            const estatisticas = await app.server.service.v2.atendimentoService.getEstatisticasByIdoso(atendimentoConvertido.idosoId);
+            await app.server.service.v2.idosoService.upsertEstatisticas(atendimentoConvertido.idosoId, estatisticas);
 
             return atendimentoConvertido;
             
