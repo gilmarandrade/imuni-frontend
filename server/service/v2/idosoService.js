@@ -624,7 +624,7 @@ module.exports = app => {
                         }
                     },
                     { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
-                ]).toArray();
+                ], { collation: { locale: "pt" } }).toArray();
 
                 return result.length ? result[0] : [];
 
@@ -855,7 +855,7 @@ module.exports = app => {
                         }
                     },
                     { $unwind: { path: "$info", preserveNullAndEmptyArrays: true } },
-                ]).toArray();
+                ], { collation: { locale: "pt" } }).toArray();
 
                 return result[0];
 
