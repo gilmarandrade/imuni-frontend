@@ -78,7 +78,7 @@ module.exports = app => {
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.idosos.countByUnidade, 'ADMINISTRADOR'));
 
-    app.route('/api/v2/unidades/:unidadeId/idosos')// TODO esse endpoint está sendo usado? cadastro de idoso
+    app.route('/api/v2/unidades/:unidadeId/idosos')
         .all(app.server.config.passport.authenticate())
         .get(role(app.server.api.v2.idosos.getByUnidadeId, 'PRECEPTOR'))
         .post(role(app.server.api.v2.idosos.save, 'PRECEPTOR'));
