@@ -162,6 +162,8 @@
                             </span>
                         </div>
                         <div>
+                            <span v-if="data.item.CNS">CNS: {{ data.item.CNS }} | </span>
+                            
                             Telefones: {{ data.item.telefone1 }} {{ data.item.telefone2 }}
                         </div>
                     </section>

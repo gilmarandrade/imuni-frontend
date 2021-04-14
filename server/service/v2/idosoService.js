@@ -22,6 +22,7 @@ module.exports = app => {
 
                 const updateDoc = {
                     $set: { 
+                        CNS: idoso.CNS,
                         nome: idoso.nome.toLowerCase(),
                         dataNascimento: idoso.dataNascimento,
                         telefone1: idoso.telefone1,
@@ -333,7 +334,7 @@ module.exports = app => {
 
         // });
 
-        return promise;
+        // return promise;
     }
 
 
@@ -955,6 +956,7 @@ module.exports = app => {
             batch.find({ nome: item.nome.toLowerCase(), telefone1: item.telefone1, telefone2: item.telefone2, unidadeId: ObjectId(item.unidadeId) }).upsert().updateOne({
                 $set: { 
                     // row: item.row,
+                    CNS: "",// na planilha da unidade não existe o campo CNS
                     dataNascimento: item.dataNascimento,
                     nome: item.nome.toLowerCase(),
                     telefone1: item.telefone1,
