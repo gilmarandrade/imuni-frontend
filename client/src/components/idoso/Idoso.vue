@@ -77,6 +77,9 @@
                                     <strong>Agente de saúde:</strong> {{ idoso.agenteSaude }} 
                                 </div>
                                 <div>
+                                    <strong>CNS:</strong> {{ idoso.CNS }} 
+                                </div>
+                                <div>
                                     <strong>Data de Nascimento:</strong> {{ idoso.dataNascimento }} 
                                 </div>
                                 <div>

@@ -36,6 +36,9 @@
                                     <b>Agente de saúde:</b> {{ idoso.agenteSaude }}
                                 </div>
                                 <div>
+                                    <b>CNS:</b> {{ idoso.CNS }}
+                                </div>
+                                <div>
                                     <b>Vigilante: </b>
                                     <UsuarioLink :id="idoso.vigilanteId"></UsuarioLink>
                                 </div>

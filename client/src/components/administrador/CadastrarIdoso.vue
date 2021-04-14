@@ -72,6 +72,19 @@
         </b-form-group>
 
         <b-form-group
+            id="input-group-cns"
+            label="CNS:"
+            label-for="cns"
+        >
+            <b-form-input
+            id="cns"
+            v-model="form.CNS"
+            type="text"
+            placeholder="Cartão Nacional do SUS"
+            ></b-form-input>
+        </b-form-group>
+
+        <b-form-group
             id="input-group-anotacoes"
             label="Anotações:"
             label-for="anotacoes"
@@ -121,6 +134,7 @@ export default {
     data: function() {
         return {
             form: {
+                CNS: '',
                 nome: '',
                 dataNascimento: '',
                 telefone1: '',

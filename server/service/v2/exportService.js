@@ -15,6 +15,7 @@ module.exports = app => {
             return {
                 _id: idoso._id,
                 nome: idoso.nome,
+                CNS: idoso.CNS,
                 telefone1: idoso.telefone1,
                 telefone2: idoso.telefone2,
                 unidade_id: idoso.unidadeId,
