@@ -454,45 +454,57 @@ module.exports = app => {
             }
         }
         return run();
+    }
 
-        // const promise = new Promise( (resolve, reject) => {
-        //     var MongoClient = require( 'mongodb' ).MongoClient;
-        //     MongoClient.connect( process.env.MONGO_URIS, { useUnifiedTopology: false }, function( err, client ) {
-        //         if(err) return reject(err);
-        //         const db = client.db(dbName);
-        //         const collection = db.collection(collectionName);
-      
-        //         collection.aggregate([
-        //             { $match: { _isDeleted: false, unidadeId: ObjectId(unidadeId)} },
-        //             { $sort : { timestamp : -1 } },
-        //             {
-        //                 $lookup: {
-        //                     from: "idosos",
-        //                     localField: "idosoId",
-        //                     foreignField: "_id",
-        //                     as: "idosoNome",
-        //                 }
-        //             },
-        //             {
-        //                 $lookup: {
-        //                     from: "usuarios",
-        //                     localField: "vigilanteId",
-        //                     foreignField: "_id",
-        //                     as: "vigilanteNome",
-        //                 }
-        //             },
-        //         ]).toArray(function(err, result) {
-        //             if(err) {
-        //                 reject(err);
-        //             } else {
-        //                 resolve(result);
-        //             }
-        //         });
-        //     });
-    
-        // });
-    
-        // return promise;
+    const findAll = async () => {
+        // Create a new MongoClient
+        const client = new MongoClient(process.env.MONGO_URIS);
+
+        async function run() {
+            try {
+                // Connect the client to the server
+                await client.connect();
+                const db = await client.db(dbName);
+                const collection = db.collection(collectionName);
+
+                const result = await collection.aggregate([
+                    { $match: { _isDeleted: false } },
+                    { $sort : { timestamp : -1 } },
+                    {
+                        $lookup: {
+                            from: "idosos",
+                            localField: "idosoId",
+                            foreignField: "_id",
+                            as: "idosoNome",
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "usuarios",
+                            localField: "vigilanteId",
+                            foreignField: "_id",
+                            as: "vigilanteNome",
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "unidades",
+                            localField: "unidadeId",
+                            foreignField: "_id",
+                            as: "unidadeNome",
+                        }
+                    },
+                ]).toArray();
+
+                return result;
+
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+                 
+            }
+        }
+        return run();
     }
 
     /**
@@ -742,5 +754,5 @@ module.exports = app => {
 
 
 
-   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilha, bulkUpdateOne, findAllByUnidade };
+   return { insertOne, findById, getEpidemiologia, getEscalas, getEstatisticasByIdoso, findAll, findAllByIdoso, deleteImportedByUnidade, insertFromGoogleForm, importFromPlanilha, bulkUpdateOne, findAllByUnidade };
 }

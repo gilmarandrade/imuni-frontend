@@ -6,7 +6,7 @@
             <h1>Unidades</h1>
           </div>
           <div class="col text-right">
-            <b-dropdown id="dropdown-1" text="Adicionar" variant="primary" class="pull-right" right>
+            <b-dropdown id="dropdown-1" text="Adicionar" variant="primary" class="pull-right mr-2" right>
               <b-dropdown-item href="/adicionarUnidade">
                 <strong>Adicionar unidade</strong>
                 <p>Crie uma nova unidade do zero</p>
@@ -15,6 +15,13 @@
                 <strong>Importar unidade</strong>
                 <p>Importe uma unidade a partir de uma planilha do google sheets</p>
               </b-dropdown-item>
+            </b-dropdown>
+            <b-dropdown right no-caret variant="light" title="Opções">
+              <template #button-content>
+                  <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
+              </template>
+              <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/idosos`">Exportar todos os idosos (csv)</b-dropdown-item>
+              <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/atendimentos`">Exportar todos os atendimentos (csv)</b-dropdown-item>
             </b-dropdown>
           </div>
         </div>
@@ -56,6 +63,9 @@ import axios from 'axios';
 export default {
     name: 'Unidades',
     components: { Breadcrumb },
+    computed: {
+      baseApiUrl() { return baseApiUrl },
+    },
     data: function() {
         return {
             unidades: [],
