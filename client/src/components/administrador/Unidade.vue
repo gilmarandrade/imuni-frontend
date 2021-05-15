@@ -213,8 +213,9 @@ export default {
         }
     },
     computed: {
-        baseApiUrl() { return baseApiUrl},
-        ...mapState(['syncStatus', 'user'])},
+        baseApiUrl() { return baseApiUrl },
+        ...mapState(['syncStatus', 'user'])
+      },
     methods: {
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.id}`;

@@ -127,7 +127,7 @@ module.exports = app => {
             const result = await app.server.service.v2.exportService.exportIdososCSV(req.params.unidadeId);
 
             const fileName = `${unidade.nome}-idosos-${new Date().toLocaleDateString('pt-BR', {dateStyle:"short"})}.csv`
-            fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
+            fastcsv.writeToString(result, { headers: true }).then(data => {
                 res.set('Content-Type', 'text/csv'); 
                 res.set("Content-Disposition", `attachment;filename=${fileName}`);
                 res.send(data)
@@ -142,5 +142,25 @@ module.exports = app => {
         }
     }
 
-    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante, transferirIdosos, countByUnidade, exportCSV };
+    const exportAllCSV = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.exportService.exportAllIdososCSV();
+
+            const fileName = `todos-idosos-${new Date().toLocaleDateString('pt-BR', {dateStyle:"short"})}.csv`
+            fastcsv.writeToString(result, { headers: true }).then(data => {
+                res.set('Content-Type', 'text/csv'); 
+                res.set("Content-Disposition", `attachment;filename=${fileName}`);
+                res.send(data)
+            });
+
+
+            // const result = await app.server.service.v2.exportService.exportCSV();
+            // return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    return { save, getByUnidadeId, getById, remove, idososByUser, countByVigilante, transferirIdosos, countByUnidade, exportCSV, exportAllCSV };
 };

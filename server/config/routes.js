@@ -87,9 +87,17 @@ module.exports = app => {
         // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
         .get(app.server.api.v2.idosos.exportCSV);
 
+    app.route('/api/v2/exportacao/idosos')
+        // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
+        .get(app.server.api.v2.idosos.exportAllCSV);
+
     app.route('/api/v2/exportacao/unidades/:unidadeId/atendimentos')
         // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
         .get(app.server.api.v2.atendimentos.exportCSV);
+
+    app.route('/api/v2/exportacao/atendimentos')
+        // .all(app.server.config.passport.authenticate()) // TODO falha de segurança! não funciona com a autenticação ativada!!!
+        .get(app.server.api.v2.atendimentos.exportAllCSV);
 
     app.route('/api/v2/unidades/:unidadeId')
         .all(app.server.config.passport.authenticate())

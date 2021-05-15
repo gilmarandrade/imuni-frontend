@@ -76,7 +76,7 @@ module.exports = app => {
             const result = await app.server.service.v2.exportService.exportAtendimentosCSV(req.params.unidadeId);
 
             const fileName = `${unidade.nome}-atendimentos-${new Date().toLocaleDateString('pt-BR', {dateStyle:"short"})}.csv`
-            fastcsv.writeToString(result, { headers: true, delimiter: ';' }).then(data => {
+            fastcsv.writeToString(result, { headers: true }).then(data => {
                 res.set('Content-Type', 'text/csv'); 
                 res.set("Content-Disposition", `attachment;filename=${fileName}`);
                 res.send(data)
@@ -85,6 +85,22 @@ module.exports = app => {
 
             // const result = await app.server.service.v2.exportService.exportCSV();
             // return res.json(result);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).send(err.toString());
+        }
+    }
+
+    const exportAllCSV = async (req, res) => {
+        try {
+            const result = await app.server.service.v2.exportService.exportAllAtendimentosCSV();
+
+            const fileName = `todos-atendimentos-${new Date().toLocaleDateString('pt-BR', {dateStyle:"short"})}.csv`
+            fastcsv.writeToString(result, { headers: true }).then(data => {
+                res.set('Content-Type', 'text/csv'); 
+                res.set("Content-Disposition", `attachment;filename=${fileName}`);
+                res.send(data)
+            });
         } catch(err) {
             console.log(err);
             return res.status(500).send(err.toString());
@@ -107,5 +123,5 @@ module.exports = app => {
         }
     }
 
-    return { save, getById, getByIdoso, exportCSV, importFromPlanilhaGlobal };
+    return { save, getById, getByIdoso, exportCSV, exportAllCSV, importFromPlanilhaGlobal };
 };
