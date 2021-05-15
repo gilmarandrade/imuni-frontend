@@ -80,7 +80,7 @@
             id="cns"
             v-model="form.CNS"
             type="text"
-            placeholder="Cartão Nacional do SUS"
+            placeholder="Cartão Nacional de Saúde"
             ></b-form-input>
         </b-form-group>
 
