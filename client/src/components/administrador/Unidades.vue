@@ -16,13 +16,15 @@
                 <p>Importe uma unidade a partir de uma planilha do google sheets</p>
               </b-dropdown-item>
             </b-dropdown>
-            <b-dropdown right no-caret variant="light" title="Opções">
+            <!-- 
+              O BANCO EM PRODUÇÃO NÃO TEM CAPACIDADE PARA EXECUTAR AS CONSULTAS, FUNCIONA APENAS EM LOCALHOST
+              <b-dropdown right no-caret variant="light" title="Opções">
               <template #button-content>
                   <font-awesome-icon :icon="['fas', 'ellipsis-v']"  />
               </template>
               <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/idosos`">Exportar todos os idosos (csv)</b-dropdown-item>
               <b-dropdown-item :href="`${baseApiUrl}/v2/exportacao/atendimentos`">Exportar todos os atendimentos (csv)</b-dropdown-item>
-            </b-dropdown>
+            </b-dropdown> -->
           </div>
         </div>
 
