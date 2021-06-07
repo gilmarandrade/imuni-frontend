@@ -3,11 +3,13 @@
         <Breadcrumb v-if="user.role !== 'ADMINISTRADOR'" :path="[{text:'Dashboard', url:'/'}, {text: 'Meus idosos', url:'/meusIdosos/com-escalas'}, {text: idoso.nome}]" />
         <Breadcrumb v-if="user.role === 'ADMINISTRADOR' && unidade" :path="[{text:'Dashboard', url:'/'}, {text: 'Unidades', url: '/unidades'}, {text: unidade.nome, url: `/unidades/${idoso.unidadeId}`}, {text: 'Idosos', url: `/unidades/${idoso.unidadeId}/usuarios/${user.id}/idosos/com-escalas`}, {text: idoso.nome}]" />
 
+
         <div class="row">
             <div class="col-10">
                 <h1>
                     {{ idoso.nome }}
                 </h1>
+                <b-alert v-if="idoso._isDeleted" show variant="danger">Este item foi deletado</b-alert>
             </div>
             <div class="col-2 text-right">
                 <b-dropdown right no-caret variant="light" title="Opções">
