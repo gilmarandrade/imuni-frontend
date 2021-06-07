@@ -5,6 +5,7 @@
 
         <h1>Atendimento</h1>
         <h6 class="text-muted">{{ formatDate(atendimento.timestamp) }}</h6>
+        <b-alert v-if="atendimento._isDeleted" show variant="danger">Este item foi deletado</b-alert>
 
         <div class="row mt-5">
             <div class="col-lg-7">
@@ -231,13 +232,17 @@ export default {
             }).catch(showError)
         },
         loadIdoso() {
-            const url = `${baseApiUrl}/v2/idosos/${this.atendimento.idosoId}`;
-            console.log(url);
-
-            axios.get(url).then(res => {
-                this.idoso = res.data
-                console.log(this.idoso);
-            }).catch(showError)
+            if(this.atendimento.idosoId){
+                const url = `${baseApiUrl}/v2/idosos/${this.atendimento.idosoId}`;
+                console.log(url);
+    
+                axios.get(url).then(res => {
+                    this.idoso = res.data
+                    console.log(this.idoso);
+                }).catch(showError)
+            } else {
+                console.error('atendimento.idosoId null');
+            }
         },
         loadUnidade() {
             const url = `${baseApiUrl}/v2/unidades/${this.$route.params.unidadeId}`;

@@ -72,7 +72,7 @@ module.exports = app => {
                 const db = await client.db(dbName);
                 const collection = db.collection(collectionName);
 
-                const query = { _id: ObjectId(id), _isDeleted: false };
+                const query = { _id: ObjectId(id) };
 
                 const result = await collection.findOne(query);
                 return result;
