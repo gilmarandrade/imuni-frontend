@@ -5,11 +5,13 @@
 
 
         <div class="row">
+            <div class="col-12">
+                <b-alert v-if="idoso._isDeleted" show variant="danger">Este item foi deletado</b-alert>
+            </div>
             <div class="col-10">
                 <h1>
                     {{ idoso.nome }}
                 </h1>
-                <b-alert v-if="idoso._isDeleted" show variant="danger">Este item foi deletado</b-alert>
             </div>
             <div class="col-2 text-right">
                 <b-dropdown right no-caret variant="light" title="Opções">
