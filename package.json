@@ -1,5 +1,5 @@
 {
-  "name": "frenteprevencaocovidrn-frontend",
+  "name": "imuni-frontend",
   "version": "v2.8.5",
   "description": "",
   "scripts": {
@@ -7,6 +7,10 @@
     "build": "vue-cli-service build",
     "build-staging": "set NODE_ENV=production && vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gilmarandrade/imuni-frontend.git"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
@@ -58,5 +62,8 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "engines": {
+    "node": "14.x"
+  }
 }
