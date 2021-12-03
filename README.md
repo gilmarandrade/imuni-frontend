@@ -1,24 +1,25 @@
 # monitoramento-covid19
-Sistema de monitoramento de idosos pra prevenção de covid-19 em Natal/RN
+Frontend do Sistema de monitoramento de idosos. Frente de prevenção ao COVID-19 NO RN
 
-Copie o arquivo google_credentials.json (gerado no painel de console do Google Cloud Platform) para a pasta raiz do projeto (por segurança este arquivo não pode ser commitado). 
-
-O google cloud é necessário para que uma conta de serviço tenha acesso as planilhas do Drive.
-
-crie arquivo.env da pasta raiz
-
-.env da pasta /client
-
-## install backend
+## Project setup
+```
 npm install
+```
 
-## install frontend
-cd client
-npm install
-
-
-## para rodar o backend
-npm run dev
-
-## para rodar frontend
+### Compiles and hot-reloads for development
+```
 npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
